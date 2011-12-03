@@ -1,0 +1,9 @@
+varying vec3 ray;
+void main()
+{	
+        gl_Position = ftransform();
+	vec3 vVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
+        vec4 eyeVec = gl_ProjectionMatrixInverse*vec4(0,0,-1,0);
+        ray = normalize(vVertex - eyeVec.xyz); // Eye to vertex
+}
+

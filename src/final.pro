@@ -40,8 +40,12 @@ OTHER_FILES += \
     shaders/reflect.vert \
     shaders/reflect.frag \
     shaders/brightpass.frag \
-    shaders/blur.frag
+    shaders/blur.frag \
+    shaders/fractal.frag \
+    shaders/fractal.vert
 
 RESOURCES +=
+
+
 
 

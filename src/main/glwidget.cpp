@@ -133,6 +133,8 @@ void GLWidget::createShaderPrograms()
                                                                                "/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/shaders/reflect.frag");
     m_shaderPrograms["refract"] = ResourceLoader::newShaderProgram(ctx,        "/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/shaders/refract.vert",
                                                                                "/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/shaders/refract.frag");
+    m_shaderPrograms["fractal"] = ResourceLoader::newShaderProgram(ctx,        "/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/shaders/fractal.vert",
+                                                                               "/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/shaders/fractal.frag");
     m_shaderPrograms["brightpass"] = ResourceLoader::newFragShaderProgram(ctx, "/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/shaders/brightpass.frag");
     m_shaderPrograms["blur"] = ResourceLoader::newFragShaderProgram(ctx,       "/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/shaders/blur.frag");
 }
@@ -150,11 +152,13 @@ void GLWidget::createFramebufferObjects(int width, int height)
     m_framebufferObjects["fbo_0"] = new QGLFramebufferObject(width, height, QGLFramebufferObject::Depth,
                                                              GL_TEXTURE_2D, GL_RGB16F_ARB);
     m_framebufferObjects["fbo_0"]->format().setSamples(16);
-    // Allocate the secondary framebuffer obejcts for rendering textures to (post process effects)
+    // Allocate the secondary framebuffer objects for rendering textures to (post process effects)
     // These do not require depth attachments
     m_framebufferObjects["fbo_1"] = new QGLFramebufferObject(width, height, QGLFramebufferObject::NoAttachment,
                                                              GL_TEXTURE_2D, GL_RGB16F_ARB);
     // TODO: Create another framebuffer here.  Look up two lines to see how to do this... =.=
+    m_framebufferObjects["fbo_2"] = new QGLFramebufferObject(width, height, QGLFramebufferObject::NoAttachment,
+                                                             GL_TEXTURE_2D, GL_RGB16F_ARB);
 }
 
 /**
@@ -222,35 +226,46 @@ void GLWidget::paintGL()
 
     // TODO: Add drawing code here
     applyOrthogonalCamera(width, height);
-    glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
+//    glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
+//    renderTexturedQuad(width, height, true);
+//    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // Render the blurred brightpass filter result to fbo 1
+    //renderFractal();
+//    m_framebufferObjects["fbo_1"]->bind();
+    m_shaderPrograms["fractal"]->bind();
+    glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_2"]->texture());
     renderTexturedQuad(width, height, true);
+    m_shaderPrograms["fractal"]->release();
     glBindTexture(GL_TEXTURE_2D, 0);
+//    m_framebufferObjects["fbo_1"]->release();
 
 
-    // TODO: Uncomment this section in step 2 of the lab
-    /*
-    float scales[] = {4.f,8.f,16.f,32.f};
-    for (int i = 0; i < 4; ++i)
-    {
-        // Render the blurred brightpass filter result to fbo 1
-        renderBlur(width / scales[i], height / scales[i]);
 
-        // Bind the image from fbo to a texture
-        glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    // Bind the image from fbo to a texture
+//    glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
+//    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-        // Enable alpha blending and render the texture to the screen
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_ONE);
-        glTranslatef(0.f, (scales[i] - 1) * -height, 0.f);
-        renderTexturedQuad(width * scales[i], height * scales[i], false);
-        glDisable(GL_BLEND);
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
-    */
+//    // Enable alpha blending and render the texture to the screen
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_ONE, GL_ONE);
+//    glTranslatef(0.f, -height, 0.f);
+//    renderTexturedQuad(width, height, false);
+//    glDisable(GL_BLEND);
+//    glBindTexture(GL_TEXTURE_2D, 0);
 
     paintText();
+}
+
+void GLWidget::renderFractal() {
+    m_framebufferObjects["fbo_1"]->bind();
+    m_shaderPrograms["fractal"]->bind();
+    //glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_2"]->texture());
+    renderTexturedQuad(this->width(), this->height(), false);
+    m_shaderPrograms["fractal"]->release();
+    //glBindTexture(GL_TEXTURE_2D, 0);
+    m_framebufferObjects["fbo_1"]->release();
 }
 
 /**
