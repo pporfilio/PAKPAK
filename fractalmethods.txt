@@ -1,0 +1,123 @@
+
+// in canvas2D::renderImage:
+// m_scene->FractalRay(this, 0, height);
+
+
+
+RayScene::RayScene()
+{
+    F_C = Vector4(-.15,.16,.5,-.6); //Vector4
+    F_Z3 = .5; //float
+}
+
+
+
+void RayScene::FractalRay(Canvas2D* canvas, int r, int numRows) {
+    BGRA *pix = new BGRA[numRows * width];
+
+    //for each pixel
+    for (int row = r; row < r + numRows; row++) {
+        for (int col = 0; col < width; col++) {
+            int index = (row-r) * width + col;
+
+            //get film point
+            Vector4 Pfilm = Vector4(2.0*float(col)/width - 1.0, 1.0 - 2.0*float(row)/height, -1.0, 1.0);
+
+            //Get world point
+            Vector4 Pworld = Mftw * Pfilm;
+
+            //direction vector of ray
+            Vector4 d = (Pworld - Peye).getNormalized();
+
+            pix[index] = ShootOneFractalRay(d, RECURSION_LIMIT, Peye);
+
+            int canvasIndex = row * width + col;
+            canvas->data()[canvasIndex] = pix[index];
+        }
+    }
+}
+
+BGRA RayScene::ShootOneFractalRay(vec4<REAL> d, int depth, vec4<REAL> start_p) {
+    float M = (1 + sqrt(1 + 4*F_C.getMagnitude()))/2.0;
+    float step_size = .1;
+
+    float t = IntersectFSphere(start_p, d, M*M - F_Z3*F_Z3);
+
+    bool foundFractal = false;
+
+    BGRA blah;
+
+    if (t > 0) {
+        while ((!foundFractal)&&(t<20)) {
+
+            Vector4 curPoint;
+            curPoint.x = start_p.x + t*d.x;
+            curPoint.y = start_p.y + t*d.y;
+            curPoint.z = start_p.z + t*d.z;
+            curPoint.w = F_Z3;
+
+            Vector4 juliaFractal = Julia(curPoint, 20);
+
+            //cout << juliaFractal << endl;
+
+            t += step_size;
+
+            if (juliaFractal.getMagnitude() < 1) {
+                foundFractal = true;
+            }
+        }
+        if (foundFractal) {
+            blah.r = 100;
+            blah.g = 200;
+            blah.b = 100;
+        }
+
+    }
+
+    return blah;
+}
+
+Vector4 RayScene::Julia(Vector4 Zn, int depth) {
+
+    for (int i = 0; i < depth; i++) {
+        float A = Zn.x*Zn.x - Zn.y*Zn.y - Zn.z*Zn.z - Zn.w*Zn.w + F_C.x;
+        float B = 2*Zn.x*Zn.y + F_C.y;
+        float C = 2*Zn.x*Zn.z + F_C.z;
+        float D = 2*Zn.x*Zn.w + F_C.w;
+
+
+
+        Zn = Vector4(A,B,C,D);
+
+        //cout << Zn.getMagnitude() << endl;
+
+        if (Zn.getMagnitude() > 1) {
+            break;
+        }
+    }
+    return Zn;
+}
+
+float RayScene::IntersectFSphere(vec4<REAL> p, vec4<REAL> d, float r) {
+    float t = -1.0;
+
+    float A = d.x*d.x + d.y*d.y + d.z*d.z;
+    float B = 2*p.x*d.x + 2*p.y*d.y + 2*p.z*d.z;
+    float C = p.x*p.x + p.y*p.y + p.z*p.z - r*r;
+
+    if (B*B - 4*A*C >= 0) {
+        float t1 = (-B + sqrt(B*B - 4*A*C))/(2*A);
+        float t2 = (-B - sqrt(B*B - 4*A*C))/(2*A);
+        if ((t1 >= 0)&&(t2 >=0)) {
+            t = min(t1, t2);
+        }
+        else if ((t1 >=0)&&(t2 <0)) {
+            t = t1;
+        }
+        else if ((t2 >=0)&&(t1 <0)) {
+            t = t2;
+        }
+    }
+    return t;
+}
+
