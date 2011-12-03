@@ -1,34 +1,35 @@
 QT += core gui opengl
 
-TARGET = bloom_lab
+TARGET = final
 TEMPLATE = app
 
-INCLUDEPATH += lab \
+INCLUDEPATH += main \
     lib \
     math \
     support
-DEPENDPATH += lab \
+DEPENDPATH += main \
     lib \
     math \
     support
 
-HEADERS += lab/glwidget.h \
+HEADERS += main/glwidget.h \
     lib/targa.h \
     lib/glm.h \
     math/vector.h \
     support/resourceloader.h \
     support/mainwindow.h \
     support/camera.h \
-    lib/targa.h
+    lib/targa.h \
+    main/glwidget.h
 
 SOURCES += \
-    lab/glwidget.cpp \
+    main/glwidget.cpp \
     lib/targa.cpp \
     lib/glm.cpp \
     support/resourceloader.cpp \
     support/mainwindow.cpp \
     support/main.cpp \
-    support/camera.cpp
+    support/camera.cpp \
 
 FORMS += mainwindow.ui \
     support/mainwindow.ui
@@ -42,3 +43,5 @@ OTHER_FILES += \
     shaders/blur.frag
 
 RESOURCES +=
+
+

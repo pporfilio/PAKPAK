@@ -22,9 +22,9 @@
 #include <string.h>
 #include <assert.h>
 #define GL_GLEXT_PROTOTYPES
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glext.h>
+#include <gl.h>
+#include <glu.h>
+#include <glext.h>
 #include "glm.h"
 #include "targa.h"
 

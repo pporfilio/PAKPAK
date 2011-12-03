@@ -1,0 +1,14 @@
+# compiled source #
+###################
+*.o
+*.app
+
+# OS generated files #
+######################
+.DS_Store*
+Thumbs.db
+
+
+# System specific files #
+#########################
+*.pro.user
