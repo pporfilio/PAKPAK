@@ -3,6 +3,8 @@
 
 #include <QMouseEvent>
 #include "vector.h"
+#include "CS123Matrix.h"
+#include "utils.h"
 
 /**
     An orbiting perspective camera specified by a center, two angles, and a zoom factor
@@ -11,13 +13,18 @@
 **/
 struct OrbitCamera
 {
-    Vector3 center, up;
+    V3 center, up;
     float theta, phi;
     float fovy;
     float zoom;
 
-    void mouseMove(const Vector2 &delta);
+    float near_clip;
+    float far_clip;
+
+    void mouseMove(const V2 &delta);
     void mouseWheel(float delta);
+    Matrix4x4 getFilmToWorld(int width, int height);
+
 };
 
 #endif // CAMERA_H

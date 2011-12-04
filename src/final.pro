@@ -20,7 +20,12 @@ HEADERS += main/glwidget.h \
     support/mainwindow.h \
     support/camera.h \
     lib/targa.h \
-    main/glwidget.h
+    main/glwidget.h \
+    math/CS123Matrix.h \
+    math/CS123Algebra.h \
+    math/CS123Vector.h \
+    lib/utils.h \
+    lib/CS123Common.h
 
 SOURCES += \
     main/glwidget.cpp \
@@ -30,6 +35,10 @@ SOURCES += \
     support/mainwindow.cpp \
     support/main.cpp \
     support/camera.cpp \
+    math/CS123Matrix.cpp \
+    math/CS123Matrix.inl \
+    math/CS123Vector.inl \
+    lib/utils.cpp
 
 FORMS += mainwindow.ui \
     support/mainwindow.ui
@@ -42,9 +51,18 @@ OTHER_FILES += \
     shaders/brightpass.frag \
     shaders/blur.frag \
     shaders/fractal.frag \
-    shaders/fractal.vert
+    shaders/fractal.vert \
+    shaders/test.vert
 
 RESOURCES +=
+
+
+
+
+
+
+
+
 
 
 

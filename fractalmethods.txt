@@ -77,7 +77,7 @@ BGRA RayScene::ShootOneFractalRay(vec4<REAL> d, int depth, vec4<REAL> start_p) {
     return blah;
 }
 
-Vector4 RayScene::Julia(Vector4 Zn, int depth) {
+Vector4 RayScene::Julia(Vector4 Zn, int 	) {
 
     for (int i = 0; i < depth; i++) {
         float A = Zn.x*Zn.x - Zn.y*Zn.y - Zn.z*Zn.z - Zn.w*Zn.w + F_C.x;

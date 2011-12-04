@@ -8,6 +8,8 @@
 #include <QTime>
 
 #include "camera.h"
+#include "CS123Matrix.h"
+#include "CS123Vector.h"
 #include "vector.h"
 #include "resourceloader.h"
 
@@ -43,9 +45,11 @@ protected:
     // Drawing code
     void applyOrthogonalCamera(float width, float height);
     void applyPerspectiveCamera(float width, float height);
+    void renderBillBoard(int width, int height, bool flip);
     void renderTexturedQuad(int width, int height, bool flip);
+    void renderColoredQuad(int width, int height, bool flip);
     void renderBlur(int width, int height);
-    void renderFractal();
+    void renderFractal(Matrix4x4 film_to_world);
     void renderScene();
     void paintText();
 
@@ -54,7 +58,7 @@ private:
     QTime m_clock;
     int m_prevTime;
     float m_prevFps, m_fps;
-    Vector2 m_prevMousePos;
+    V2 m_prevMousePos;
     OrbitCamera m_camera;
 
     // Resources
