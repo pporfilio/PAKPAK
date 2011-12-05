@@ -94,7 +94,8 @@ void GLWidget::initializeResources()
     // by the video card.  But that's a pain to do so we're not going to.
     cout << "--- Loading Resources ---" << endl;
 
-    m_dragon = ResourceLoader::loadObjModel("/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/models/xyzrgb_dragon.obj");
+    //m_dragon = ResourceLoader::loadObjModel("/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/models/xyzrgb_dragon.obj");
+    m_dragon = ResourceLoader::loadObjModel("../../lab09/models/xyzrgb_dragon.obj");
     cout << "Loaded dragon..." << endl;
 
     m_skybox = ResourceLoader::loadSkybox();
@@ -118,12 +119,12 @@ void GLWidget::initializeResources()
 void GLWidget::loadCubeMap()
 {
     QList<QFile *> fileList;
-    fileList.append(new QFile("/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/textures/astra/posx.jpg"));
-    fileList.append(new QFile("/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/textures/astra/negx.jpg"));
-    fileList.append(new QFile("/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/textures/astra/posy.jpg"));
-    fileList.append(new QFile("/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/textures/astra/negy.jpg"));
-    fileList.append(new QFile("/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/textures/astra/posz.jpg"));
-    fileList.append(new QFile("/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/textures/astra/negz.jpg"));
+    fileList.append(new QFile("../../lab09/textures/astra/posx.jpg"));
+    fileList.append(new QFile("../../lab09/textures/astra/negx.jpg"));
+    fileList.append(new QFile("../../lab09/textures/astra/posy.jpg"));
+    fileList.append(new QFile("../../lab09/textures/astra/negy.jpg"));
+    fileList.append(new QFile("../../lab09/textures/astra/posz.jpg"));
+    fileList.append(new QFile("../../lab09/textures/astra/negz.jpg"));
     m_cubeMap = ResourceLoader::loadCubeMap(fileList);
 }
 
@@ -133,18 +134,15 @@ void GLWidget::loadCubeMap()
 void GLWidget::createShaderPrograms()
 {
     const QGLContext *ctx = context();
-    m_shaderPrograms["reflect"] = ResourceLoader::newShaderProgram(ctx,        "/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/shaders/reflect.vert",
-                                                                               "/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/shaders/reflect.frag");
-    m_shaderPrograms["refract"] = ResourceLoader::newShaderProgram(ctx,        "/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/shaders/refract.vert",
-                                                                               "/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/shaders/refract.frag");
-//    m_shaderPrograms["fractal"] = ResourceLoader::newShaderProgram(ctx,        "/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/shaders/fractal.vert",
-//                                                                               "/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/shaders/fractal.frag");
-    m_shaderPrograms["brightpass"] = ResourceLoader::newFragShaderProgram(ctx, "/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/shaders/brightpass.frag");
+    m_shaderPrograms["reflect"] = ResourceLoader::newShaderProgram(ctx, "../../lab09/shaders/reflect.vert",
+                                                                   "../../lab09/shaders/reflect.frag");
+    m_shaderPrograms["refract"] = ResourceLoader::newShaderProgram(ctx, "../../lab09/shaders/refract.vert",
+                                                                   "../../lab09/shaders/refract.frag");
+    m_shaderPrograms["brightpass"] = ResourceLoader::newFragShaderProgram(ctx, "../../lab09/shaders/brightpass.frag");
+    m_shaderPrograms["blur"] = ResourceLoader::newFragShaderProgram(ctx, "../../lab09/shaders/blur.frag");
 
-    m_shaderPrograms["fractal"] = ResourceLoader::newFragShaderProgram(ctx, "/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/shaders/fractal.frag");
-
-    m_shaderPrograms["blur"] = ResourceLoader::newFragShaderProgram(ctx,       "/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/shaders/blur.frag");
-//    m_shaderPrograms["test"] = ResourceLoader::newFragShaderProgram(ctx,       "/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/shaders/test.vert");
+    //m_shaderPrograms["fractal"] = ResourceLoader::newFragShaderProgram(ctx, "/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/shaders/fractal.frag");
+    m_shaderPrograms["fractal"] = ResourceLoader::newFragShaderProgram(ctx, "../src/shaders/fractal.frag");
 
 
 }
