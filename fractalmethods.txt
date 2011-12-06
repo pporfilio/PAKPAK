@@ -1,16 +1,19 @@
+#define epsilon 0.01
+#define delta_t .01
+#define ITR 5.0/delta_t // ITR inversely proportional to epsilon and delta_t
+#define DEPTH 30
+#define break_condition 4
+#define F_Z3 .11
+#define F_C Vector4(-.15,.16,.5,-.6)
+#define M (1 + sqrt(1 + 4*F_C.getMagnitude()))/2.0
 
-// in canvas2D::renderImage:
-// m_scene->FractalRay(this, 0, height);
 
 
 
 RayScene::RayScene()
 {
-    F_C = Vector4(-.15,.16,.5,-.6); //Vector4
-    F_Z3 = .5; //float
+
 }
-
-
 
 void RayScene::FractalRay(Canvas2D* canvas, int r, int numRows) {
     BGRA *pix = new BGRA[numRows * width];
@@ -29,7 +32,18 @@ void RayScene::FractalRay(Canvas2D* canvas, int r, int numRows) {
             //direction vector of ray
             Vector4 d = (Pworld - Peye).getNormalized();
 
-            pix[index] = ShootOneFractalRay(d, RECURSION_LIMIT, Peye);
+            //pix[index] = ShootOneFractalRay(d, RECURSION_LIMIT, Peye);
+            Vector4 intersection = Vector4(0,0,0,0);
+            float dist;
+            if (CalculateIntersection(intersection, dist, d, Peye)) {
+                pix[index] = CalculateLighting(intersection, dist, d, Peye);
+            }
+            else {
+                pix[index].r = 0;
+                pix[index].g = 0;
+                pix[index].b = 0;
+                pix[index].a = 255;
+            }
 
             int canvasIndex = row * width + col;
             canvas->data()[canvasIndex] = pix[index];
@@ -37,69 +51,264 @@ void RayScene::FractalRay(Canvas2D* canvas, int r, int numRows) {
     }
 }
 
-BGRA RayScene::ShootOneFractalRay(vec4<REAL> d, int depth, vec4<REAL> start_p) {
-    float M = (1 + sqrt(1 + 4*F_C.getMagnitude()))/2.0;
-    float step_size = .1;
+bool RayScene::CalculateIntersection(vec4<REAL> &intersection, float &dist, vec4<REAL> d, vec4<REAL> start_p) {
 
+    /*
     float t = IntersectFSphere(start_p, d, M*M - F_Z3*F_Z3);
+    if (t == -1) {
+        return false;
+    }*/
 
-    bool foundFractal = false;
 
-    BGRA blah;
+    float t = 0;
+    Vector4 curPoint;
+    curPoint.x = start_p.x + t*d.x;
+    curPoint.y = start_p.y + t*d.y;
+    curPoint.z = start_p.z + t*d.z;
+    curPoint.w = F_Z3;
 
-    if (t > 0) {
-        while ((!foundFractal)&&(t<20)) {
+    dist = 0;
 
-            Vector4 curPoint;
-            curPoint.x = start_p.x + t*d.x;
-            curPoint.y = start_p.y + t*d.y;
-            curPoint.z = start_p.z + t*d.z;
-            curPoint.w = F_Z3;
+    for (int i = 0; i < ITR; i++) {
+        //cout << t << endl;
 
-            Vector4 juliaFractal = Julia(curPoint, 20);
+        curPoint.x += t*d.x;
+        curPoint.y += t*d.y;
+        curPoint.z += t*d.z;
+        curPoint.w = F_Z3;
 
-            //cout << juliaFractal << endl;
+        float curDist;
+        dist += curDist;
 
-            t += step_size;
-
-            if (juliaFractal.getMagnitude() < 1) {
-                foundFractal = true;
-            }
+        if (isInJulia(curPoint, curDist)) {
+            //cout << "yay!" << endl;
+            intersection = curPoint;
+            return true;
         }
-        if (foundFractal) {
-            blah.r = 100;
-            blah.g = 200;
-            blah.b = 100;
-        }
+
+        //cout << dist << endl;
+
+
+        //t = max(newVector.getMagnitude(), epsilon);
+        t = max(curDist, (float)epsilon);
+        //cout << t << endl;
+
+        //t = t + delta_t;
 
     }
-
-    return blah;
+    return false;
 }
 
-Vector4 RayScene::Julia(Vector4 Zn, int 	) {
+/*
+bool RayScene::CalculateNormalIntersection(vec4<REAL> &intersection, float dist, vec4<REAL> d, vec4<REAL> start_p) {
 
-    for (int i = 0; i < depth; i++) {
-        float A = Zn.x*Zn.x - Zn.y*Zn.y - Zn.z*Zn.z - Zn.w*Zn.w + F_C.x;
-        float B = 2*Zn.x*Zn.y + F_C.y;
-        float C = 2*Zn.x*Zn.z + F_C.z;
-        float D = 2*Zn.x*Zn.w + F_C.w;
+    float t = 0;
+    Vector4 curPoint;
+    curPoint.x = start_p.x + dist*d.x;
+    curPoint.y = start_p.y + dist*d.y;
+    curPoint.z = start_p.z + dist*d.z;
+    curPoint.w = F_Z3;
+
+    intersection = curPoint;
+
+    return false;
+}*/
+
+BGRA RayScene::CalculateLighting(vec4<REAL> p, float dist, vec4<REAL> d, vec4<REAL> start_p) {
+
+    Vector4 n = CalculateNormal(p, d, dist, start_p).getNormalized();
+
+    CS123SceneMaterial mat;
+    mat.cAmbient.r = .3;
+    mat.cAmbient.g = .1;
+    mat.cAmbient.b = .1;
+
+    mat.cDiffuse.r = .1;
+    mat.cDiffuse.g = .1;
+    mat.cDiffuse.b = 1;
+
+    mat.cSpecular.r = 1;
+    mat.cSpecular.g = 1;
+    mat.cSpecular.b = 1;
+
+    CS123SceneLightData light;
+    light.pos = Vector4(5,5,5,1);
+    light.color.r = 1;
+    light.color.g = 1;
+    light.color.b = 1;
+    light.type = LIGHT_POINT;
+
+    KA = 1;
+    KD = 1;
+    KS = 1;
+
+    float Ir = KA*mat.cAmbient.r;
+    float Ig = KA*mat.cAmbient.g;
+    float Ib = KA*mat.cAmbient.b;
+
+    Vector4 dir;
+    dir = (light.pos - p).getNormalized();
+
+    Vector4 R = (n*n.dot(-dir)*2 + dir).getNormalized(); //reflection vector
+    Vector4 V = d.getNormalized();
+    float specExp = 1; //specular exponent
+
+    float light_r;
+    float light_g;
+    float light_b;
+
+    /*
+    light_r = light.color.r * (KD*(mat.cDiffuse.r) * max(0.0, n.dot(dir)) + KS*mat.cSpecular.r * pow(max(0.0, R.dot(V)),specExp));
+    light_g = light.color.g * (KD*(mat.cDiffuse.g) * max(0.0, n.dot(dir)) + KS*mat.cSpecular.g * pow(max(0.0, R.dot(V)),specExp));
+    light_b = light.color.b * (KD*(mat.cDiffuse.b) * max(0.0, n.dot(dir)) + KS*mat.cSpecular.b * pow(max(0.0, R.dot(V)),specExp));
+    */
+
+    light_r = light.color.r * max(0.0, n.dot(dir));
+    light_g = light.color.g * max(0.0, n.dot(dir));
+    light_b = light.color.b * max(0.0, n.dot(dir));
+
+    Vector4 p_offset = p + n*.08;
+
+    if (JuliaShadow(p_offset, dir, light)) {
+        light_r *= .5;
+        light_g *= .5;
+        light_b *= .5;
+    }
+
+    Ir += light_r;
+    Ig += light_g;
+    Ib += light_b;
+
+    if (Ir > 1) {
+        //cout << "IR" << endl;
+        Ir = 1;
+    }
+    if (Ig > 1) {
+        //cout << "IG" << endl;
+        Ig = 1;
+    }
+    if (Ib > 1) {
+        //cout << "IB" << endl;
+        Ib = 1;
+    }
+
+    BGRA color;
+    color.r = Ir*255;
+    color.g = Ig*255;
+    color.b = Ib*255;
 
 
 
-        Zn = Vector4(A,B,C,D);
+    return color;
 
-        //cout << Zn.getMagnitude() << endl;
+}
 
-        if (Zn.getMagnitude() > 1) {
+bool RayScene::JuliaShadow(Vector4 p, Vector4 d, CS123SceneLightData light) {
+
+    Vector4 intersection;
+    float dist;
+    bool intersects = CalculateIntersection(intersection, dist, d, p);
+
+    return intersects;
+}
+
+Vector4 RayScene::CalculateNormal(Vector4 point, vec4<REAL> d, float dist, vec4<REAL> start_p) {
+    Vector4 p1, p2, p3, p4, p5, p6;
+    Vector4 d1, d2, d3, d4, d5, d6;
+
+    Vector4 normal;
+
+    float ep = .001;
+
+    bool found = true;
+
+    d1 = d;
+    d1.x = d.x + ep;
+    d2 = d;
+    d2.x = d.x - ep;
+    d3 = d;
+    d3.y = d.y + ep;
+    d4 = d;
+    d4.y = d.y - ep;
+    d5 = d;
+    d5.z = d.z + ep;
+    d6 = d;
+    d6.z = d.z - ep;
+
+    float dist1, dist2, dist3, dist4, dist5, dist6;
+
+    bool I1 = CalculateIntersection(p1, dist1, d1, start_p);
+    bool I2 = CalculateIntersection(p2, dist2, d2, start_p);
+    bool I3 = CalculateIntersection(p3, dist3, d3, start_p);
+    bool I4 = CalculateIntersection(p4, dist4, d4, start_p);
+    bool I5 = CalculateIntersection(p5, dist5, d5, start_p);
+    bool I6 = CalculateIntersection(p6, dist6, d6, start_p);
+
+
+    if (!I1) {
+        dist1 = 0;
+    }
+    if (!I2) {
+        dist2 = 0;
+    }
+    if (!I3) {
+        dist3 = 0;
+    }
+    if (!I4) {
+        dist4 = 0;
+    }
+    if (!I5) {
+        dist5 = 0;
+    }
+    if (!I6) {
+        dist6 = 0;
+    }
+    normal.x = dist1 - dist2;
+    normal.y = dist3 - dist4;
+    normal.z = dist5 - dist6;
+
+    if ((normal.x == 0)&&(normal.y == 0)&&(normal.z == 0)) {
+        cout << "blah" << endl;
+        normal.x = 1;
+        normal.y = 1;
+        normal.z = 1;
+    }
+
+
+    normal.w = 0;
+
+
+    //cout << normal.getNormalized() << endl;
+
+    return normal.getNormalized();
+}
+
+bool RayScene::isInJulia(Vector4 p, float &dist) {
+    Vector4 Zn = p;
+    Vector4 dZn = Vector4(1.0,0.0,0.0,0.0);
+
+    bool foundFractal = true;
+
+    for (int i = 0; i < DEPTH; i++) {
+
+        Zn = QMultiply(Zn,Zn) + F_C;
+
+        dZn = QMultiply(Zn, dZn) * 2;
+        dZn.x += 1.0;
+
+        if (Zn.getMagnitude() > break_condition) {
+            foundFractal = false;
             break;
         }
     }
-    return Zn;
+
+    dist = Zn.getMagnitude() * log(Zn.getMagnitude()) / (2*dZn.getMagnitude());
+
+    return foundFractal;
 }
 
 float RayScene::IntersectFSphere(vec4<REAL> p, vec4<REAL> d, float r) {
-    float t = -1.0;
+    float t = -1;
 
     float A = d.x*d.x + d.y*d.y + d.z*d.z;
     float B = 2*p.x*d.x + 2*p.y*d.y + 2*p.z*d.z;
@@ -121,3 +330,11 @@ float RayScene::IntersectFSphere(vec4<REAL> p, vec4<REAL> d, float r) {
     return t;
 }
 
+Vector4 RayScene::QMultiply(vec4<REAL> A, vec4<REAL> B) {
+    float a = A.x*B.x - A.y*B.y - A.z*B.z - A.w*B.w;
+    float b = A.x*B.y + A.y*B.x + A.z*B.w - A.w*B.z;
+    float c = A.x*B.z - A.y*B.w + A.z*B.x + A.w*B.y;
+    float d = A.x*B.w + A.y*B.z - A.z*B.y + A.w*B.x;
+
+    return Vector4(a,b,c,d);
+}
