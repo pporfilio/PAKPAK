@@ -53,14 +53,16 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
 
     if (f1) {
         m_base_path = new string("../");
+        fclose(f1);
     } else if (f2) {
         m_base_path = new string("../../../../");
     } else {
         printf("cannot find fractal fragment shader!\n");
     }
 
-    fclose(f1);
-    fclose(f2);
+    if (f2) {
+        fclose(f2);
+    }
 
 }
 
@@ -127,8 +129,8 @@ void GLWidget::initializeResources()
 
     cout << tmp << endl;
 
-    m_dragon = ResourceLoader::loadObjModel("/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/models/xyzrgb_dragon.obj");
-    //m_dragon = ResourceLoader::loadObjModel(tmp.append("models/xyzrgb_dragon.obj").c_str());
+    //m_dragon = ResourceLoader::loadObjModel("/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/models/xyzrgb_dragon.obj");
+    m_dragon = ResourceLoader::loadObjModel(tmp.append("models/xyzrgb_dragon.obj").c_str());
     cout << "Loaded dragon..." << endl;
 
     m_skybox = ResourceLoader::loadSkybox();
