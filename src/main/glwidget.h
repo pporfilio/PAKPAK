@@ -72,6 +72,8 @@ private:
     QFont m_font; // font for rendering text
     string *m_base_path;
 
+    float F_Z3;
+
 };
 
 #endif // GLWIDGET_H
