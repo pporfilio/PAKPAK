@@ -8,6 +8,7 @@
 #include <QTime>
 
 #include "camera.h"
+#include "OrbitingCamera.h"
 #include "CS123Matrix.h"
 #include "CS123Vector.h"
 #include "vector.h"
@@ -59,7 +60,8 @@ private:
     int m_prevTime;
     float m_prevFps, m_fps;
     V2 m_prevMousePos;
-    OrbitCamera m_camera;
+    OrbitCamera *m_camera;
+    OrbitingCamera *test_camera;
 
     // Resources
     QHash<QString, QGLShaderProgram *> m_shaderPrograms; // hash map of all shader programs
@@ -69,6 +71,8 @@ private:
     GLuint m_cubeMap; // cubeMap texture ID
     QFont m_font; // font for rendering text
     string *m_base_path;
+
+    float F_Z3;
 
 };
 

@@ -50,16 +50,16 @@ vec3 shootOneFractalRay(vec3 d, vec4 start_p) {
     bool foundFractal = false;
 
     if (t > 1.0) {
-        while ((!foundFractal) && (t < 20.0)) {
+        while ((!foundFractal) && (t < 40.0)) {
             vec4 curPoint = vec4(0.0);
             curPoint.xyz = start_p.xyz + t*d.xyz;
             curPoint.w = F_Z3;
 
-            vec4 juliaFractal = julia(curPoint, 20);
+            vec4 juliaFractal = julia(curPoint, 40);
 
             t = t + step_size;
 
-            if (magnitude(juliaFractal) < 4.0) {
+            if (magnitude(juliaFractal) < 8.0) {
                 foundFractal = true;
             }
         }
@@ -84,7 +84,7 @@ vec4 julia(vec4 Zn, int depth) {
         float D = 2.0*Zn.x*Zn.w + F_C.w;
 
         Zn = vec4(A,B,C,D);
-        if (magnitude(Zn) > 4.0) {
+        if (magnitude(Zn) > 8.0) {
             break;
         }
     }
@@ -141,9 +141,7 @@ void main (void)
 //    gl_FragColor = sample;
 
     //final_color.b = 1.0;
-    //TODO: based on the ray, and maybe eye if necessary, check if point
-    //      is in the Julia set
-    //      If it is, color that pixel a fixed color.
+
     gl_FragColor = final_color;
 }
 

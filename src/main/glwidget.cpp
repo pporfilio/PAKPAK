@@ -32,13 +32,18 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
 
-    m_camera.center = V3(0.f, 0.f, 0.f);
-    m_camera.up = V3(0.f, 1.f, 0.f);
-    m_camera.zoom = 3.5f;
-    m_camera.theta = M_PI * 1.5f, m_camera.phi = 0.2f;
-    m_camera.fovy = 60.f;
-    m_camera.far_clip = 1000.f;
-    m_camera.near_clip = 0.1f;
+    m_camera = new OrbitCamera();
+    test_camera = new OrbitingCamera();
+
+//    m_camera.center = V3(0.f, 0.f, 0.f);
+//    m_camera.up = V3(0.f, 1.f, 0.f);
+//    m_camera.zoom = 3.5f;
+//    m_camera.theta = M_PI * 1.5f, m_camera.phi = 0.2f;
+//    m_camera.fovy = 60.f;
+//    m_camera.far_clip = 1000.f;
+//    m_camera.near_clip = 0.1f;
+
+    F_Z3 = 0.1;
 
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(update()));
 
@@ -76,6 +81,7 @@ GLWidget::~GLWidget()
     glDeleteLists(m_skybox, 1);
     const_cast<QGLContext *>(context())->deleteTexture(m_cubeMap);
     glmDelete(m_dragon.model);
+    delete m_camera;
 }
 
 /**
@@ -206,8 +212,8 @@ void GLWidget::createShaderPrograms()
     m_shaderPrograms["blur"] = ResourceLoader::newFragShaderProgram(ctx, tmp1.append("blur.frag").c_str());
     tmp1 = "";
     tmp1 += shader_base;
-    m_shaderPrograms["fractal"] = ResourceLoader::newFragShaderProgram(ctx, tmp1.append("fractal.frag").c_str());
-
+    //m_shaderPrograms["fractal"] = ResourceLoader::newFragShaderProgram(ctx, tmp1.append("fractal.frag").c_str());
+    m_shaderPrograms["fractal"] = ResourceLoader::newFragShaderProgram(ctx, tmp1.append("old_fractal.frag").c_str());
 
 }
 
@@ -258,18 +264,38 @@ void GLWidget::applyOrthogonalCamera(float width, float height)
 void GLWidget::applyPerspectiveCamera(float width, float height)
 {
     float ratio = ((float) width) / height;
-    V3 dir(-V3::fromAngles(m_camera.theta, m_camera.phi));
-    V3 eye(m_camera.center - dir * m_camera.zoom);
+    V3 dir(-V3::fromAngles(m_camera->theta, m_camera->phi));
+    V3 eye(m_camera->center - dir * m_camera->zoom);
 
-
+//    V3 dir = m_camera->center - m_camera->getPos();
+//    V3 eye = m_camera->getPos();
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(m_camera.fovy, ratio, m_camera.near_clip, m_camera.far_clip);
+    gluPerspective(m_camera->fovy, ratio, m_camera->near_clip, m_camera->far_clip);
     gluLookAt(eye.x, eye.y, eye.z, eye.x + dir.x, eye.y + dir.y, eye.z + dir.z,
-              m_camera.up.x, m_camera.up.y, m_camera.up.z);
+              m_camera->up.x, m_camera->up.y, m_camera->up.z);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
+
+//        glMatrixMode(GL_PROJECTION);
+//        glLoadIdentity();
+//        Matrix4x4 proj_mat = test_camera->getProjectionMatrix();
+//        float tmp[16];
+//        for (int i = 0; i < 16; i++) {
+//            tmp[i] = (float)proj_mat.data[i];
+//        }
+//        glLoadMatrixf(tmp);
+//        glMatrixMode(GL_MODELVIEW)  ;
+//        glLoadIdentity();
+//        Matrix4x4 mv_mat = test_camera->getModelviewMatrix();
+//        float tmp2[16];
+//        for (int i = 0; i < 16; i++) {
+//            tmp2[i] = (float)mv_mat.data[i];
+//        }
+//        glLoadMatrixf(tmp);
+
 }
 
 /**
@@ -291,8 +317,8 @@ void GLWidget::paintGL()
     m_framebufferObjects["fbo_0"]->bind();
     applyPerspectiveCamera(width, height);
 
-//    float modelview[16];
-//    glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
+    float gl_modelview[16];
+    glGetFloatv(GL_MODELVIEW_MATRIX, gl_modelview);
 
     renderScene();
     m_framebufferObjects["fbo_0"]->release();
@@ -302,7 +328,6 @@ void GLWidget::paintGL()
                                                    QRect(0, 0, width, height), m_framebufferObjects["fbo_0"],
                                                    QRect(0, 0, width, height), GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
-    // TODO: Add drawing code here
     applyOrthogonalCamera(width, height);
     //render a quad to fill the screen
     //this fills texture0 with black in the upper left,
@@ -312,51 +337,84 @@ void GLWidget::paintGL()
     m_framebufferObjects["fbo_1"]->release();
 
 
-    Matrix4x4 modelview = m_camera.getFilmToWorld(width, height);
+    //haven't figured out why my modelview isn't working
+    //Matrix4x4 modelview = m_camera->getFilmToWorld(width, height);
+
+    //But OpenGL's seems to use the parameters from my camera just fine.
+    Matrix4x4 modelview = Matrix4x4::identity();
+
+    for (int i = 0; i < 16; i++) {
+        modelview.data[i] = (double)gl_modelview[i];
+    }
     renderFractal(modelview);
 
+    paintText();
+}
+
+
+//void GLWidget::paintGL()
+//{
+//    // Clear the screen
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+//    // Update the fps
+//    int time = m_clock.elapsed();
+//    m_fps = 1000.f / (time - m_prevTime);
+//    m_prevTime = time;
+//    int width = this->width();
+//    int height = this->height();
+
+//    // Render the scene to a framebuffer
+//    m_framebufferObjects["fbo_0"]->bind();
+//    applyPerspectiveCamera(width, height);
+//    renderScene();
+//    m_framebufferObjects["fbo_0"]->release();
+
+//    // Copy the rendered scene into framebuffer 1
+//    m_framebufferObjects["fbo_0"]->blitFramebuffer(m_framebufferObjects["fbo_1"],
+//                                                   QRect(0, 0, width, height), m_framebufferObjects["fbo_0"],
+//                                                   QRect(0, 0, width, height), GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+//    // TODO: Add drawing code here
+
+//    applyOrthogonalCamera(width, height);
 //    glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
 //    renderTexturedQuad(width, height, true);
 //    glBindTexture(GL_TEXTURE_2D, 0);
 
+//    m_framebufferObjects["fbo_2"]->bind();
 //    m_shaderPrograms["brightpass"]->bind();
 //    glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
 //    renderTexturedQuad(width, height, true);
 //    m_shaderPrograms["brightpass"]->release();
 //    glBindTexture(GL_TEXTURE_2D, 0);
+//    m_framebufferObjects["fbo_2"]->release();
 
-    // Render the blurred brightpass filter result to fbo 1
-    //renderFractal();
-//    m_framebufferObjects["fbo_1"]->bind();
+//    // TODO: Uncomment this section in step 2 of the lab
 
-//    V3 dir(-V3::fromAngles(m_camera.theta, m_camera.phi));
-//    V3 eye(m_camera.center - dir * m_camera.zoom);
+//    float scales[] = {4.f,8.f,16.f,32.f};
+//    for (int i = 0; i < 4; ++i)
+//    {
+//        // Render the blurred brightpass filter result to fbo 1
+//        renderBlur(width / scales[i], height / scales[i]);
 
-//    m_shaderPrograms["fractal"]->bind();
-//    m_shaderPrograms["fractal"]->setUniformValue("eye", eye.x, eye.y, eye.z, 0.0);
-//    glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_2"]->texture());
-//    renderBillBoard(width, height, true);
-//    m_shaderPrograms["fractal"]->release();
-//    glBindTexture(GL_TEXTURE_2D, 0);
-////    m_framebufferObjects["fbo_1"]->release();
+//        // Bind the image from fbo to a texture
+//        glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
+//        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+//        // Enable alpha blending and render the texture to the screen
+//        glEnable(GL_BLEND);
+//        glBlendFunc(GL_ONE, GL_ONE);
+//        glTranslatef(0.f, (scales[i] - 1) * -height, 0.f);
+//        renderTexturedQuad(width * scales[i], height * scales[i], false);
+//        glDisable(GL_BLEND);
+//        glBindTexture(GL_TEXTURE_2D, 0);
+//    }
 
 
-
-    // Bind the image from fbo to a texture
-//    glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
-//    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-//    // Enable alpha blending and render the texture to the screen
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_ONE, GL_ONE);
-//    glTranslatef(0.f, -height, 0.f);
-//    renderTexturedQuad(width, height, false);
-//    glDisable(GL_BLEND);
-//    glBindTexture(GL_TEXTURE_2D, 0);
-
-    paintText();
-}
+//    paintText();
+//}
 
 void GLWidget::renderFractal(Matrix4x4 film_to_world) {
 
@@ -369,15 +427,16 @@ void GLWidget::renderFractal(Matrix4x4 film_to_world) {
         film_to_world_floats[i] = (float)film_to_world.data[i];
     }
 
-    V3 dir(-V3::fromAngles(m_camera.theta, m_camera.phi));
-    V3 eye(m_camera.center - dir * m_camera.zoom);
+    //V3 dir = m_camera->center - m_camera->pos;
+    //V3 eye(m_camera->center - dir * m_camera->zoom);
+    V3 pos = m_camera->getPos();
 
     m_shaderPrograms["fractal"]->bind();
-//    m_shaderPrograms["fractal"]->setUniformValue("tex", GL_TEXTURE0);
     m_shaderPrograms["fractal"]->setUniformValue("width", this->width());
     m_shaderPrograms["fractal"]->setUniformValue("height", this->height());
     m_shaderPrograms["fractal"]->setUniformValueArray("film_to_world", film_to_world_floats, 16, 1);
     m_shaderPrograms["fractal"]->setUniformValue("world_eye", eye.x, eye.y, eye.z);
+    m_shaderPrograms["fractal"]->setUniformValue("F_Z3", F_Z3);
     glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
     renderTexturedQuad(this->width(), this->height(), true);
     m_shaderPrograms["fractal"]->release();
@@ -432,51 +491,6 @@ void GLWidget::renderBillBoard(int width, int height, bool flip) {
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-//    float modelview[16];
-
-//    // save the current modelview matrix
-//    glPushMatrix();
-
-//    // get the current modelview matrix
-//    glGetFloatv(GL_MODELVIEW_MATRIX , modelview);
-
-
-//    //pick initial normal (that will be implicit in the vertices created)
-
-//    Vector4 init_normal = Vector4(0.0, 0.0, -1.0, 0);
-
-//    V3 dir(-V3::fromAngles(m_camera.theta, m_camera.phi));
-//    V3 tmpeye(m_camera.center - dir * m_camera.zoom);
-
-//    //find angle between that and vector from origin to eye
-//    Vector4 eye = Vector4(tmpeye.x, tmpeye.y, tmpeye.z, 0);
-//    printVec4(eye);
-//    double angle = init_normal.dot(eye);
-
-//    //compute vector to rotate around as cross product of those two vectors
-//    Vector4 rotation_vector = init_normal.cross(eye);
-
-//    Matrix4x4 transform = getInvRotMat(Vector4(0, 0, 0, 0), rotation_vector, angle);
-
-
-//    for (int i = 0; i < 16; i++) {
-//        modelview[i] = (float)transform.data[i];
-//    }
-//    // set the modelview with rotation toward the camera
-//    glLoadMatrixf(modelview);
-
-//    // From lab support code
-//    ///////
-
-//    Vector4 v1 = Vector4(-1, -1, 0, 1);
-//    Vector4 v2 = Vector4(1, -1, 0, 1);
-//    Vector4 v3 = Vector4(1, 1, 0, 1);
-//    Vector4 v4 = Vector4(-1, 1, 0, 1);
-
-//    v1 = transform * v1;
-//    v2 = transform * v2;
-//    v3 = transform * v3;
-//    v4 = transform * v4;
 
     float modelview[16];
     int i,j;
@@ -501,25 +515,18 @@ void GLWidget::renderBillBoard(int width, int height, bool flip) {
     // set the modelview with no rotations and scaling
     glLoadMatrixf(modelview);
 
-    //drawObject();
-
-
 
     // Draw the  quad
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, flip ? 1.0f : 0.0f);
     glColor3f(0.0, 1.0, 0.0);
     glVertex2f(-width/2.0, -height/2.0);
-//    glVertex2f(v1.x, v1.y);
     glTexCoord2f(1.0f, flip ? 1.0f : 0.0f);
     glVertex2f(width/2.0, -height/2.0);
-//    glVertex2f(v2.x, v2.y);
     glTexCoord2f(1.0f, flip ? 0.0f : 1.0f);
     glVertex2f(width/2.0, height/2.0);
-//    glVertex2f(v3.x, v3.y);
     glTexCoord2f(0.0f, flip ? 0.0f : 1.0f);
     glVertex2f(-width/2.0, height/2.0);
-//    glVertex2f(v4.x, v4.y);
     glEnd();
 
     // restore the previously
@@ -552,7 +559,8 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     V2 pos(event->x(), event->y());
     if (event->buttons() & Qt::LeftButton || event->buttons() & Qt::RightButton)
     {
-        m_camera.mouseMove(pos - m_prevMousePos);
+        m_camera->mouseMove(pos - m_prevMousePos);
+        test_camera->mouseDragged(pos.x, pos.y);
     }
     m_prevMousePos = pos;
 }
@@ -564,6 +572,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 {
     m_prevMousePos.x = event->x();
     m_prevMousePos.y = event->y();
+    test_camera->mouseDown(event->x(), event->y());
 }
 
 /**
@@ -573,7 +582,8 @@ void GLWidget::wheelEvent(QWheelEvent *event)
 {
     if (event->orientation() == Qt::Vertical)
     {
-        m_camera.mouseWheel(event->delta());
+        m_camera->mouseWheel(event->delta());
+        test_camera->mouseScrolled(event->delta());
     }
 }
 
@@ -634,19 +644,15 @@ void GLWidget::renderColoredQuad(int width, int height, bool flip) {
     glBegin(GL_QUADS);
     glColor3f(0.0, 0.0, 0.0);
     glVertex2f(-width/2.0, -height/2.0);
-//    glVertex2f(-10, -10);
 
     glColor3f(0.0, 1.0, 0.0);
     glVertex2f(width/2.0, -height/2.0);
-//    glVertex2f(10, -10);
 
     glColor3f(1.0, 1.0, 0.0);
     glVertex2f(width/2.0, height/2.0);
-//    glVertex2f(10, 10);
 
     glColor3f(1.0, 0.0, 0.0);
     glVertex2f(-width/2.0, height/2.0);
-    //glVertex2f(-10, 10);
 
     //not resetting the color gives weird results
     glColor3f(1.0, 1.0, 1.0);
@@ -698,13 +704,22 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 {
     switch(event->key())
     {
-        case Qt::Key_S:
+    case Qt::Key_S: {
         QImage qi = grabFrameBuffer(false);
         QString filter;
         QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), "", tr("PNG Image (*.png)"), &filter);
         qi.save(QFileInfo(fileName).absoluteDir().absolutePath() + "/" + QFileInfo(fileName).baseName() + ".png", "PNG", 100);
         break;
     }
+    case Qt::Key_Minus: {
+        F_Z3 = max(-1, F_Z3 - .05);
+        break;
+    }
+    case Qt::Key_Equal: {
+        F_Z3 = min(1, F_Z3 + .05);
+        break;
+    }
+}
 }
 
 /**
@@ -724,8 +739,8 @@ void GLWidget::paintText()
     // QGLWidget's renderText takes xy coordinates, a string, and a font
     renderText(10, 20, "FPS: " + QString::number((int) (m_prevFps)), m_font);
     renderText(10, 35, "S: Save screenshot", m_font);
-    V3 dir(-V3::fromAngles(m_camera.theta, m_camera.phi));
-    V3 eye(m_camera.center - dir * m_camera.zoom);
+    V3 dir(-V3::fromAngles(m_camera->theta, m_camera->phi));
+    V3 eye(m_camera->center - dir * m_camera->zoom);
     renderText(10, 50, "eye location : (" + QString::number((double)(eye.x)) +
                ", " + QString::number((double)(eye.y)) + ", " +
                QString::number((double)(eye.x)) + ")", m_font);
