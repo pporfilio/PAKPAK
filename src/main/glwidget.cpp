@@ -41,6 +41,25 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
     m_camera.near_clip = 0.1f;
 
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(update()));
+
+    /* hack because I don't know the right way to do this in C/C++ */
+
+    string path1 = "../src/shaders/fractal.frag";
+    string path2 = "../../../../src/shaders/fractal.frag";
+    FILE* f1 = fopen(path1.c_str(), "r");
+    FILE* f2 = fopen(path2.c_str(), "r");
+
+    if (f1) {
+        m_base_path = new string("../");
+    } else if (f2) {
+        m_base_path = new string("../../../../");
+    } else {
+        printf("cannot find fractal fragment shader!\n");
+    }
+
+    fclose(f1);
+    fclose(f2);
+
 }
 
 /**
@@ -94,8 +113,19 @@ void GLWidget::initializeResources()
     // by the video card.  But that's a pain to do so we're not going to.
     cout << "--- Loading Resources ---" << endl;
 
-    //m_dragon = ResourceLoader::loadObjModel("/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/models/xyzrgb_dragon.obj");
-    m_dragon = ResourceLoader::loadObjModel("../../lab09/models/xyzrgb_dragon.obj");
+    string tmp = "";
+    cout << m_base_path->data() << endl;
+
+    tmp += m_base_path->data();
+
+    cout << tmp << endl;
+
+    tmp += "resources/";
+
+    cout << tmp << endl;
+
+    m_dragon = ResourceLoader::loadObjModel("/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/models/xyzrgb_dragon.obj");
+    //m_dragon = ResourceLoader::loadObjModel(tmp.append("models/xyzrgb_dragon.obj").c_str());
     cout << "Loaded dragon..." << endl;
 
     m_skybox = ResourceLoader::loadSkybox();
@@ -118,13 +148,28 @@ void GLWidget::initializeResources()
  **/
 void GLWidget::loadCubeMap()
 {
+    string tmp1 = "";
+    tmp1 += m_base_path->data();
+    tmp1 += "resources/textures/";
+    string tmp2 = "";
+    tmp2 += tmp1;
     QList<QFile *> fileList;
-    fileList.append(new QFile("../../lab09/textures/astra/posx.jpg"));
-    fileList.append(new QFile("../../lab09/textures/astra/negx.jpg"));
-    fileList.append(new QFile("../../lab09/textures/astra/posy.jpg"));
-    fileList.append(new QFile("../../lab09/textures/astra/negy.jpg"));
-    fileList.append(new QFile("../../lab09/textures/astra/posz.jpg"));
-    fileList.append(new QFile("../../lab09/textures/astra/negz.jpg"));
+    fileList.append(new QFile(tmp2.append("astra/posx.jpg").c_str()));
+    tmp2 = "";
+    tmp2 += tmp1;
+    fileList.append(new QFile(tmp2.append("astra/negx.jpg").c_str()));
+    tmp2 = "";
+    tmp2 += tmp1;
+    fileList.append(new QFile(tmp2.append("astra/posy.jpg").c_str()));
+    tmp2 = "";
+    tmp2 += tmp1;
+    fileList.append(new QFile(tmp2.append("astra/negy.jpg").c_str()));
+    tmp2 = "";
+    tmp2 += tmp1;
+    fileList.append(new QFile(tmp2.append("astra/posz.jpg").c_str()));
+    tmp2 = "";
+    tmp2 += tmp1;
+    fileList.append(new QFile(tmp2.append("astra/negz.jpg").c_str()));
     m_cubeMap = ResourceLoader::loadCubeMap(fileList);
 }
 
@@ -133,16 +178,33 @@ void GLWidget::loadCubeMap()
  **/
 void GLWidget::createShaderPrograms()
 {
-    const QGLContext *ctx = context();
-    m_shaderPrograms["reflect"] = ResourceLoader::newShaderProgram(ctx, "../../lab09/shaders/reflect.vert",
-                                                                   "../../lab09/shaders/reflect.frag");
-    m_shaderPrograms["refract"] = ResourceLoader::newShaderProgram(ctx, "../../lab09/shaders/refract.vert",
-                                                                   "../../lab09/shaders/refract.frag");
-    m_shaderPrograms["brightpass"] = ResourceLoader::newFragShaderProgram(ctx, "../../lab09/shaders/brightpass.frag");
-    m_shaderPrograms["blur"] = ResourceLoader::newFragShaderProgram(ctx, "../../lab09/shaders/blur.frag");
+    string shader_base = "";
+    shader_base += m_base_path->c_str();
+    shader_base += "src/shaders/";
 
-    //m_shaderPrograms["fractal"] = ResourceLoader::newFragShaderProgram(ctx, "/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/shaders/fractal.frag");
-    m_shaderPrograms["fractal"] = ResourceLoader::newFragShaderProgram(ctx, "../src/shaders/fractal.frag");
+    string tmp1 = "";
+    string tmp2 = "";
+
+    const QGLContext *ctx = context();
+    tmp1 += shader_base;
+    tmp2 += shader_base;
+    m_shaderPrograms["reflect"] = ResourceLoader::newShaderProgram(ctx, tmp1.append("reflect.vert").c_str(),
+                                                                        tmp2.append("reflect.frag").c_str());
+    tmp1 = "";
+    tmp2 = "";
+    tmp1 += shader_base;
+    tmp2 += shader_base;
+    m_shaderPrograms["refract"] = ResourceLoader::newShaderProgram(ctx, tmp1.append("refract.vert").c_str(),
+                                                                        tmp2.append("refract.frag").c_str());
+    tmp1 = "";
+    tmp1 += shader_base;
+    m_shaderPrograms["brightpass"] = ResourceLoader::newFragShaderProgram(ctx, tmp1.append("brightpass.frag").c_str());
+    tmp1 = "";
+    tmp1 += shader_base;
+    m_shaderPrograms["blur"] = ResourceLoader::newFragShaderProgram(ctx, tmp1.append("blur.frag").c_str());
+    tmp1 = "";
+    tmp1 += shader_base;
+    m_shaderPrograms["fractal"] = ResourceLoader::newFragShaderProgram(ctx, tmp1.append("fractal.frag").c_str());
 
 
 }
