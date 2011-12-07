@@ -40,6 +40,8 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
     m_camera.far_clip = 1000.f;
     m_camera.near_clip = 0.1f;
 
+    F_Z3 = 0.1;
+
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(update()));
 
     /* hack because I don't know the right way to do this in C/C++ */
@@ -378,6 +380,7 @@ void GLWidget::renderFractal(Matrix4x4 film_to_world) {
     m_shaderPrograms["fractal"]->setUniformValue("height", this->height());
     m_shaderPrograms["fractal"]->setUniformValueArray("film_to_world", film_to_world_floats, 16, 1);
     m_shaderPrograms["fractal"]->setUniformValue("world_eye", eye.x, eye.y, eye.z);
+    m_shaderPrograms["fractal"]->setUniformValue("F_Z3", F_Z3);
     glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
     renderTexturedQuad(this->width(), this->height(), true);
     m_shaderPrograms["fractal"]->release();
@@ -698,13 +701,22 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 {
     switch(event->key())
     {
-        case Qt::Key_S:
+    case Qt::Key_S: {
         QImage qi = grabFrameBuffer(false);
         QString filter;
         QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), "", tr("PNG Image (*.png)"), &filter);
         qi.save(QFileInfo(fileName).absoluteDir().absolutePath() + "/" + QFileInfo(fileName).baseName() + ".png", "PNG", 100);
         break;
     }
+    case Qt::Key_Minus: {
+        F_Z3 = max(-1, F_Z3 - .05);
+        break;
+    }
+    case Qt::Key_Equal: {
+        F_Z3 = min(1, F_Z3 + .05);
+        break;
+    }
+}
 }
 
 /**
