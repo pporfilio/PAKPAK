@@ -10,7 +10,7 @@ const float F_Z3 = .11;
 
 const float EPSILON = .001;          //closeness to fractal
 const float ITR = 300;               //number of iterations along ray
-const int DEPTH = 15;                //number of fractal iterations
+const int DEPTH = 12;                //number of fractal iterations
 const float BREAK = 4.0;             //fractal escape bound
 const float ep = .0001;              //for normal
 const float M = 3.0;                 //bounding radius
@@ -194,14 +194,15 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
 
     vec4 n = normalize(CalculateNormal(p, d, dist, start_p));
 
-    vec3 material_ambient = vec3(.1, .1, .3);
-    //vec3 material_ambient = vec3(0.,0.,0.);
-    vec3 material_diffuse = vec3(.1, .1, 1.);
+    vec3 material_ambient = vec3(0., 0., .5);
+    vec3 material_diffuse = vec3(.5, 0., 0.);
     vec3 material_specular = vec3(1., 1., 1.);
 
-    //vec4 light_pos = vec4(5,5,-5,1);
-    vec4 light_pos = vec4(world_eye, 1.0);
-    vec3 light_color = vec3(.6,.08,0.0);
+    vec4 light_pos = vec4(5., 5., -2., 1.0);
+    vec3 light_color = vec3(.8,.8,0.0);
+
+    vec4 light2_pos = vec4(-5., -5., -2., 1.0);
+    vec3 light2_color = vec3(.8, .8, 0.);
 
     float KA = 1.;
     float KD = 1.;
@@ -211,31 +212,26 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
     float Ig = KA*material_ambient.y;
     float Ib = KA*material_ambient.z;
 
-    vec4 dir;
-    dir = normalize((light_pos - p));
+    vec4 dir  = normalize(light_pos  - p);
+    vec4 dir2 = normalize(light2_pos - p);
 
-    //QGLShader::compile: "ERROR: 0:235: 'dot' : methods not supported
-    //    vec4 R = normalize((n*n.dot(-dir)*2.0 + dir)); //reflection vector
-    vec4 R = normalize((n*dot(n,-dir)*2.0 + dir)); //reflection vector
+    vec4 R =  normalize((n*dot(n,-dir )*2.0 + dir )); //reflection vector
+    vec4 R2 = normalize((n*dot(n,-dir2)*2.0 + dir2));
 
     vec4 V = normalize(d);
-    float specExp = 1.0;
+    float specExp = 5.0;
 
     float light_r;
     float light_g;
     float light_b;
 
-    /*
-    light_r = light_color.x * (KD*(material_diffuse.x) * max(0.0, n.dot(dir)) + KS*material_specular.x * pow(max(0.0, R.dot(V)),specExp));
-    light_g = light_color.y * (KD*(material_diffuse.y) * max(0.0, n.dot(dir)) + KS*material_specular.y * pow(max(0.0, R.dot(V)),specExp));
-    light_b = light_color.z * (KD*(material_diffuse.z) * max(0.0, n.dot(dir)) + KS*material_specular.z * pow(max(0.0, R.dot(V)),specExp));
-    */
+    light_r = KD * material_diffuse * (light_color.x * max(0.0, dot(n, dir)) + light2_color.x * max(0.0, dot(n, dir2)));
+    light_g = KD * material_diffuse * (light_color.y * max(0.0, dot(n, dir)) + light2_color.y * max(0.0, dot(n, dir2)));
+    light_b = KD * material_diffuse * (light_color.z * max(0.0, dot(n, dir)) + light2_color.z * max(0.0, dot(n, dir2)));
 
-    light_r = light_color.x * max(0.0, dot(n, dir));
-    light_g = light_color.y * max(0.0, dot(n, dir));
-    light_b = light_color.z * max(0.0, dot(n, dir));
-
-
+    light_r += KS * material_specular.x * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
+    light_g += KS * material_specular.y * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
+    light_b += KS * material_specular.z * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
 
     /// ***********
     //removed third parameter because it was a CS123Light struct
