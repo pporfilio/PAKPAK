@@ -5,11 +5,10 @@
 
 OrbitCamera::OrbitCamera() {
     center = V3(0.0, 0.0, 0.0);
-    _pos = V3(0, 0, -1);
     up = V3(0.0, 1.0, 0.0);
     zoom = 3.5;
-    angle_x = 0.0;
-    angle_y = 0.0;
+    angle_x = PI * 1.5f;
+    angle_y = 0.2f;
     theta = angle_x;
     phi = angle_y;
     fovy = 60.0;

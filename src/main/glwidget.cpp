@@ -33,6 +33,7 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
     setMouseTracking(true);
 
     m_camera = new OrbitCamera();
+    test_camera = new OrbitingCamera();
 
 //    m_camera.center = V3(0.f, 0.f, 0.f);
 //    m_camera.up = V3(0.f, 1.f, 0.f);
@@ -274,6 +275,25 @@ void GLWidget::applyPerspectiveCamera(float width, float height)
               m_camera->up.x, m_camera->up.y, m_camera->up.z);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
+
+//        glMatrixMode(GL_PROJECTION);
+//        glLoadIdentity();
+//        Matrix4x4 proj_mat = test_camera->getProjectionMatrix();
+//        float tmp[16];
+//        for (int i = 0; i < 16; i++) {
+//            tmp[i] = (float)proj_mat.data[i];
+//        }
+//        glLoadMatrixf(tmp);
+//        glMatrixMode(GL_MODELVIEW)  ;
+//        glLoadIdentity();
+//        Matrix4x4 mv_mat = test_camera->getModelviewMatrix();
+//        float tmp2[16];
+//        for (int i = 0; i < 16; i++) {
+//            tmp2[i] = (float)mv_mat.data[i];
+//        }
+//        glLoadMatrixf(tmp);
+
 }
 
 /**
@@ -537,6 +557,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     if (event->buttons() & Qt::LeftButton || event->buttons() & Qt::RightButton)
     {
         m_camera->mouseMove(pos - m_prevMousePos);
+        test_camera->mouseDragged(pos.x, pos.y);
     }
     m_prevMousePos = pos;
 }
@@ -548,6 +569,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 {
     m_prevMousePos.x = event->x();
     m_prevMousePos.y = event->y();
+    test_camera->mouseDown(event->x(), event->y());
 }
 
 /**
@@ -558,6 +580,7 @@ void GLWidget::wheelEvent(QWheelEvent *event)
     if (event->orientation() == Qt::Vertical)
     {
         m_camera->mouseWheel(event->delta());
+        test_camera->mouseScrolled(event->delta());
     }
 }
 

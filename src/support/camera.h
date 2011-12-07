@@ -17,7 +17,7 @@ public:
 
     OrbitCamera();
 
-    V3 center, up, _pos;
+    V3 center, up;
     float theta, phi;
     float angle_x;
     float angle_y;
