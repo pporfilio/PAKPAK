@@ -68,6 +68,7 @@ private:
     GLuint m_skybox; // skybox call list ID
     GLuint m_cubeMap; // cubeMap texture ID
     QFont m_font; // font for rendering text
+    string *m_base_path;
 
 };
 
