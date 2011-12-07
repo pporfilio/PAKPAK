@@ -54,8 +54,8 @@ bool isInJulia(vec4 p, inout float dist) {
         }
     }
 
-    //QGLShader::compile: "ERROR: 0:59: '*' :  wrong operand types no operation '*' exists that takes a left-hand operand of type 'const int' and a right operand of type 'float' (or there is no acceptable conversion)
-//    dist = magnitude(Zn) * log(magnitude(Zn)) / (2*magnitude(dZn));
+    //    QGLShader::compile: "ERROR: 0:59: '*' :  wrong operand types no operation '*' exists that takes a left-hand operand of type 'const int' and a right operand of type 'float' (or there is no acceptable conversion)
+    //    dist = magnitude(Zn) * log(magnitude(Zn)) / (2*magnitude(dZn));
     dist = magnitude(Zn) * log(magnitude(Zn)) / (2.0*magnitude(dZn));
 
     return foundFractal;
@@ -92,10 +92,11 @@ bool CalculateIntersection(inout vec4 intersection, inout float dist, vec4 d, ve
         curPoint.w = F_Z3;
 
         float curDist;
-        dist += curDist;    // TODO: this doesn't make much sense -- should it be in the if statement?
+        //dist += curDist;    // TODO: this doesn't make much sense -- should it be in the if statement?
 
         if (isInJulia(curPoint, curDist)) {
             intersection = curPoint;
+            dist += curDist;
             return true;
         }
 
@@ -233,7 +234,7 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
     dir = normalize((light_pos - p));
 
     //QGLShader::compile: "ERROR: 0:235: 'dot' : methods not supported
-//    vec4 R = normalize((n*n.dot(-dir)*2.0 + dir)); //reflection vector
+    //    vec4 R = normalize((n*n.dot(-dir)*2.0 + dir)); //reflection vector
     vec4 R = normalize((n*dot(n,-dir)*2.0 + dir)); //reflection vector
 
     vec4 V = normalize(d);
@@ -341,4 +342,3 @@ void main (void) {
     //TODO: check that this value is 0-1, not 0-255
     gl_FragColor = final_color;
 }
-
