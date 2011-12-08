@@ -4,12 +4,12 @@ uniform int width;
 uniform int height;
 uniform float film_to_world[16];
 uniform vec3 world_eye;
+uniform float F_Z3;
 
 const vec4 F_C = vec4(-.15, .16, .5, -.6);
-const float F_Z3 = .11;
 
 const float EPSILON = .001;          //closeness to fractal
-const float ITR = 300;               //number of iterations along ray
+const float ITR = 300.0;             //number of iterations along ray
 const int DEPTH = 15;                //number of fractal iterations
 const float BREAK = 4.0;             //fractal escape bound
 const float ep = .0001;              //for normal
@@ -80,9 +80,9 @@ float IntersectFSphere(vec4 p, vec4 d, float r) {
     float B = 2.0*p.x*d.x + 2.0*p.y*d.y + 2.0*p.z*d.z;
     float C = p.x*p.x + p.y*p.y + p.z*p.z - r*r;
 
-    if (B*B - 4*A*C >= 0.0) {
-        float t1 = (-B + sqrt(B*B - 4*A*C))/(2*A);
-        float t2 = (-B - sqrt(B*B - 4*A*C))/(2*A);
+    if (B*B - 4.0*A*C >= 0.0) {
+        float t1 = (-B + sqrt(B*B - 4.0*A*C))/(2.0*A);
+        float t2 = (-B - sqrt(B*B - 4.0*A*C))/(2.0*A);
         if ((t1 >= 0.0)&&(t2 >= 0.0)) {
             t = min(t1,t2);
         }

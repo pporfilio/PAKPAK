@@ -25,7 +25,9 @@ HEADERS += main/glwidget.h \
     math/CS123Algebra.h \
     math/CS123Vector.h \
     lib/utils.h \
-    lib/CS123Common.h
+    lib/CS123Common.h \
+    support/testCamera.h \
+    support/OrbitingCamera.h
 
 SOURCES += \
     main/glwidget.cpp \
@@ -38,7 +40,8 @@ SOURCES += \
     math/CS123Matrix.cpp \
     math/CS123Matrix.inl \
     math/CS123Vector.inl \
-    lib/utils.cpp
+    lib/utils.cpp \
+    support/OrbitingCamera.cpp
 
 FORMS += mainwindow.ui \
     support/mainwindow.ui
@@ -55,6 +58,13 @@ OTHER_FILES += \
     shaders/test.vert
 
 RESOURCES +=
+
+
+
+
+
+
+
 
 
 

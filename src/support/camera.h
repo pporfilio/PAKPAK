@@ -11,10 +11,16 @@
 
     @author: Justin Ardini (jardini)
 **/
-struct OrbitCamera
+class OrbitCamera
 {
+public:
+
+    OrbitCamera();
+
     V3 center, up;
     float theta, phi;
+    float angle_x;
+    float angle_y;
     float fovy;
     float zoom;
 
@@ -23,6 +29,7 @@ struct OrbitCamera
 
     void mouseMove(const V2 &delta);
     void mouseWheel(float delta);
+    V3 getPos();
     Matrix4x4 getFilmToWorld(int width, int height);
 
 };

@@ -1,42 +1,58 @@
 #include "camera.h"
+#include "utils.h"
 #include <qgl.h>
+
+
+OrbitCamera::OrbitCamera() {
+    center = V3(0.0, 0.0, 0.0);
+    up = V3(0.0, 1.0, 0.0);
+    zoom = 3.5;
+    angle_x = PI * 1.5f;
+    angle_y = 0.2f;
+    theta = angle_x;
+    phi = angle_y;
+    fovy = 60.0;
+    far_clip = 1000.0;
+    near_clip = 0.1;
+
+}
 
 void OrbitCamera::mouseMove(const V2 &delta)
 {
-    // Rotate the eye vector around the origin
-    theta += delta.x * 0.01f;
-    phi += delta.y * 0.01f;
+    // move camera around the origin
+    angle_x -= delta.x*0.005;
+    angle_y += delta.y*0.005;
 
-    // Keep theta in [0, 2pi] and phi in [-pi/2, pi/2]
-    theta -= floorf(theta / M_2PI) * M_2PI;
-    phi = max(0.01f - M_PI / 2, min(M_PI / 2 - 0.01f, phi));
+    // Keep angle_x in [0, 2pi] and angle_y in [-pi/2, pi/2]
+    angle_x -= floorf(angle_x / M_2PI) * M_2PI;
+    angle_y = max(0.01f - M_PI / 2, min(M_PI / 2 - 0.01f, angle_y));
+    theta = angle_x;
+    phi = angle_y;
 }
 
 void OrbitCamera::mouseWheel(float delta)
 {
     zoom *= powf(0.999f, delta);
+    //maintain zoom within reason
+    zoom = max(zoom, 1.2);
+    zoom = min(zoom, 8.0);
+}
+
+V3 OrbitCamera::getPos() {
+    //compute position based on angles
+    V3 pos = V3::fromAngles(angle_x, angle_y);
+    pos *= zoom;
+    return pos;
 }
 
 Matrix4x4 OrbitCamera::getFilmToWorld(int width, int height) {
 
-    //compute the scale/clipping matrix transform
-    float height_angle = fovy / 2.0;
-
-    Matrix4x4 scale_clip = Matrix4x4::identity();
-
-    double tanh_tmp = tan(toRadians(height_angle)/2.0);
-
-    double aspect_ratio = (float)width / (float)height;
-
-    scale_clip.a = 1.0 / (aspect_ratio * tanh_tmp * far_clip);
-    scale_clip.f = 1.0 / (tanh_tmp * far_clip);
-    scale_clip.k = 1.0 / far_clip;
-
-
     //compute the rotation transform
-    V3 dir(-V3::fromAngles(theta, phi));
+    V3 pos = getPos();
+    V3 dir = center - pos;
     Vector3 look = Vector3(dir.x, dir.y, dir.z);
-    Vector3 w = -(look / look.getMagnitude());
+
+    Vector3 w = (look / look.getMagnitude());
     Vector3 tmp_up = Vector3(up.x, up.y, up.z);
     Vector3 u = (tmp_up.cross(w))/((tmp_up.cross(w))).getMagnitude();
     Vector3 v = w.cross(u);
@@ -52,11 +68,8 @@ Matrix4x4 OrbitCamera::getFilmToWorld(int width, int height) {
     rotate.j = w.y;
     rotate.k = w.z;
 
-
-
     //compute translation transform
-    Matrix4x4 translate = getInvTransMat(Vector4(center.x, center.y, center.z, 1));
+    Matrix4x4 translate = getInvTransMat(Vector4(pos.x, pos.y, pos.z, 1));
 
-
-    return (scale_clip * rotate * translate).getInverse();
+    return (rotate * translate);
 }
