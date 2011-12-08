@@ -12,3 +12,5 @@ Thumbs.db
 # System specific files #
 #########################
 *.pro.user
+Makefile
+moc*
