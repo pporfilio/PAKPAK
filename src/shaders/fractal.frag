@@ -6,11 +6,10 @@ uniform float film_to_world[16];
 uniform vec3 world_eye;
 uniform float F_Z3;
 
-const vec4 F_C = vec4(-.15, .16, .5, -.6);
-
+const vec4 F_C = vec4(-.1, .1, .5, -.6);
 const float EPSILON = .001;          //closeness to fractal
 const float ITR = 300.0;             //number of iterations along ray
-const int DEPTH = 15;                //number of fractal iterations
+const int DEPTH = 10;                //number of fractal iterations
 const float BREAK = 4.0;             //fractal escape bound
 const float ep = .0001;              //for normal
 const float M = 3.0;                 //bounding radius
