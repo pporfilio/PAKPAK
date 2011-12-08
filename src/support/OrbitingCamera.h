@@ -39,7 +39,7 @@ public:
     virtual Matrix4x4 getModelviewMatrix() const;
 
     virtual void mouseDown(int x, int y);
-    virtual void mouseDragged(int x, int y);
+    virtual void mouseDragged(float x, float y);
     virtual void mouseScrolled(int delta);
 
     void updateMatrices();
