@@ -52,6 +52,10 @@ Matrix4x4 OrbitCamera::getFilmToWorld(int width, int height) {
 
     double aspect_ratio = (float)width / (float)height;
 
+    printf("tanh_tmp = %.2f\n", tanh_tmp);
+    printf("aspect_ratio = %.2f\n", aspect_ratio);
+    printf("far_clip = %.2f\n", far_clip);
+
     scale_clip.a = 1.0 / (aspect_ratio * tanh_tmp * far_clip);
     scale_clip.f = 1.0 / (tanh_tmp * far_clip);
     scale_clip.k = 1.0 / far_clip;
@@ -86,6 +90,8 @@ Matrix4x4 OrbitCamera::getFilmToWorld(int width, int height) {
     rotate.j = w.y;
     rotate.k = w.z;
 
+
+
 //    Matrix4x4 rotate = Matrix4x4::identity();
 //    rotate *= getRotXMat(angle_x);
 //    rotate *= getRotYMat(angle_y);
@@ -96,5 +102,14 @@ Matrix4x4 OrbitCamera::getFilmToWorld(int width, int height) {
     Matrix4x4 translate = getInvTransMat(Vector4(pos.x, pos.y, pos.z, 1));
 
 
-    return (scale_clip * rotate * translate).getInverse();
+    printf("scale_clip");
+    printMat4x4(scale_clip);
+
+    printf("rotate:");
+    printMat4x4(rotate);
+
+    printf("translate:");
+    printMat4x4(translate);
+
+    return (/*scale_clip **/ rotate * translate);//.getInverse();
 }

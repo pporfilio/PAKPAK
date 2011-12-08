@@ -337,88 +337,25 @@ void GLWidget::paintGL()
     m_framebufferObjects["fbo_1"]->release();
 
 
-    //haven't figured out why my modelview isn't working
-    //Matrix4x4 modelview = m_camera->getFilmToWorld(width, height);
+    //get modelview transform to pass to fragment shader
+    Matrix4x4 modelview = m_camera->getFilmToWorld(width, height);
 
-    Matrix4x4 modelview = test_camera->getModelviewMatrix().getInverse();
-    for (int i = 0; i < 16; i++) {
-        modelview.data[i] = (double)gl_modelview[i];
-    }
     renderFractal(modelview);
 
     paintText();
 }
 
 
-//void GLWidget::paintGL()
-//{
-//    // Clear the screen
-//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-//    // Update the fps
-//    int time = m_clock.elapsed();
-//    m_fps = 1000.f / (time - m_prevTime);
-//    m_prevTime = time;
-//    int width = this->width();
-//    int height = this->height();
-
-//    // Render the scene to a framebuffer
-//    m_framebufferObjects["fbo_0"]->bind();
-//    applyPerspectiveCamera(width, height);
-//    renderScene();
-//    m_framebufferObjects["fbo_0"]->release();
-
-//    // Copy the rendered scene into framebuffer 1
-//    m_framebufferObjects["fbo_0"]->blitFramebuffer(m_framebufferObjects["fbo_1"],
-//                                                   QRect(0, 0, width, height), m_framebufferObjects["fbo_0"],
-//                                                   QRect(0, 0, width, height), GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
-//    // TODO: Add drawing code here
-
-//    applyOrthogonalCamera(width, height);
-//    glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
-//    renderTexturedQuad(width, height, true);
-//    glBindTexture(GL_TEXTURE_2D, 0);
-
-//    m_framebufferObjects["fbo_2"]->bind();
-//    m_shaderPrograms["brightpass"]->bind();
-//    glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
-//    renderTexturedQuad(width, height, true);
-//    m_shaderPrograms["brightpass"]->release();
-//    glBindTexture(GL_TEXTURE_2D, 0);
-//    m_framebufferObjects["fbo_2"]->release();
-
-//    // TODO: Uncomment this section in step 2 of the lab
-
-//    float scales[] = {4.f,8.f,16.f,32.f};
-//    for (int i = 0; i < 4; ++i)
-//    {
-//        // Render the blurred brightpass filter result to fbo 1
-//        renderBlur(width / scales[i], height / scales[i]);
-
-//        // Bind the image from fbo to a texture
-//        glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
-//        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-//        // Enable alpha blending and render the texture to the screen
-//        glEnable(GL_BLEND);
-//        glBlendFunc(GL_ONE, GL_ONE);
-//        glTranslatef(0.f, (scales[i] - 1) * -height, 0.f);
-//        renderTexturedQuad(width * scales[i], height * scales[i], false);
-//        glDisable(GL_BLEND);
-//        glBindTexture(GL_TEXTURE_2D, 0);
-//    }
-
-
-//    paintText();
-//}
-
 void GLWidget::renderFractal(Matrix4x4 film_to_world) {
 
     //Not necessary but still works with these lines
 //    glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
 //    glActiveTexture(GL_TEXTURE0);
+
+    V3 pos = m_camera->getPos();
+
+    printVec3(Vector3(pos.x, pos.y, pos.z));
+    printMat4x4(film_to_world);
 
     float film_to_world_floats[16];
     for (int i = 0; i < 16; i++) {
@@ -427,7 +364,6 @@ void GLWidget::renderFractal(Matrix4x4 film_to_world) {
 
     //V3 dir = m_camera->center - m_camera->pos;
     //V3 eye(m_camera->center - dir * m_camera->zoom);
-    V3 pos = m_camera->getPos();
 
     m_shaderPrograms["fractal"]->bind();
     m_shaderPrograms["fractal"]->setUniformValue("width", this->width());
@@ -557,8 +493,9 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     V2 pos(event->x(), event->y());
     if (event->buttons() & Qt::LeftButton || event->buttons() & Qt::RightButton)
     {
-        m_camera->mouseMove(pos - m_prevMousePos);
-        test_camera->mouseDragged(pos.x, pos.y);
+        V2 delta = pos - m_prevMousePos;
+        m_camera->mouseMove(delta);
+        test_camera->mouseDragged(delta.x, delta.y);
     }
     m_prevMousePos = pos;
 }
