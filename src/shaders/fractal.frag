@@ -10,7 +10,7 @@ const vec4 F_C = vec4(-.15, .16, .5, -.6);
 
 const float EPSILON = .001;          //closeness to fractal
 const float ITR = 300.0;             //number of iterations along ray
-const int DEPTH = 15;                //number of fractal iterations
+const int DEPTH = 10;                //number of fractal iterations
 const float BREAK = 4.0;             //fractal escape bound
 const float ep = .0001;              //for normal
 const float M = 3.0;                 //bounding radius
@@ -194,12 +194,12 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
 
     vec4 n = normalize(CalculateNormal(p, d, dist, start_p));
 
-    vec3 material_ambient = vec3(0., 0., .5);
-    vec3 material_diffuse = vec3(.5, 0., 0.);
+    vec3 material_ambient = vec3(.7, .5, .3);
+    vec3 material_diffuse = vec3(.9, 0., 0.);
     vec3 material_specular = vec3(1., 1., 1.);
 
     vec4 light_pos = vec4(5., 5., -2., 1.0);
-    vec3 light_color = vec3(.8,.8,0.0);
+    vec3 light_color = vec3(.2,0.,0.0);
 
     vec4 light2_pos = vec4(-5., -5., -2., 1.0);
     vec3 light2_color = vec3(.8, .8, 0.);
@@ -250,7 +250,7 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
     Ib += light_b;
 
 
-    vec4 color = vec4(Ir,Ig,Ib,0);
+    vec4 color = vec4(Ir,Ig,Ib,1.);
 
     //color = n;
 
@@ -261,6 +261,16 @@ void main (void) {
 
     vec4 final_color = vec4(0,0,0,0);
 
+    /*
+        Slightly easier way to get a world-space position on the film plane:
+        - Declare a varying in the shaders (i.e. 'varying vec3 film_plane')
+        - In the vertex shader, set film_plane to the vertex's world space position
+        - Use film_plane from the fragment shader
+
+        OpenGL will automatically interpolate between the vertex positions you
+        explicitly set in the vertex shader, so the value you look up in the
+        fragment shader should be the real world-space position on the film plane
+    */
     vec4 sample = texture2D(tex, gl_TexCoord[0].st);
 
     int row = int(float(height)*sample.r);
@@ -302,7 +312,7 @@ void main (void) {
         t = 0.0;
     }
 
-    final_color = vec4(0.,0.,0.,1.);
+    final_color = vec4(0.,0.,0.,0.);
 
     if (t != -1.0) {
         start_p = start_p + ray * t;
@@ -314,6 +324,7 @@ void main (void) {
         //means mismatched parameters. third parameter needed to change from ray.xyz to ray, since it wanted a vec4
         if (CalculateIntersection(intersection, dist, ray, start_p, false)) {
             final_color = CalculateLighting(intersection, dist, ray, start_p);
+            gl_FragColor = final_color;
         }
     }
 

@@ -49,6 +49,7 @@ protected:
     void renderBillBoard(int width, int height, bool flip);
     void renderTexturedQuad(int width, int height, bool flip);
     void renderColoredQuad(int width, int height, bool flip);
+    void render3DTexturedQuad(int width, int height, bool flip, int depth);
     void renderBlur(int width, int height);
     void renderFractal(Matrix4x4 film_to_world);
     void renderScene();

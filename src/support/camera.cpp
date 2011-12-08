@@ -21,12 +21,13 @@ void OrbitCamera::mouseMove(const V2 &delta)
 {
     // move camera around the origin
     angle_x -= delta.x*0.005;
+    theta += delta.x*0.005;
     angle_y += delta.y*0.005;
 
     // Keep angle_x in [0, 2pi] and angle_y in [-pi/2, pi/2]
     angle_x -= floorf(angle_x / M_2PI) * M_2PI;
     angle_y = max(0.01f - M_PI / 2, min(M_PI / 2 - 0.01f, angle_y));
-    theta = angle_x;
+    theta -= floorf(angle_x / M_2PI) * M_2PI; //= angle_x;
     phi = angle_y;
 }
 

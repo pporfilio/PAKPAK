@@ -272,6 +272,8 @@ void GLWidget::paintGL()
 {
     // Clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(0,0,1, 1);
+
 
     // Update the fps
     int time = m_clock.elapsed();
@@ -281,24 +283,30 @@ void GLWidget::paintGL()
     int height = this->height();
 
     // Render the scene to a framebuffer
-    m_framebufferObjects["fbo_0"]->bind();
+    //m_framebufferObjects["fbo_0"]->bind();
     applyPerspectiveCamera(width, height);
 
     float gl_modelview[16];
     glGetFloatv(GL_MODELVIEW_MATRIX, gl_modelview);
 
     renderScene();
-    m_framebufferObjects["fbo_0"]->release();
+    //m_framebufferObjects["fbo_0"]->release();
 
     // Copy the rendered scene into framebuffer 1
     m_framebufferObjects["fbo_0"]->blitFramebuffer(m_framebufferObjects["fbo_1"],
                                                    QRect(0, 0, width, height), m_framebufferObjects["fbo_0"],
                                                    QRect(0, 0, width, height), GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
+
     applyOrthogonalCamera(width, height);
+
+
+
     //render a quad to fill the screen
     //this fills texture0 with black in the upper left,
     //green in the upper right, and red in the lower left
+
+
     m_framebufferObjects["fbo_1"]->bind();
     renderColoredQuad(width, height, true);
     m_framebufferObjects["fbo_1"]->release();
@@ -308,6 +316,8 @@ void GLWidget::paintGL()
     Matrix4x4 modelview = m_camera->getFilmToWorld(width, height);
 
     renderFractal(modelview);
+    
+
 
     paintText();
 }
@@ -315,6 +325,7 @@ void GLWidget::paintGL()
 
 //Set up fragment shader and render it to a quad that fills the screen
 void GLWidget::renderFractal(Matrix4x4 film_to_world) {
+
 
     V3 pos = m_camera->getPos();
 
@@ -333,11 +344,17 @@ void GLWidget::renderFractal(Matrix4x4 film_to_world) {
     m_shaderPrograms["fractal"]->setUniformValue("world_eye", pos.x, pos.y, pos.z);
     m_shaderPrograms["fractal"]->setUniformValue("F_Z3", F_Z3);
 
+    glEnable(GL_BLEND);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     //provide texture with color indicating x, y pixel location to the shader
     glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
 
     //render the quad (i.e. compute per-pixel in the fragment shader)
-    renderTexturedQuad(this->width(), this->height(), true);
+
+    //renderTexturedQuad(this->width(), this->height(), true);
+    render3DTexturedQuad(this->width(), this->height(), true, 1); //AIMEI
 
     //clean-up
     m_shaderPrograms["fractal"]->release();
@@ -487,6 +504,26 @@ void GLWidget::renderTexturedQuad(int width, int height, bool flip) {
 
     glTexCoord2f(0.0f, flip ? 0.0f : 1.0f);
     glVertex2f(-width/2.0, height/2.0);
+    glEnd();
+}
+
+void GLWidget::render3DTexturedQuad(int width, int height, bool flip, int depth) {
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    // Draw the  quad
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, flip ? 1.0f : 0.0f);
+    glVertex3f(-width/2.0, -height/2.0, depth);
+
+    glTexCoord2f(1.0f, flip ? 1.0f : 0.0f);
+    glVertex3f(width/2.0, -height/2.0, depth);
+
+    glTexCoord2f(1.0f, flip ? 0.0f : 1.0f);
+    glVertex3f(width/2.0, height/2.0, depth);
+
+    glTexCoord2f(0.0f, flip ? 0.0f : 1.0f);
+    glVertex3f(-width/2.0, height/2.0, depth);
     glEnd();
 }
 
