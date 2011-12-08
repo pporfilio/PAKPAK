@@ -33,6 +33,7 @@ OrbitingCamera::OrbitingCamera()
     m_cameraFOV = 60.0;
     m_cameraNear = 0.1;
     m_cameraFar = 1000.0;
+    m_modelviewMatrix = Matrix4x4::identity();
 }
 
 void OrbitingCamera::setAspectRatio(float aspectRatio)
@@ -58,12 +59,15 @@ void OrbitingCamera::mouseDown(int x, int y)
     m_oldY = y;
 }
 
-void OrbitingCamera::mouseDragged(int x, int y)
+void OrbitingCamera::mouseDragged(float dx, float dy)
 {
-    m_angleY += x - m_oldX;
-    m_angleX += y - m_oldY;
-    m_oldX = x;
-    m_oldY = y;
+    printf("delta = (%.2f, %.2f)\n", dx, dy);
+//    m_angleY += x - m_oldX;
+//    m_angleX += y - m_oldY;
+//    m_oldX = x;
+//    m_oldY = y;
+    m_angleX += dx;
+    m_angleY += dy;
     if (m_angleX < -90) m_angleX = -90;
     if (m_angleX > 90) m_angleX = 90;
 
