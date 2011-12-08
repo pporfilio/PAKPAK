@@ -33,15 +33,7 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
     setMouseTracking(true);
 
     m_camera = new OrbitCamera();
-    test_camera = new OrbitingCamera();
-
-//    m_camera.center = V3(0.f, 0.f, 0.f);
-//    m_camera.up = V3(0.f, 1.f, 0.f);
-//    m_camera.zoom = 3.5f;
-//    m_camera.theta = M_PI * 1.5f, m_camera.phi = 0.2f;
-//    m_camera.fovy = 60.f;
-//    m_camera.far_clip = 1000.f;
-//    m_camera.near_clip = 0.1f;
+    //test_camera = new OrbitingCamera();
 
     F_Z3 = 0.1;
 
@@ -132,7 +124,6 @@ void GLWidget::initializeResources()
 
     cout << tmp << endl;
 
-    //m_dragon = ResourceLoader::loadObjModel("/Users/parker/Dropbox/Brown/Fall_2011/cs123/final/PAKPAK/src/models/xyzrgb_dragon.obj");
     m_dragon = ResourceLoader::loadObjModel(tmp.append("models/xyzrgb_dragon.obj").c_str());
     cout << "Loaded dragon..." << endl;
 
@@ -213,8 +204,6 @@ void GLWidget::createShaderPrograms()
     tmp1 = "";
     tmp1 += shader_base;
     m_shaderPrograms["fractal"] = ResourceLoader::newFragShaderProgram(ctx, tmp1.append("fractal.frag").c_str());
-    //m_shaderPrograms["fractal"] = ResourceLoader::newFragShaderProgram(ctx, tmp1.append("old_fractal.frag").c_str());
-
 }
 
 /**
@@ -267,9 +256,6 @@ void GLWidget::applyPerspectiveCamera(float width, float height)
     V3 dir(-V3::fromAngles(m_camera->theta, m_camera->phi));
     V3 eye(m_camera->center - dir * m_camera->zoom);
 
-//    V3 dir = m_camera->center - m_camera->getPos();
-//    V3 eye = m_camera->getPos();
-
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(m_camera->fovy, ratio, m_camera->near_clip, m_camera->far_clip);
@@ -277,25 +263,6 @@ void GLWidget::applyPerspectiveCamera(float width, float height)
               m_camera->up.x, m_camera->up.y, m_camera->up.z);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-
-
-//        glMatrixMode(GL_PROJECTION);
-//        glLoadIdentity();
-//        Matrix4x4 proj_mat = test_camera->getProjectionMatrix();
-//        float tmp[16];
-//        for (int i = 0; i < 16; i++) {
-//            tmp[i] = (float)proj_mat.data[i];
-//        }
-//        glLoadMatrixf(tmp);
-//        glMatrixMode(GL_MODELVIEW)  ;
-//        glLoadIdentity();
-//        Matrix4x4 mv_mat = test_camera->getModelviewMatrix();
-//        float tmp2[16];
-//        for (int i = 0; i < 16; i++) {
-//            tmp2[i] = (float)mv_mat.data[i];
-//        }
-//        glLoadMatrixf(tmp);
-
 }
 
 /**
@@ -346,33 +313,31 @@ void GLWidget::paintGL()
 }
 
 
+//Set up fragment shader and render it to a quad that fills the screen
 void GLWidget::renderFractal(Matrix4x4 film_to_world) {
 
-    //Not necessary but still works with these lines
-//    glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
-//    glActiveTexture(GL_TEXTURE0);
-
     V3 pos = m_camera->getPos();
-
-    printVec3(Vector3(pos.x, pos.y, pos.z));
-    printMat4x4(film_to_world);
 
     float film_to_world_floats[16];
     for (int i = 0; i < 16; i++) {
         film_to_world_floats[i] = (float)film_to_world.data[i];
     }
 
-    //V3 dir = m_camera->center - m_camera->pos;
-    //V3 eye(m_camera->center - dir * m_camera->zoom);
-
+    //pass parameters to the shader
     m_shaderPrograms["fractal"]->bind();
     m_shaderPrograms["fractal"]->setUniformValue("width", this->width());
     m_shaderPrograms["fractal"]->setUniformValue("height", this->height());
     m_shaderPrograms["fractal"]->setUniformValueArray("film_to_world", film_to_world_floats, 16, 1);
     m_shaderPrograms["fractal"]->setUniformValue("world_eye", pos.x, pos.y, pos.z);
     m_shaderPrograms["fractal"]->setUniformValue("F_Z3", F_Z3);
+
+    //provide texture with color indicating x, y pixel location to the shader
     glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
+
+    //render the quad (i.e. compute per-pixel in the fragment shader)
     renderTexturedQuad(this->width(), this->height(), true);
+
+    //clean-up
     m_shaderPrograms["fractal"]->release();
     glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -420,53 +385,6 @@ void GLWidget::renderScene() {
 }
 
 
-void GLWidget::renderBillBoard(int width, int height, bool flip) {
-    // Clamp value to edge of texture when texture index is out of bounds
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-
-    float modelview[16];
-    int i,j;
-
-    // save the current modelview matrix
-    glPushMatrix();
-
-    // get the current modelview matrix
-    glGetFloatv(GL_MODELVIEW_MATRIX , modelview);
-
-    // undo all rotations
-    // beware all scaling is lost as well
-    for( i=0; i<3; i++ ) {
-            for( j=0; j<3; j++ ) {
-                    if ( i==j )
-                            modelview[i*4+j] = 1.0;
-                    else
-                            modelview[i*4+j] = 0.0;
-            }
-    }
-
-    // set the modelview with no rotations and scaling
-    glLoadMatrixf(modelview);
-
-
-    // Draw the  quad
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, flip ? 1.0f : 0.0f);
-    glColor3f(0.0, 1.0, 0.0);
-    glVertex2f(-width/2.0, -height/2.0);
-    glTexCoord2f(1.0f, flip ? 1.0f : 0.0f);
-    glVertex2f(width/2.0, -height/2.0);
-    glTexCoord2f(1.0f, flip ? 0.0f : 1.0f);
-    glVertex2f(width/2.0, height/2.0);
-    glTexCoord2f(0.0f, flip ? 0.0f : 1.0f);
-    glVertex2f(-width/2.0, height/2.0);
-    glEnd();
-
-    // restore the previously
-    // stored modelview matrix
-    glPopMatrix();
-}
 /**
   Run a gaussian blur on the texture stored in fbo 2 and
   put the result in fbo 1.  The blur should have a radius of 2.
@@ -495,7 +413,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     {
         V2 delta = pos - m_prevMousePos;
         m_camera->mouseMove(delta);
-        test_camera->mouseDragged(delta.x, delta.y);
+        //test_camera->mouseDragged(delta.x, delta.y);
     }
     m_prevMousePos = pos;
 }
@@ -507,7 +425,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 {
     m_prevMousePos.x = event->x();
     m_prevMousePos.y = event->y();
-    test_camera->mouseDown(event->x(), event->y());
+    //test_camera->mouseDown(event->x(), event->y());
 }
 
 /**
@@ -518,7 +436,7 @@ void GLWidget::wheelEvent(QWheelEvent *event)
     if (event->orientation() == Qt::Vertical)
     {
         m_camera->mouseWheel(event->delta());
-        test_camera->mouseScrolled(event->delta());
+        //test_camera->mouseScrolled(event->delta());
     }
 }
 
