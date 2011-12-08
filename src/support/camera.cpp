@@ -1,5 +1,5 @@
 #include "camera.h"
-#include "util.h"
+#include "utils.h"
 #include <qgl.h>
 
 

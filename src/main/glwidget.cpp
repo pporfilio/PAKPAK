@@ -212,8 +212,8 @@ void GLWidget::createShaderPrograms()
     m_shaderPrograms["blur"] = ResourceLoader::newFragShaderProgram(ctx, tmp1.append("blur.frag").c_str());
     tmp1 = "";
     tmp1 += shader_base;
-    //m_shaderPrograms["fractal"] = ResourceLoader::newFragShaderProgram(ctx, tmp1.append("fractal.frag").c_str());
-    m_shaderPrograms["fractal"] = ResourceLoader::newFragShaderProgram(ctx, tmp1.append("old_fractal.frag").c_str());
+    m_shaderPrograms["fractal"] = ResourceLoader::newFragShaderProgram(ctx, tmp1.append("fractal.frag").c_str());
+    //m_shaderPrograms["fractal"] = ResourceLoader::newFragShaderProgram(ctx, tmp1.append("old_fractal.frag").c_str());
 
 }
 
@@ -340,9 +340,7 @@ void GLWidget::paintGL()
     //haven't figured out why my modelview isn't working
     //Matrix4x4 modelview = m_camera->getFilmToWorld(width, height);
 
-    //But OpenGL's seems to use the parameters from my camera just fine.
-    Matrix4x4 modelview = Matrix4x4::identity();
-
+    Matrix4x4 modelview = test_camera->getModelviewMatrix().getInverse();
     for (int i = 0; i < 16; i++) {
         modelview.data[i] = (double)gl_modelview[i];
     }
@@ -435,7 +433,7 @@ void GLWidget::renderFractal(Matrix4x4 film_to_world) {
     m_shaderPrograms["fractal"]->setUniformValue("width", this->width());
     m_shaderPrograms["fractal"]->setUniformValue("height", this->height());
     m_shaderPrograms["fractal"]->setUniformValueArray("film_to_world", film_to_world_floats, 16, 1);
-    m_shaderPrograms["fractal"]->setUniformValue("world_eye", eye.x, eye.y, eye.z);
+    m_shaderPrograms["fractal"]->setUniformValue("world_eye", pos.x, pos.y, pos.z);
     m_shaderPrograms["fractal"]->setUniformValue("F_Z3", F_Z3);
     glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
     renderTexturedQuad(this->width(), this->height(), true);
