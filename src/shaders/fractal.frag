@@ -6,8 +6,7 @@ uniform float film_to_world[16];
 uniform vec3 world_eye;
 uniform float F_Z3;
 
-const vec4 F_C = vec4(-.15, .16, .5, -.6);
-
+const vec4 F_C = vec4(-.1, .1, .5, -.6);
 const float EPSILON = .001;          //closeness to fractal
 const float ITR = 300.0;             //number of iterations along ray
 const int DEPTH = 10;                //number of fractal iterations
