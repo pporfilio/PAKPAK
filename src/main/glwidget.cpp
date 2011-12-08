@@ -323,6 +323,8 @@ void GLWidget::renderFractal(Matrix4x4 film_to_world) {
         film_to_world_floats[i] = (float)film_to_world.data[i];
     }
 
+    printf("width = %d, height = %d\n", this->width(), this->height());
+
     //pass parameters to the shader
     m_shaderPrograms["fractal"]->bind();
     m_shaderPrograms["fractal"]->setUniformValue("width", this->width());

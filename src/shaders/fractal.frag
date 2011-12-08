@@ -270,6 +270,9 @@ void main (void) {
                        -1.0,
                        1.0);
 
+    float aspect = float(height)/float(width);
+    p_film.y *= aspect;
+
     mat4 film_to_world_transform = mat4(film_to_world[0],
                                             film_to_world[1],
                                             film_to_world[2],
