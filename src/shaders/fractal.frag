@@ -6,6 +6,8 @@ uniform float film_to_world[16];
 uniform vec3 world_eye;
 uniform float F_Z3;
 
+varying vec3 vVertex;
+
 const vec4 F_C = vec4(-.1, .1, .5, -.6);
 const float EPSILON = .001;          //closeness to fractal
 const float ITR = 300.0;             //number of iterations along ray
@@ -224,9 +226,9 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
     float light_g;
     float light_b;
 
-    light_r = KD * material_diffuse * (light_color.x * max(0.0, dot(n, dir)) + light2_color.x * max(0.0, dot(n, dir2)));
-    light_g = KD * material_diffuse * (light_color.y * max(0.0, dot(n, dir)) + light2_color.y * max(0.0, dot(n, dir2)));
-    light_b = KD * material_diffuse * (light_color.z * max(0.0, dot(n, dir)) + light2_color.z * max(0.0, dot(n, dir2)));
+    light_r = KD * material_diffuse.x * (light_color.x * max(0.0, dot(n, dir)) + light2_color.x * max(0.0, dot(n, dir2)));
+    light_g = KD * material_diffuse.y * (light_color.y * max(0.0, dot(n, dir)) + light2_color.y * max(0.0, dot(n, dir2)));
+    light_b = KD * material_diffuse.z * (light_color.z * max(0.0, dot(n, dir)) + light2_color.z * max(0.0, dot(n, dir2)));
 
     light_r += KS * material_specular.x * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
     light_g += KS * material_specular.y * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
@@ -275,10 +277,12 @@ void main (void) {
     int row = int(float(height)*sample.r);
     int col = int(float(width)*sample.g);
 
-    vec4 p_film = vec4((2.0*float(col) / float(width)) - 1.0,
-                       1.0 - ((2.0*float(row)) / float(height)),
-                       -1.0,
-                       1.0);
+//    vec4 p_film = vec4((2.0*float(col) / float(width)) - 1.0,
+//                       1.0 - ((2.0*float(row)) / float(height)),
+//                       -1.0,
+//                       1.0);
+
+    vec4 p_film = vec4(vVertex.x, vVertex.y, -1.0, 1.0);
 
     float aspect = float(height)/float(width);
     p_film.y *= aspect;
@@ -326,6 +330,8 @@ void main (void) {
             gl_FragColor = final_color;
         }
     }
+
+    //final_color = vec4(vVertex.x, vVertex.y, vVertex.z, 1);
 
     gl_FragColor = final_color;
 }
