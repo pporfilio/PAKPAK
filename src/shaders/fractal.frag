@@ -282,32 +282,34 @@ void main (void) {
 //                       -1.0,
 //                       1.0);
 
-    vec4 p_film = vec4(vVertex.x, vVertex.y, -1.0, 1.0);
+    vec4 p_film = vec4(vVertex.x, vVertex.y, vVertex.z, 1.0);
 
-    float aspect = float(height)/float(width);
-    p_film.y *= aspect;
+//    float aspect = float(height)/float(width);
+//    p_film.y *= aspect;
 
-    mat4 film_to_world_transform = mat4(film_to_world[0],
-                                            film_to_world[1],
-                                            film_to_world[2],
-                                            film_to_world[3],
-                                            film_to_world[4],
-                                            film_to_world[5],
-                                            film_to_world[6],
-                                            film_to_world[7],
-                                            film_to_world[8],
-                                            film_to_world[9],
-                                            film_to_world[10],
-                                            film_to_world[11],
-                                            film_to_world[12],
-                                            film_to_world[13],
-                                            film_to_world[14],
-                                            film_to_world[15]);
+//    mat4 film_to_world_transform = mat4(film_to_world[0],
+//                                            film_to_world[1],
+//                                            film_to_world[2],
+//                                            film_to_world[3],
+//                                           film_to_world[4],
+//                                            film_to_world[5],
+//                                            film_to_world[6],
+//                                            film_to_world[7],
+//                                            film_to_world[8],
+//                                            film_to_world[9],
+//                                            film_to_world[10],
+//                                            film_to_world[11],
+//                                            film_to_world[12],
+//                                            film_to_world[13],
+//                                            film_to_world[14],
+//                                            film_to_world[15]);
 
-    vec4 p_film_world = film_to_world_transform * p_film;
+//    vec4 p_film_world = film_to_world_transform * p_film;
 
     vec4 start_p = vec4(world_eye, 1.0);
-    vec4 ray = normalize(p_film_world - start_p);
+//    vec4 ray = normalize(p_film_world - start_p);
+    vec4 ray = normalize(p_film - start_p);
+
 
     float t = IntersectFSphere(start_p, ray, M);
 
@@ -331,7 +333,7 @@ void main (void) {
         }
     }
 
-    //final_color = vec4(vVertex.x, vVertex.y, vVertex.z, 1);
+    final_color = vec4(-vVertex.x, -vVertex.y, -vVertex.z, 1);
 
     gl_FragColor = final_color;
 }

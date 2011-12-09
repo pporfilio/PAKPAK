@@ -35,8 +35,8 @@ void OrbitCamera::mouseWheel(float delta)
 {
     zoom *= powf(0.999f, delta);
     //maintain zoom within reason
-    zoom = max(zoom, 1.2);
-    zoom = min(zoom, 8.0);
+    //zoom = max(zoom, 1.2);
+    //zoom = min(zoom, 8.0);
 }
 
 V3 OrbitCamera::getPos() {
@@ -72,5 +72,5 @@ Matrix4x4 OrbitCamera::getFilmToWorld(int width, int height) {
     //compute translation transform
     Matrix4x4 translate = getInvTransMat(Vector4(pos.x, pos.y, pos.z, 1));
 
-    return (rotate * translate);
+    return (rotate * translate).getInverse();
 }

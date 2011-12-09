@@ -259,17 +259,25 @@ void GLWidget::applyOrthogonalCamera(float width, float height)
 **/
 void GLWidget::applyPerspectiveCamera(float width, float height)
 {
-    float ratio = ((float) width) / height;
-    V3 dir(-V3::fromAngles(m_camera->theta, m_camera->phi));
-    V3 eye(m_camera->center - dir * m_camera->zoom);
+      float ratio = ((float) width) / height;
+      //V3 dir(-V3::fromAngles(m_camera->theta, m_camera->phi));
+      V3 eye(m_camera->getPos());
+      //V3 eye(m_camera->center - dir * m_camera->zoom);
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(m_camera->fovy, ratio, m_camera->near_clip, m_camera->far_clip);
-    gluLookAt(eye.x, eye.y, eye.z, eye.x + dir.x, eye.y + dir.y, eye.z + dir.z,
-              m_camera->up.x, m_camera->up.y, m_camera->up.z);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+      glMatrixMode(GL_PROJECTION);
+      glLoadIdentity();
+      gluPerspective(m_camera->fovy, ratio, m_camera->near_clip, m_camera->far_clip);
+
+      gluLookAt(eye.x, eye.y, eye.z, m_camera->center.x, m_camera->center.y, m_camera->center.z,
+                m_camera->up.x, m_camera->up.y, m_camera->up.z);
+
+
+      //    gluLookAt(eye.x, eye.y, eye.z, eye.x + dir.x, eye.y + dir.y, eye.z + dir.z,
+      //              m_camera->up.x, m_camera->up.y, m_camera->up.z);
+      glMatrixMode(GL_MODELVIEW);
+      glLoadIdentity();
+
+
 }
 
 /**
@@ -305,7 +313,7 @@ void GLWidget::paintGL()
                                                    QRect(0, 0, width, height), GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 
-    applyOrthogonalCamera(width, height);
+//    applyOrthogonalCamera(width, height);
 
 
 
@@ -518,19 +526,45 @@ void GLWidget::render3DTexturedQuad(int width, int height, bool flip, int depth)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+    V3 pos = m_camera->getPos();
+
+    Vector4 mypos = Vector4(pos.x, pos.y, pos.z, 0);
+
+    Matrix4x4 film_to_world = m_camera->getFilmToWorld(width, height);
+
+    Vector4 plane_center = Vector4(0, 0, 2, 1);
+    Vector4 plane_ul = Vector4(-1, 1, 2, 1);
+    Vector4 plane_ll = Vector4(-1, -1, 2, 1);
+    Vector4 plane_lr = Vector4(1, -1, 2, 1);
+    Vector4 plane_ur = Vector4(1, 1, 2, 1);
+
+    Vector4 t_center = film_to_world*plane_center;
+    Vector4 t_ul = film_to_world*plane_ul;
+    Vector4 t_ll = film_to_world*plane_ll;
+    Vector4 t_lr = film_to_world*plane_lr;
+    Vector4 t_ur = film_to_world*plane_ur;
+
+
     // Draw the  quad
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, flip ? 1.0f : 0.0f);
-    glVertex3f(-width/2.0, -height/2.0, depth);
+//    glVertex3f(-width/2.0, -height/2.0, depth);
+    glVertex3f(t_ul.x, t_ul.y, t_ul.z);
 
     glTexCoord2f(1.0f, flip ? 1.0f : 0.0f);
-    glVertex3f(width/2.0, -height/2.0, depth);
+//    glVertex3f(width/2.0, -height/2.0, depth);
+    glVertex3f(t_ll.x, t_ll.y, t_ll.z);
+
 
     glTexCoord2f(1.0f, flip ? 0.0f : 1.0f);
-    glVertex3f(width/2.0, height/2.0, depth);
+//    glVertex3f(width/2.0, height/2.0, depth);
+    glVertex3f(t_lr.x, t_lr.y, t_lr.z);
+
 
     glTexCoord2f(0.0f, flip ? 0.0f : 1.0f);
-    glVertex3f(-width/2.0, height/2.0, depth);
+//    glVertex3f(-width/2.0, height/2.0, depth);
+    glVertex3f(t_ur.x, t_ur.y, t_ur.z);
+
     glEnd();
 }
 

@@ -1,7 +1,7 @@
 varying vec3 vVertex;
 void main()
-{	
+{
     gl_Position = ftransform();
-    vVertex = gl_Position.xyz;
+    vVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
 }
 
