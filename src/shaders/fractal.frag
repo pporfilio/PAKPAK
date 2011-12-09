@@ -1,8 +1,8 @@
 uniform vec4 eye;
-uniform sampler2D tex;
+//uniform sampler2D tex;
 uniform int width;
 uniform int height;
-uniform float film_to_world[16];
+//uniform float film_to_world[16];
 uniform vec3 world_eye;
 uniform float F_Z3;
 
@@ -272,10 +272,10 @@ void main (void) {
         explicitly set in the vertex shader, so the value you look up in the
         fragment shader should be the real world-space position on the film plane
     */
-    vec4 sample = texture2D(tex, gl_TexCoord[0].st);
+//    vec4 sample = texture2D(tex, gl_TexCoord[0].st);
 
-    int row = int(float(height)*sample.r);
-    int col = int(float(width)*sample.g);
+//    int row = int(float(height)*sample.r);
+//    int col = int(float(width)*sample.g);
 
 //    vec4 p_film = vec4((2.0*float(col) / float(width)) - 1.0,
 //                       1.0 - ((2.0*float(row)) / float(height)),
@@ -333,7 +333,7 @@ void main (void) {
         }
     }
 
-    final_color = vec4(-vVertex.x, -vVertex.y, -vVertex.z, 1);
+    //final_color = vec4(-vVertex.x, -vVertex.y, -vVertex.z, 1);
 
     gl_FragColor = final_color;
 }
