@@ -26,6 +26,14 @@ public:
     GLWidget(QWidget *parent = 0);
     ~GLWidget();
 
+    //ui interaction methods
+    void sliderUpdateF_Z3(int newValue);
+    void sliderUpdateF_C_x(int newValue);
+    void sliderUpdateF_C_y(int newValue);
+    void sliderUpdateF_C_z(int newValue);
+    void sliderUpdateF_C_w(int newValue);
+
+
 protected:
     // Overridden QGLWidget methods
     void initializeGL();
@@ -64,6 +72,7 @@ private:
 
     //fractal parameter variables
     float F_Z3;
+    Vector4 F_C;
 
 };
 

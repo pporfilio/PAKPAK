@@ -34,7 +34,8 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
 
     m_camera = new OrbitCamera();
 
-    F_Z3 = 0.1;
+    F_Z3 = 0.0;
+    F_C = Vector4(-.1, .1, .5, -.6);
 
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(update()));
 
@@ -278,6 +279,7 @@ void GLWidget::renderFractal() {
     m_shaderPrograms["fractal"]->setUniformValue("height", this->height());
     m_shaderPrograms["fractal"]->setUniformValue("world_eye", pos.x, pos.y, pos.z);
     m_shaderPrograms["fractal"]->setUniformValue("F_Z3", F_Z3);
+    m_shaderPrograms["fractal"]->setUniformValue("F_C", F_C.x, F_C.y, F_C.z, F_C.w);
 
     glEnable(GL_BLEND);
 
@@ -423,4 +425,25 @@ void GLWidget::paintText()
     renderText(10, 50, "eye location : (" + QString::number((double)(pos.x)) +
                ", " + QString::number((double)(pos.y)) + ", " +
                QString::number((double)(pos.x)) + ")", m_font);
+}
+
+void GLWidget::sliderUpdateF_Z3(int newValue) {
+    F_Z3 = (float)newValue / 100.0;
+}
+
+
+void GLWidget::sliderUpdateF_C_x(int newValue) {
+    F_C.x = (float)newValue / 100.0;
+}
+
+void GLWidget::sliderUpdateF_C_y(int newValue) {
+    F_C.y = (float)newValue / 100.0;
+}
+
+void GLWidget::sliderUpdateF_C_z(int newValue) {
+    F_C.z = (float)newValue / 100.0;
+}
+
+void GLWidget::sliderUpdateF_C_w(int newValue) {
+    F_C.w = (float)newValue / 100.0;
 }

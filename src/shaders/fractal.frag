@@ -1,14 +1,12 @@
 uniform vec4 eye;
-//uniform sampler2D tex;
 uniform int width;
 uniform int height;
-//uniform float film_to_world[16];
 uniform vec3 world_eye;
 uniform float F_Z3;
+uniform vec4 F_C;
 
 varying vec3 vVertex;
 
-const vec4 F_C = vec4(-.1, .1, .5, -.6);
 const float EPSILON = .001;          //closeness to fractal
 const float ITR = 300.0;             //number of iterations along ray
 const int DEPTH = 10;                //number of fractal iterations
@@ -67,9 +65,7 @@ bool isInJulia(vec4 p, inout float dist) {
         }
     }
 
-    //    QGLShader::compile: "ERROR: 0:59: '*' :  wrong operand types no operation '*' exists that takes a left-hand operand of type 'const int' and a right operand of type 'float' (or there is no acceptable conversion)
-    //    dist = magnitude(Zn) * log(magnitude(Zn)) / (2*magnitude(dZn));
-    dist = magnitude(Zn) * log(magnitude(Zn)) / (2.0*magnitude(dZn));
+   dist = magnitude(Zn) * log(magnitude(Zn)) / (2.0*magnitude(dZn));
 
     return foundFractal;
 }
@@ -98,16 +94,12 @@ float IntersectFSphere(vec4 p, vec4 d, float r) {
 }
 
 
-//bool CalculateIntersection(vec4<REAL> &intersection, float &dist, vec4<REAL> d, vec4<REAL> start_p) {
 bool CalculateIntersection(inout vec4 intersection, inout float dist, vec4 d, vec4 start_p, bool isShadow) {
 
-    //QGLShader::compile: "ERROR: 0:71: '=' :  cannot convert from 'const int' to 'float'
 
     float t = 0.0;
 
     vec4 curPoint;
-//    QGLShader::compile: "ERROR: 0:70: '=' :  cannot convert from 'const int' to 'float'
-//  Casting is a function. I should have mentioned that.
 
 
     curPoint.x = start_p.x;
@@ -115,9 +107,6 @@ bool CalculateIntersection(inout vec4 intersection, inout float dist, vec4 d, ve
     curPoint.z = start_p.z;
     curPoint.w = F_Z3;
 
-    //QGLShader::compile: "ERROR: 0:85: '<' :  wrong operand types no operation '<' exists that takes a left-hand operand of type 'int' and a right operand of type 'const float' (or there is no acceptable conversion)
-    //I hope/assume int() casts by truncating as in C
-    //for (int i = 0; i < ITR; i++) {
 
     dist = 0.0;
     float curDist = 0.0;
@@ -130,8 +119,6 @@ bool CalculateIntersection(inout vec4 intersection, inout float dist, vec4 d, ve
             intersection = curPoint;
             return true;
         }
-
-        //QGLShader::compile: "ERROR: 0:102: ')' : syntax error syntax error
 
         t = max(curDist, float(EPSILON));
 
@@ -272,42 +259,11 @@ void main (void) {
         explicitly set in the vertex shader, so the value you look up in the
         fragment shader should be the real world-space position on the film plane
     */
-//    vec4 sample = texture2D(tex, gl_TexCoord[0].st);
-
-//    int row = int(float(height)*sample.r);
-//    int col = int(float(width)*sample.g);
-
-//    vec4 p_film = vec4((2.0*float(col) / float(width)) - 1.0,
-//                       1.0 - ((2.0*float(row)) / float(height)),
-//                       -1.0,
-//                       1.0);
 
     vec4 p_film = vec4(vVertex.x, vVertex.y, vVertex.z, 1.0);
 
-//    float aspect = float(height)/float(width);
-//    p_film.y *= aspect;
-
-//    mat4 film_to_world_transform = mat4(film_to_world[0],
-//                                            film_to_world[1],
-//                                            film_to_world[2],
-//                                            film_to_world[3],
-//                                           film_to_world[4],
-//                                            film_to_world[5],
-//                                            film_to_world[6],
-//                                            film_to_world[7],
-//                                            film_to_world[8],
-//                                            film_to_world[9],
-//                                            film_to_world[10],
-//                                            film_to_world[11],
-//                                            film_to_world[12],
-//                                            film_to_world[13],
-//                                            film_to_world[14],
-//                                            film_to_world[15]);
-
-//    vec4 p_film_world = film_to_world_transform * p_film;
 
     vec4 start_p = vec4(world_eye, 1.0);
-//    vec4 ray = normalize(p_film_world - start_p);
     vec4 ray = normalize(p_film - start_p);
 
 
@@ -325,14 +281,13 @@ void main (void) {
         vec4 intersection = vec4(0.0,0.0,0.0,0.0);
         float dist = 0.0;
 
-        //QGLShader::compile: "ERROR: 0:332: 'CalculateIntersection' : no matching overloaded function found
-        //means mismatched parameters. third parameter needed to change from ray.xyz to ray, since it wanted a vec4
         if (CalculateIntersection(intersection, dist, ray, start_p, false)) {
             final_color = CalculateLighting(intersection, dist, ray, start_p);
             gl_FragColor = final_color;
         }
     }
 
+    //useful for debugging. Please don't remove [Parker]
     //final_color = vec4(-vVertex.x, -vVertex.y, -vVertex.z, 1);
 
     gl_FragColor = final_color;
