@@ -260,12 +260,8 @@ void GLWidget::paintGL()
 
     glDisable(GL_DEPTH_TEST);
 
-
-
     glBindTexture(GL_TEXTURE_CUBE_MAP,0);
     glDisable(GL_TEXTURE_CUBE_MAP);
-
-
 
     paintText();
 }
@@ -344,11 +340,17 @@ void GLWidget::render3DTexturedQuad(int width, int height, bool flip) {
 
     Matrix4x4 film_to_world = m_camera->getFilmToWorld(width, height);
 
-    Vector4 plane_center = Vector4(0, 0, 2, 1);
-    Vector4 plane_ul = Vector4(-1, 1, 2, 1);
-    Vector4 plane_ll = Vector4(-1, -1, 2, 1);
-    Vector4 plane_lr = Vector4(1, -1, 2, 1);
-    Vector4 plane_ur = Vector4(1, 1, 2, 1);
+    float plane_depth = 2.0;
+
+    float aspect = (float)width/(float)height;
+
+    float half_height = plane_depth * tan(toRadians(m_camera->fovy/2));
+    float half_width = half_height * aspect;
+
+    Vector4 plane_ul = Vector4(-half_width, half_height, plane_depth, 1);
+    Vector4 plane_ll = Vector4(-half_width, -half_height, plane_depth, 1);
+    Vector4 plane_lr = Vector4(half_width, -half_height, plane_depth, 1);
+    Vector4 plane_ur = Vector4(half_width, half_height, plane_depth, 1);
 
     Vector4 t_ul = film_to_world*plane_ul;
     Vector4 t_ll = film_to_world*plane_ll;
@@ -371,7 +373,6 @@ void GLWidget::render3DTexturedQuad(int width, int height, bool flip) {
 
     glTexCoord2f(0.0f, flip ? 0.0f : 1.0f);
     glVertex3f(t_ur.x, t_ur.y, t_ur.z);
-
     glEnd();
 }
 
@@ -418,9 +419,8 @@ void GLWidget::paintText()
     // QGLWidget's renderText takes xy coordinates, a string, and a font
     renderText(10, 20, "FPS: " + QString::number((int) (m_prevFps)), m_font);
     renderText(10, 35, "S: Save screenshot", m_font);
-    V3 dir(-V3::fromAngles(m_camera->theta, m_camera->phi));
-    V3 eye(m_camera->center - dir * m_camera->zoom);
-    renderText(10, 50, "eye location : (" + QString::number((double)(eye.x)) +
-               ", " + QString::number((double)(eye.y)) + ", " +
-               QString::number((double)(eye.x)) + ")", m_font);
+    V3 pos = m_camera->getPos();
+    renderText(10, 50, "eye location : (" + QString::number((double)(pos.x)) +
+               ", " + QString::number((double)(pos.y)) + ", " +
+               QString::number((double)(pos.x)) + ")", m_font);
 }
