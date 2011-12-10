@@ -6,13 +6,16 @@ uniform float film_to_world[16];
 uniform vec3 world_eye;
 uniform float F_Z3;
 
-const vec4 F_C = vec4(-.1, .1, .5, -.6);
-const float EPSILON = .001;          //closeness to fractal
+const vec4 F_C = vec4(-.8, -0.2, 0.1, 0.);
+//const float EPSILON = .001;          //closeness to fractal
 const float ITR = 300.0;             //number of iterations along ray
-const int DEPTH = 10;                //number of fractal iterations
+//const int depth = 30;                //number of fractal iterations
 const float BREAK = 4.0;             //fractal escape bound
-const float ep = .0001;              //for normal
+//const float ep = .0001;              //for normal
 const float M = 3.0;                 //bounding radius
+int depth;
+float EPSILON;
+float ep;
 
 float magnitude(vec4 v) {
     return sqrt(dot(v, v));
@@ -52,7 +55,7 @@ bool isInJulia(vec4 p, inout float dist) {
 
     bool foundFractal = true;
 
-    for (int i = 0; i < DEPTH; i++) {
+    for (int i = 0; i < depth; i++) {
 
         Zn = QMultiply(Zn,Zn) + F_C;
 
@@ -104,8 +107,6 @@ bool CalculateIntersection(inout vec4 intersection, inout float dist, vec4 d, ve
     float t = 0.0;
 
     vec4 curPoint;
-//    QGLShader::compile: "ERROR: 0:70: '=' :  cannot convert from 'const int' to 'float'
-//  Casting is a function. I should have mentioned that.
 
 
     curPoint.x = start_p.x;
@@ -170,7 +171,7 @@ vec4 CalculateNormal(vec4 point, vec4 d, float dist, vec4 start_p) {
     gz1 = point - vec4(0.0,0.0,ep,0.0);
     gz2 = point + vec4(0.0,0.0,ep,0.0);
 
-    for (int i = 0; i < DEPTH; i++) {
+    for (int i = 0; i < depth; i++) {
         gx1 = QMultiply(gx1,gx1) + F_C;
         gx2 = QMultiply(gx2,gx2) + F_C;
         gy1 = QMultiply(gy1,gy1) + F_C;
@@ -193,19 +194,19 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
 
     vec4 n = normalize(CalculateNormal(p, d, dist, start_p));
 
-    vec3 material_ambient = vec3(0., 0., .5);
-    vec3 material_diffuse = vec3(.5, 0., 0.);
+    vec3 material_ambient = vec3(0., 0., 1.0);
+    vec3 material_diffuse = vec3(1.0, 0., 0.);
     vec3 material_specular = vec3(1., 1., 1.);
 
-    vec4 light_pos = vec4(5., 5., -2., 1.0);
-    vec3 light_color = vec3(.8,.8,0.0);
+    vec4 light_pos  = vec4(5., -5., -2., 1.0);
+    vec3 light_color  = vec3(.8, .8, .8);
 
     vec4 light2_pos = vec4(-5., -5., -2., 1.0);
-    vec3 light2_color = vec3(.8, .8, 0.);
+    vec3 light2_color = vec3(.5,.5,.5);
 
-    float KA = 1.;
-    float KD = 1.;
-    float KS = 1.;
+    float KA = 0.5;
+    float KD = 0.5;
+    float KS = 0.5;
 
     float Ir = KA*material_ambient.x;
     float Ig = KA*material_ambient.y;
@@ -218,7 +219,7 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
     vec4 R2 = normalize((n*dot(n,-dir2)*2.0 + dir2));
 
     vec4 V = normalize(d);
-    float specExp = 5.0;
+    float specExp = 1.0;
 
     float light_r;
     float light_g;
@@ -236,13 +237,13 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
     //removed third parameter because it was a CS123Light struct
     /// ***********
 
-    /*
+
     vec4 p_offset = p + n*.08;
     if (JuliaShadow(p_offset, dir)) {
         light_r *= .5;
         light_g *= .5;
         light_b *= .5;
-    }*/
+    }
 
     Ir += light_r;
     Ig += light_g;
@@ -258,12 +259,18 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
 
 void main (void) {
 
-    vec4 final_color = vec4(0,0,0,0);
+    // TODO: calibrate the constants for the effect that we want.  Might want a more complex function, too.
+    depth = (int)(log(magnitude(vec4(world_eye, 1.0))) + 10.);  // TODO: logarithmic, but tweek function.
+    EPSILON = 1. / (100. * magnitude(vec4(world_eye, 1.0)));    // TODO: make EPSILON one pixel size: function of width, height, and film plane.
+                                                                // except that pixels don't cover the same size on different parts of the film plane!
+    ep = EPSILON / 10.;
+
+    vec4 final_color = vec4(0.,0.,0.,0.);
 
     vec4 sample = texture2D(tex, gl_TexCoord[0].st);
 
     int row = int(float(height)*sample.r);
-    int col = int(float(width)*sample.g);
+    int col = int(float(width )*sample.g);
 
     vec4 p_film = vec4((2.0*float(col) / float(width)) - 1.0,
                        1.0 - ((2.0*float(row)) / float(height)),
@@ -293,11 +300,12 @@ void main (void) {
     vec4 p_film_world = film_to_world_transform * p_film;
 
     vec4 start_p = vec4(world_eye, 1.0);
+
     vec4 ray = normalize(p_film_world - start_p);
 
     float t = IntersectFSphere(start_p, ray, M);
 
-    if (dot(start_p,start_p) < M + 7.0) { //weird thing happens where screen is black for a while;
+    if (dot(start_p,start_p) < M + 7.0) {  // weird thing happens where screen is black for a while;
         t = 0.0;
     }
 
@@ -309,8 +317,6 @@ void main (void) {
         vec4 intersection = vec4(0.0,0.0,0.0,0.0);
         float dist = 0.0;
 
-        //QGLShader::compile: "ERROR: 0:332: 'CalculateIntersection' : no matching overloaded function found
-        //means mismatched parameters. third parameter needed to change from ray.xyz to ray, since it wanted a vec4
         if (CalculateIntersection(intersection, dist, ray, start_p, false)) {
             final_color = CalculateLighting(intersection, dist, ray, start_p);
         }
