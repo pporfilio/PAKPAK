@@ -145,22 +145,40 @@ void GLWidget::loadCubeMap()
     string tmp2 = "";
     tmp2 += tmp1;
     QList<QFile *> fileList;
-    fileList.append(new QFile(tmp2.append("astra/posx.jpg").c_str()));
+//    fileList.append(new QFile(tmp2.append("astra/posx.jpg").c_str()));
+//    tmp2 = "";
+//    tmp2 += tmp1;
+//    fileList.append(new QFile(tmp2.append("astra/negx.jpg").c_str()));
+//    tmp2 = "";
+//    tmp2 += tmp1;
+//    fileList.append(new QFile(tmp2.append("astra/posy.jpg").c_str()));
+//    tmp2 = "";
+//    tmp2 += tmp1;
+//    fileList.append(new QFile(tmp2.append("astra/negy.jpg").c_str()));
+//    tmp2 = "";
+//    tmp2 += tmp1;
+//    fileList.append(new QFile(tmp2.append("astra/posz.jpg").c_str()));
+//    tmp2 = "";
+//    tmp2 += tmp1;
+//    fileList.append(new QFile(tmp2.append("astra/negz.jpg").c_str()));
+//    m_cubeMap = ResourceLoader::loadCubeMap(fileList);
+
+    fileList.append(new QFile(tmp2.append("stars/Galaxy_RT.jpg").c_str())); //posx
     tmp2 = "";
     tmp2 += tmp1;
-    fileList.append(new QFile(tmp2.append("astra/negx.jpg").c_str()));
+    fileList.append(new QFile(tmp2.append("stars/Galaxy_LT.jpg").c_str())); //negx
     tmp2 = "";
     tmp2 += tmp1;
-    fileList.append(new QFile(tmp2.append("astra/posy.jpg").c_str()));
+    fileList.append(new QFile(tmp2.append("stars/Galaxy_UP.jpg").c_str())); //posy
     tmp2 = "";
     tmp2 += tmp1;
-    fileList.append(new QFile(tmp2.append("astra/negy.jpg").c_str()));
+    fileList.append(new QFile(tmp2.append("stars/Galaxy_DN.jpg").c_str())); //negy
     tmp2 = "";
     tmp2 += tmp1;
-    fileList.append(new QFile(tmp2.append("astra/posz.jpg").c_str()));
+    fileList.append(new QFile(tmp2.append("stars/Galaxy_FT.jpg").c_str())); //posz
     tmp2 = "";
     tmp2 += tmp1;
-    fileList.append(new QFile(tmp2.append("astra/negz.jpg").c_str()));
+    fileList.append(new QFile(tmp2.append("stars/Galaxy_BK.jpg").c_str())); //negz
     m_cubeMap = ResourceLoader::loadCubeMap(fileList);
 }
 
@@ -275,6 +293,7 @@ void GLWidget::renderFractal() {
 
     //pass parameters to the shader
     m_shaderPrograms["fractal"]->bind();
+    m_shaderPrograms["fractal"]->setUniformValue("CubeMap", GL_TEXTURE0);
     m_shaderPrograms["fractal"]->setUniformValue("width", this->width());
     m_shaderPrograms["fractal"]->setUniformValue("height", this->height());
     m_shaderPrograms["fractal"]->setUniformValue("world_eye", pos.x, pos.y, pos.z);

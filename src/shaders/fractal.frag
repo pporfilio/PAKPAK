@@ -4,6 +4,7 @@ uniform int height;
 uniform vec3 world_eye;
 uniform float F_Z3;
 uniform vec4 F_C;
+uniform samplerCube CubeMap;
 
 varying vec3 vVertex;
 
@@ -182,9 +183,9 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
 
     vec4 n = normalize(CalculateNormal(p, d, dist, start_p));
 
-    vec3 material_ambient = vec3(.7, .5, .3);
-    vec3 material_diffuse = vec3(.9, 0., 0.);
-    vec3 material_specular = vec3(1., 1., 1.);
+    vec3 material_ambient = vec3(0., 0., .2);
+    vec3 material_diffuse = vec3(.3, 0., .5);
+    vec3 material_specular = vec3(.5, .5, 1.);
 
     vec4 light_pos = vec4(5., 5., -2., 1.0);
     vec3 light_color = vec3(.2,0.,0.0);
@@ -192,9 +193,10 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
     vec4 light2_pos = vec4(-5., -5., -2., 1.0);
     vec3 light2_color = vec3(.8, .8, 0.);
 
-    float KA = 1.;
-    float KD = 1.;
-    float KS = 1.;
+    float KA = .2;
+    float KD = .5;
+    float KS = 2.;
+    float KR = 1.;
 
     float Ir = KA*material_ambient.x;
     float Ig = KA*material_ambient.y;
@@ -207,11 +209,12 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
     vec4 R2 = normalize((n*dot(n,-dir2)*2.0 + dir2));
 
     vec4 V = normalize(d);
-    float specExp = 5.0;
+    float specExp = 50.0;
 
     float light_r;
     float light_g;
     float light_b;
+
 
     light_r = KD * material_diffuse.x * (light_color.x * max(0.0, dot(n, dir)) + light2_color.x * max(0.0, dot(n, dir2)));
     light_g = KD * material_diffuse.y * (light_color.y * max(0.0, dot(n, dir)) + light2_color.y * max(0.0, dot(n, dir2)));
@@ -220,6 +223,9 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
     light_r += KS * material_specular.x * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
     light_g += KS * material_specular.y * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
     light_b += KS * material_specular.z * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
+
+
+
 
     /// ***********
     //removed third parameter because it was a CS123Light struct
@@ -240,9 +246,31 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
 
     vec4 color = vec4(Ir,Ig,Ib,1.);
 
-    //color = n;
+    vec3 r = reflect(-1,-n);
+    color += KR*textureCube( CubeMap, r);
+
+    float lambertTerm = dot(n,dir);
+    if(lambertTerm > 0.0)
+    {
+            // Specular
+            color += textureCube( CubeMap,r);
+    }
 
     return color;
+
+    /*
+    vec3 r = reflect(-1,-n);
+    vec4 final_color = textureCube( CubeMap, r);
+
+    float lambertTerm = dot(n,dir);
+    if(lambertTerm > 0.0)
+    {
+            // Specular
+            final_color += textureCube( CubeMap,r);
+    }
+
+
+    return final_color; */
 }
 
 void main (void) {
