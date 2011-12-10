@@ -26,6 +26,14 @@ public:
     GLWidget(QWidget *parent = 0);
     ~GLWidget();
 
+    //ui interaction methods
+    void sliderUpdateF_Z3(int newValue);
+    void sliderUpdateF_C_x(int newValue);
+    void sliderUpdateF_C_y(int newValue);
+    void sliderUpdateF_C_z(int newValue);
+    void sliderUpdateF_C_w(int newValue);
+
+
 protected:
     // Overridden QGLWidget methods
     void initializeGL();
@@ -40,18 +48,11 @@ protected:
     void initializeResources();
     void loadCubeMap();
     void createShaderPrograms();
-    void createFramebufferObjects(int width, int height);
-    void createBlurKernel(int radius, int width, int height, GLfloat* kernel, GLfloat* offsets);
 
     // Drawing code
-    void applyOrthogonalCamera(float width, float height);
     void applyPerspectiveCamera(float width, float height);
-    void renderBillBoard(int width, int height, bool flip);
-    void renderTexturedQuad(int width, int height, bool flip);
-    void renderColoredQuad(int width, int height, bool flip);
-    void renderBlur(int width, int height);
-    void renderFractal(Matrix4x4 film_to_world);
-    void renderScene();
+    void render3DTexturedQuad(int width, int height, bool flip);
+    void renderFractal();
     void paintText();
 
 private:
@@ -61,18 +62,17 @@ private:
     float m_prevFps, m_fps;
     V2 m_prevMousePos;
     OrbitCamera *m_camera;
-    OrbitingCamera *test_camera;
 
     // Resources
     QHash<QString, QGLShaderProgram *> m_shaderPrograms; // hash map of all shader programs
-    QHash<QString, QGLFramebufferObject *> m_framebufferObjects; // hash map of all framebuffer objects
-    Model m_dragon; // dragon model
     GLuint m_skybox; // skybox call list ID
     GLuint m_cubeMap; // cubeMap texture ID
     QFont m_font; // font for rendering text
     string *m_base_path;
 
+    //fractal parameter variables
     float F_Z3;
+    Vector4 F_C;
 
 };
 

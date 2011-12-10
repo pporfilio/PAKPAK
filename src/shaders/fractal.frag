@@ -1,10 +1,11 @@
 uniform vec4 eye;
-uniform sampler2D tex;
 uniform int width;
 uniform int height;
-uniform float film_to_world[16];
 uniform vec3 world_eye;
 uniform float F_Z3;
+uniform vec4 F_C;
+
+varying vec3 vVertex;
 
 const vec4 F_C = vec4(-.8, -0.2, 0.1, 0.);
 //const float EPSILON = .001;          //closeness to fractal
@@ -68,9 +69,7 @@ bool isInJulia(vec4 p, inout float dist) {
         }
     }
 
-    //    QGLShader::compile: "ERROR: 0:59: '*' :  wrong operand types no operation '*' exists that takes a left-hand operand of type 'const int' and a right operand of type 'float' (or there is no acceptable conversion)
-    //    dist = magnitude(Zn) * log(magnitude(Zn)) / (2*magnitude(dZn));
-    dist = magnitude(Zn) * log(magnitude(Zn)) / (2.0*magnitude(dZn));
+   dist = magnitude(Zn) * log(magnitude(Zn)) / (2.0*magnitude(dZn));
 
     return foundFractal;
 }
@@ -99,10 +98,8 @@ float IntersectFSphere(vec4 p, vec4 d, float r) {
 }
 
 
-//bool CalculateIntersection(vec4<REAL> &intersection, float &dist, vec4<REAL> d, vec4<REAL> start_p) {
 bool CalculateIntersection(inout vec4 intersection, inout float dist, vec4 d, vec4 start_p, bool isShadow) {
 
-    //QGLShader::compile: "ERROR: 0:71: '=' :  cannot convert from 'const int' to 'float'
 
     float t = 0.0;
 
@@ -114,9 +111,6 @@ bool CalculateIntersection(inout vec4 intersection, inout float dist, vec4 d, ve
     curPoint.z = start_p.z;
     curPoint.w = F_Z3;
 
-    //QGLShader::compile: "ERROR: 0:85: '<' :  wrong operand types no operation '<' exists that takes a left-hand operand of type 'int' and a right operand of type 'const float' (or there is no acceptable conversion)
-    //I hope/assume int() casts by truncating as in C
-    //for (int i = 0; i < ITR; i++) {
 
     dist = 0.0;
     float curDist = 0.0;
@@ -129,8 +123,6 @@ bool CalculateIntersection(inout vec4 intersection, inout float dist, vec4 d, ve
             intersection = curPoint;
             return true;
         }
-
-        //QGLShader::compile: "ERROR: 0:102: ')' : syntax error syntax error
 
         t = max(curDist, float(EPSILON));
 
@@ -194,12 +186,13 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
 
     vec4 n = normalize(CalculateNormal(p, d, dist, start_p));
 
-    vec3 material_ambient = vec3(0., 0., 1.0);
-    vec3 material_diffuse = vec3(1.0, 0., 0.);
+
+    vec3 material_ambient = vec3(.7, .5, .3);
+    vec3 material_diffuse = vec3(.9, 0., 0.);
     vec3 material_specular = vec3(1., 1., 1.);
 
-    vec4 light_pos  = vec4(5., -5., -2., 1.0);
-    vec3 light_color  = vec3(.8, .8, .8);
+    vec4 light_pos = vec4(5., 5., -2., 1.0);
+    vec3 light_color = vec3(.2,0.,0.0);
 
     vec4 light2_pos = vec4(-5., -5., -2., 1.0);
     vec3 light2_color = vec3(.5,.5,.5);
@@ -225,9 +218,9 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
     float light_g;
     float light_b;
 
-    light_r = KD * material_diffuse * (light_color.x * max(0.0, dot(n, dir)) + light2_color.x * max(0.0, dot(n, dir2)));
-    light_g = KD * material_diffuse * (light_color.y * max(0.0, dot(n, dir)) + light2_color.y * max(0.0, dot(n, dir2)));
-    light_b = KD * material_diffuse * (light_color.z * max(0.0, dot(n, dir)) + light2_color.z * max(0.0, dot(n, dir2)));
+    light_r = KD * material_diffuse.x * (light_color.x * max(0.0, dot(n, dir)) + light2_color.x * max(0.0, dot(n, dir2)));
+    light_g = KD * material_diffuse.y * (light_color.y * max(0.0, dot(n, dir)) + light2_color.y * max(0.0, dot(n, dir2)));
+    light_b = KD * material_diffuse.z * (light_color.z * max(0.0, dot(n, dir)) + light2_color.z * max(0.0, dot(n, dir2)));
 
     light_r += KS * material_specular.x * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
     light_g += KS * material_specular.y * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
@@ -250,7 +243,7 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
     Ib += light_b;
 
 
-    vec4 color = vec4(Ir,Ig,Ib,0);
+    vec4 color = vec4(Ir,Ig,Ib,1.);
 
     //color = n;
 
@@ -267,41 +260,24 @@ void main (void) {
 
     vec4 final_color = vec4(0.,0.,0.,0.);
 
-    vec4 sample = texture2D(tex, gl_TexCoord[0].st);
 
-    int row = int(float(height)*sample.r);
-    int col = int(float(width )*sample.g);
+    /*
+        Slightly easier way to get a world-space position on the film plane:
+        - Declare a varying in the shaders (i.e. 'varying vec3 film_plane')
+        - In the vertex shader, set film_plane to the vertex's world space position
+        - Use film_plane from the fragment shader
 
-    vec4 p_film = vec4((2.0*float(col) / float(width)) - 1.0,
-                       1.0 - ((2.0*float(row)) / float(height)),
-                       -1.0,
-                       1.0);
+        OpenGL will automatically interpolate between the vertex positions you
+        explicitly set in the vertex shader, so the value you look up in the
+        fragment shader should be the real world-space position on the film plane
+    */
 
-    float aspect = float(height)/float(width);
-    p_film.y *= aspect;
+    vec4 p_film = vec4(vVertex.x, vVertex.y, vVertex.z, 1.0);
 
-    mat4 film_to_world_transform = mat4(film_to_world[0],
-                                            film_to_world[1],
-                                            film_to_world[2],
-                                            film_to_world[3],
-                                            film_to_world[4],
-                                            film_to_world[5],
-                                            film_to_world[6],
-                                            film_to_world[7],
-                                            film_to_world[8],
-                                            film_to_world[9],
-                                            film_to_world[10],
-                                            film_to_world[11],
-                                            film_to_world[12],
-                                            film_to_world[13],
-                                            film_to_world[14],
-                                            film_to_world[15]);
-
-    vec4 p_film_world = film_to_world_transform * p_film;
 
     vec4 start_p = vec4(world_eye, 1.0);
+    vec4 ray = normalize(p_film - start_p);
 
-    vec4 ray = normalize(p_film_world - start_p);
 
     float t = IntersectFSphere(start_p, ray, M);
 
@@ -309,7 +285,7 @@ void main (void) {
         t = 0.0;
     }
 
-    final_color = vec4(0.,0.,0.,1.);
+    final_color = vec4(0.,0.,0.,0.);
 
     if (t != -1.0) {
         start_p = start_p + ray * t;
@@ -319,8 +295,12 @@ void main (void) {
 
         if (CalculateIntersection(intersection, dist, ray, start_p, false)) {
             final_color = CalculateLighting(intersection, dist, ray, start_p);
+            gl_FragColor = final_color;
         }
     }
+
+    //useful for debugging. Please don't remove [Parker]
+    //final_color = vec4(-vVertex.x, -vVertex.y, -vVertex.z, 1);
 
     gl_FragColor = final_color;
 }
