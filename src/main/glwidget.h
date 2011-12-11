@@ -32,10 +32,17 @@ public:
     void sliderUpdateF_C_y(int newValue);
     void sliderUpdateF_C_z(int newValue);
     void sliderUpdateF_C_w(int newValue);
-//    void spec_reflect_box_changed(int newValue);
-//    void normal_reflect_box_changed(int newValue);
+    void radioToggeled_specular(bool checked);
+    void radioToggeled_reflect(bool checked);
     void radioToggeled_Julia(bool checked);
     void radioToggeled_Mandelbox(bool checked);
+    void checkToggeled_skybox(bool checked);
+    void sliderUpdateF_spec_channels_r(int newValue);
+    void sliderUpdateF_spec_channels_g(int newValue);
+    void sliderUpdateF_spec_channels_b(int newValue);
+    void sliderUpdateF_reflect_channels_r(int newValue);
+    void sliderUpdateF_reflect_channels_g(int newValue);
+    void sliderUpdateF_reflect_channels_b(int newValue);
 
 protected:
     // Overridden QGLWidget methods
@@ -77,12 +84,13 @@ private:
     //fractal parameter variables
     float F_Z3;
     Vector4 F_C;
-    int spec_reflect;
-    int norm_reflect;
-    Vector3 spec_channels;
-    Vector3 reflect_channels;
+    bool F_specular;
+    bool F_reflect;
+    Vector3 F_spec_channels;
+    Vector3 F_reflect_channels;
     bool julia_selected;
     bool mandelbox_selected;
+    bool skybox_enabled;
 
 };
 

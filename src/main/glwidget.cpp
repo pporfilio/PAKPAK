@@ -36,12 +36,13 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
 
     F_Z3 = 0.0;
     F_C = Vector4(-.1, .1, .5, -.6);
-//    F_spec_reflect = 0;
-//    F_norm_reflect = 1;
-//    F_spec_channels = Vector3(0.5, 0.5, 1.0);
-//    F_reflect_channels = Vector3(1.0, 1.0, 1.0);
+    F_specular = true;
+    F_reflect = true;
+    F_spec_channels = Vector3(0.5, 0.5, 1.0);
+    F_reflect_channels = Vector3(1.0, 1.0, 1.0);
     julia_selected = true;
     mandelbox_selected = false;
+    skybox_enabled = true;
 
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(update()));
 
@@ -263,7 +264,7 @@ void GLWidget::paintGL()
 {
     // Clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(0,0,1, 1);
+    glClearColor(.3,.3,.5, 1);
 
 
     // Update the fps
@@ -283,8 +284,11 @@ void GLWidget::paintGL()
 
     // Enable cube maps and draw the skybox
     glEnable(GL_TEXTURE_CUBE_MAP);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubeMap);
-    glCallList(m_skybox);
+
+    if (skybox_enabled) {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubeMap);
+        glCallList(m_skybox);
+    }
 
     if (julia_selected) {
         renderFractal();
@@ -294,8 +298,10 @@ void GLWidget::paintGL()
 
     glDisable(GL_DEPTH_TEST);
 
-    glBindTexture(GL_TEXTURE_CUBE_MAP,0);
-    glDisable(GL_TEXTURE_CUBE_MAP);
+    if (skybox_enabled) {
+        glBindTexture(GL_TEXTURE_CUBE_MAP,0);
+        glDisable(GL_TEXTURE_CUBE_MAP);
+    }
 
     paintText();
 }
@@ -315,6 +321,10 @@ void GLWidget::renderFractal() {
     m_shaderPrograms["fractal"]->setUniformValue("world_eye", pos.x, pos.y, pos.z);
     m_shaderPrograms["fractal"]->setUniformValue("F_Z3", F_Z3);
     m_shaderPrograms["fractal"]->setUniformValue("F_C", F_C.x, F_C.y, F_C.z, F_C.w);
+    m_shaderPrograms["fractal"]->setUniformValue("reflections_enabled", F_reflect ? 1 : 0);
+    m_shaderPrograms["fractal"]->setUniformValue("specular_enabled", F_specular ? 1 : 0);
+    m_shaderPrograms["fractal"]->setUniformValue("material_specular", F_spec_channels.x, F_spec_channels.y, F_spec_channels.z);
+    m_shaderPrograms["fractal"]->setUniformValue("material_reflect", F_reflect_channels.x, F_reflect_channels.y, F_reflect_channels.z);
 
     glEnable(GL_BLEND);
 
@@ -340,6 +350,10 @@ void GLWidget::renderMandelbox() {
     m_shaderPrograms["mandelbox"]->setUniformValue("world_eye", pos.x, pos.y, pos.z);
     m_shaderPrograms["mandelbox"]->setUniformValue("F_Z3", F_Z3);
     m_shaderPrograms["mandelbox"]->setUniformValue("F_C", F_C.x, F_C.y, F_C.z, F_C.w);
+    m_shaderPrograms["mandelbox"]->setUniformValue("reflections_enabled", F_reflect ? 1 : 0);
+    m_shaderPrograms["mandelbox"]->setUniformValue("specular_enabled", F_specular ? 1 : 0);
+    m_shaderPrograms["mandelbox"]->setUniformValue("material_specular", F_spec_channels.x, F_spec_channels.y, F_spec_channels.z);
+    m_shaderPrograms["mandelbox"]->setUniformValue("material_reflect", F_reflect_channels.x, F_reflect_channels.y, F_reflect_channels.z);
 
     glEnable(GL_BLEND);
 
@@ -508,43 +522,35 @@ void GLWidget::sliderUpdateF_C_w(int newValue) {
     F_C.w = (float)newValue / 100.0;
 }
 
-//
-//void GLWidget::spec_reflect_box_changed(int newValue) {
-//    //printf("spec_reflect box changed. Value is %d\n", newValue);
-//    //0 means unchecked. 2 means checked.
-//    F_spec_reflect = newValue == 0 ? 0 : 1;
-//}
-//
-//void GLWidget::normal_reflect_box_changed(int newValue) {
-//    printf("normal_reflect box changed. Value is %d\n", newValue);
-//    F_norm_reflect = newValue == 0 ? 0 : 1;
-//}
 
-//void GLWidget::sliderUpdateF_spec_channels_r(int newValue) {
-//    F_spec_channels.x = (float)newValue / 100.0;
-//}
-//
-//void GLWidget::sliderUpdateF_spec_channels_g(int newValue) {
-//    F_spec_chammels.y = (float)newValue / 100.0;
-//}
-//
-//void GLWidget::sliderUpdateF_spec_channels_b(int newValue) {
-//    F_spec_channels.z = (float)newValue / 100.0;
-//}
-//
-//void GLWidget::sliderUpdateF_reflect_channels_r(int newValue) {
-//    F_spec_channels.x = (float)newValue / 100.0;
-//}
-//
-//void GLWidget::sliderUpdateF_reflect_channels_g(int newValue) {
-//    F_spec_chammels.y = (float)newValue / 100.0;
-//}
-//
-//void GLWidget::sliderUpdateF_reflect_channels_b(int newValue) {
-//    F_spec_channels.z = (float)newValue / 100.0;
-//}
-//
+//specular parameters
+void GLWidget::sliderUpdateF_spec_channels_r(int newValue) {
+    F_spec_channels.x = (float)newValue / 100.0;
+}
 
+void GLWidget::sliderUpdateF_spec_channels_g(int newValue) {
+    F_spec_channels.y = (float)newValue / 100.0;
+}
+
+void GLWidget::sliderUpdateF_spec_channels_b(int newValue) {
+    F_spec_channels.z = (float)newValue / 100.0;
+}
+
+//reflection parameters
+void GLWidget::sliderUpdateF_reflect_channels_r(int newValue) {
+    F_reflect_channels.x = (float)newValue / 100.0;
+}
+
+void GLWidget::sliderUpdateF_reflect_channels_g(int newValue) {
+    F_reflect_channels.y = (float)newValue / 100.0;
+}
+
+void GLWidget::sliderUpdateF_reflect_channels_b(int newValue) {
+    F_reflect_channels.z = (float)newValue / 100.0;
+}
+
+
+//fractal selection
 void GLWidget::radioToggeled_Julia(bool checked) {
     julia_selected = checked;
 }
@@ -553,3 +559,14 @@ void GLWidget::radioToggeled_Mandelbox(bool checked) {
     mandelbox_selected = checked;
 }
 
+void GLWidget::radioToggeled_specular(bool checked) {
+    F_specular = checked;
+}
+
+void GLWidget::radioToggeled_reflect(bool checked) {
+    F_reflect = checked;
+}
+
+void GLWidget::checkToggeled_skybox(bool checked) {
+    skybox_enabled = checked;
+}

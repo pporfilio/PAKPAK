@@ -19,6 +19,9 @@ private:
     Ui::MainWindow *ui;
 
 private slots:
+    void on_skybox_button_toggled(bool checked);
+    void on_reflection_button_toggled(bool checked);
+    void on_specular_button_toggled(bool checked);
     void on_select_Mandelbox_toggled(bool checked);
     void on_select_Julia_toggled(bool checked);
     void on_reflect_b_valueChanged(int value);
@@ -27,8 +30,6 @@ private slots:
     void on_spec_b_valueChanged(int value);
     void on_spec_g_valueChanged(int value);
     void on_spec_r_valueChanged(int value);
-    void on_enable_normal_reflection_stateChanged(int );
-    void on_enable_specular_reflection_stateChanged(int );
     void on_F_C_w_valueChanged(int value);
     void on_F_C_z_valueChanged(int value);
     void on_F_C_y_valueChanged(int value);

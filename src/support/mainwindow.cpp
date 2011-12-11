@@ -38,45 +38,41 @@ void MainWindow::on_F_C_w_valueChanged(int value)
     ui->mainGL->sliderUpdateF_C_w(value);
 }
 
-void MainWindow::on_enable_specular_reflection_stateChanged(int button_val)
-{
-    //ui->mainGL->spec_reflect_box_changed(button_val);
-}
 
-void MainWindow::on_enable_normal_reflection_stateChanged(int button_val)
-{
-    //ui->mainGL->normal_reflect_box_changed(button_val);
-}
 
 void MainWindow::on_spec_r_valueChanged(int value)
 {
-    //ui->mainGL->sli
+    ui->mainGL->sliderUpdateF_spec_channels_r(value);
 }
 
 void MainWindow::on_spec_g_valueChanged(int value)
 {
-
+    ui->mainGL->sliderUpdateF_spec_channels_g(value);
 }
 
 void MainWindow::on_spec_b_valueChanged(int value)
 {
-
+    ui->mainGL->sliderUpdateF_spec_channels_b(value);
 }
+
+
 
 void MainWindow::on_reflect_r_valueChanged(int value)
 {
-
+    ui->mainGL->sliderUpdateF_reflect_channels_r(value);
 }
 
 void MainWindow::on_reflect_g_valueChanged(int value)
 {
-
+    ui->mainGL->sliderUpdateF_reflect_channels_r(value);
 }
 
 void MainWindow::on_reflect_b_valueChanged(int value)
 {
-
+    ui->mainGL->sliderUpdateF_reflect_channels_r(value);
 }
+
+
 
 void MainWindow::on_select_Julia_toggled(bool checked)
 {
@@ -85,11 +81,25 @@ void MainWindow::on_select_Julia_toggled(bool checked)
     ui->mainGL->radioToggeled_Mandelbox(false);
 }
 
-
-
 void MainWindow::on_select_Mandelbox_toggled(bool checked)
 {
     ui->mainGL->radioToggeled_Mandelbox(checked);
     ui->select_Julia->setChecked(false);
     ui->mainGL->radioToggeled_Julia(false);
+}
+
+
+void MainWindow::on_specular_button_toggled(bool checked)
+{
+    ui->mainGL->radioToggeled_specular(checked);
+}
+
+void MainWindow::on_reflection_button_toggled(bool checked)
+{
+    ui->mainGL->radioToggeled_reflect(checked);
+}
+
+void MainWindow::on_skybox_button_toggled(bool checked)
+{
+    ui->mainGL->checkToggeled_skybox(checked);
 }
