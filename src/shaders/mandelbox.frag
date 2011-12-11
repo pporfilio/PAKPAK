@@ -10,12 +10,12 @@ varying vec3 vVertex;
 
 vec3 material_specular = vec3(.5, .5, 1.);
 vec3 material_reflect = vec3(1., 1., 1.);
-const float EPSILON = .001;          //closeness to fractal
-const float ITR = 300.0;             //number of iterations along ray
-const int DEPTH = 15;                //number of fractal iterations
-const float BREAK = 10.;             //fractal escape bound
-const float ep = .001;              //for normal
-const float M = 3.0;                 //bounding radius
+const float EPSILON = .001;          // closeness to fractal
+const float ITR = 300.0;             // number of iterations along ray
+const int DEPTH = 15;                // number of fractal iterations
+const float BREAK = 10.;             // fractal escape bound
+const float ep = .001;               // for normal
+const float M = 3.0;                 // bounding radius
 
 const float Scale = 2.0;
 //const float radius = 0.5;

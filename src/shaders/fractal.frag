@@ -10,14 +10,15 @@ varying vec3 vVertex;
 
 vec3 material_specular = vec3(.5, .5, 1.);
 vec3 material_reflect = vec3(1., 1., 1.);
-//const float EPSILON = .001;          //closeness to fractal
-
+const float EPSILON = .001;          //closeness to fractal
 const float ITR = 300.0;             //number of iterations along ray
+const int DEPTH = 10;
 const float BREAK = 4.0;             //fractal escape bound
+const float ep = 0.0001;
 const float M = 3.0;                 //bounding radius
-int depth;
-float EPSILON;
-float ep;
+//int DEPTH;
+//float EPSILON;
+//float ep;
 
 float magnitude(vec4 v) {
     return sqrt(dot(v, v));
@@ -57,7 +58,7 @@ bool isInJulia(vec4 p, inout float dist) {
 
     bool foundFractal = true;
 
-    for (int i = 0; i < depth; i++) {
+    for (int i = 0; i < DEPTH; i++) {
 
         Zn = QMultiply(Zn,Zn) + F_C;
 
@@ -164,7 +165,7 @@ vec4 CalculateNormal(vec4 point, vec4 d, float dist, vec4 start_p) {
     gz1 = point - vec4(0.0,0.0,ep,0.0);
     gz2 = point + vec4(0.0,0.0,ep,0.0);
 
-    for (int i = 0; i < depth; i++) {
+    for (int i = 0; i < DEPTH; i++) {
         gx1 = QMultiply(gx1,gx1) + F_C;
         gx2 = QMultiply(gx2,gx2) + F_C;
         gy1 = QMultiply(gy1,gy1) + F_C;
@@ -212,7 +213,7 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
     vec4 R2 = normalize((n*dot(n,-dir2)*2.0 + dir2));
 
     vec4 V = normalize(d);
-
+    
     float specExp = 50.0;
 
     float light_r;
@@ -281,12 +282,10 @@ void main (void) {
 
     // TODO: calibrate the constants for the effect that we want.  Might want a more complex function, too.
 
-// so the position gets *= .999 each mouse scroll
-
-    depth = (int)(log(10) / (log(magnitude(vec4(world_eye, 1.0)))));  // TODO: logarithmic, but tweek function.
-    EPSILON = 1. / (1000. * log(1. / magnitude(vec4(world_eye, 1.0))));    // TODO: make EPSILON one pixel size: function of width, height, and film plane.
+   // DEPTH = (int)(log(10) / (log(magnitude(vec4(world_eye, 1.0)))));  // TODO: logarithmic, but tweek function.
+    //EPSILON = 1. / (1000. * log(1. / magnitude(vec4(world_eye, 1.0))));    // TODO: make EPSILON one pixel size: function of width, height, and film plane.
                                                                 // except that pixels don't cover the same size on different parts of the film plane!
-    ep = EPSILON / 10.;
+   // ep = EPSILON / 10.;
 
     vec4 final_color = vec4(0.,0.,0.,0.);
 
