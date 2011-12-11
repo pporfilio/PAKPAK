@@ -7,12 +7,13 @@ uniform vec4 F_C;
 
 varying vec3 vVertex;
 
-const vec4 F_C = vec4(-.8, -0.2, 0.1, 0.);
+//const vec4 F_C = vec4(-.8, -0.2, 0.1, 0.);
 //const float EPSILON = .001;          //closeness to fractal
-const float ITR = 300.0;             //number of iterations along ray
 //const int depth = 30;                //number of fractal iterations
-const float BREAK = 4.0;             //fractal escape bound
 //const float ep = .0001;              //for normal
+
+const float ITR = 300.0;             //number of iterations along ray
+const float BREAK = 4.0;             //fractal escape bound
 const float M = 3.0;                 //bounding radius
 int depth;
 float EPSILON;
@@ -253,13 +254,15 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
 void main (void) {
 
     // TODO: calibrate the constants for the effect that we want.  Might want a more complex function, too.
-    depth = (int)(log(magnitude(vec4(world_eye, 1.0))) + 10.);  // TODO: logarithmic, but tweek function.
-    EPSILON = 1. / (100. * magnitude(vec4(world_eye, 1.0)));    // TODO: make EPSILON one pixel size: function of width, height, and film plane.
+
+// so the position gets *= .999 each mouse scroll
+
+    depth = (int)(log(10) / (log(magnitude(vec4(world_eye, 1.0)))));  // TODO: logarithmic, but tweek function.
+    EPSILON = 1. / (1000. * log(1. / magnitude(vec4(world_eye, 1.0))));    // TODO: make EPSILON one pixel size: function of width, height, and film plane.
                                                                 // except that pixels don't cover the same size on different parts of the film plane!
     ep = EPSILON / 10.;
 
     vec4 final_color = vec4(0.,0.,0.,0.);
-
 
     /*
         Slightly easier way to get a world-space position on the film plane:
