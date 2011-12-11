@@ -5,11 +5,15 @@ uniform vec3 world_eye;
 uniform float F_Z3;
 uniform vec4 F_C;
 uniform samplerCube CubeMap;
+uniform int reflections_enabled;
+uniform int specular_enabled;
+uniform vec3 material_specular = vec3(.5, .5, 1.);
+uniform vec3 material_reflect = vec3(1., 1., 1.);
 
 varying vec3 vVertex;
 
-vec3 material_specular = vec3(.5, .5, 1.);
-vec3 material_reflect = vec3(1., 1., 1.);
+//vec3 material_specular = vec3(.5, .5, 1.);
+//vec3 material_reflect = vec3(1., 1., 1.);
 const float EPSILON = .001;          //closeness to fractal
 const float ITR = 300.0;             //number of iterations along ray
 const int DEPTH = 15;                //number of fractal iterations
@@ -310,10 +314,12 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
     light_g = KD * material_diffuse.y * (light_color.y * max(0.0, dot(n, dir)) + light2_color.y * max(0.0, dot(n, dir2)));
     light_b = KD * material_diffuse.z * (light_color.z * max(0.0, dot(n, dir)) + light2_color.z * max(0.0, dot(n, dir2)));
 
-    light_r += KS * material_specular.x * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
-    light_g += KS * material_specular.y * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
-    light_b += KS * material_specular.z * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
-
+    //Specular
+    if (specular_enabled == 1) {
+        light_r += KS * material_specular.x * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
+        light_g += KS * material_specular.y * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
+        light_b += KS * material_specular.z * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
+    }
 
 
 
@@ -336,33 +342,21 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
 
     vec4 color = vec4(Ir,Ig,Ib,1.);
 
-    /*
-    vec3 r = reflect(d,n);
-    color += KR*textureCube( CubeMap, r);
+    //Reflection
+    if (reflections_enabled == 1) {
+        vec3 r = reflect(d,n);
+        color += KR*textureCube( CubeMap, r);
 
-    float lambertTerm = dot(n,dir);
-    if(lambertTerm > 0.0)
-    {
-            // Specular
-            color += textureCube( CubeMap,r);
+        float lambertTerm = dot(n,dir);
+        if(lambertTerm > 0.0)
+        {
+                // Specular
+                color += textureCube( CubeMap,r);
+        }
     }
-    */
 
     return color;
 
-    /*
-    vec3 r = reflect(-1,-n);
-    vec4 final_color = textureCube( CubeMap, r);
-
-    float lambertTerm = dot(n,dir);
-    if(lambertTerm > 0.0)
-    {
-            // Specular
-            final_color += textureCube( CubeMap,r);
-    }
-
-
-    return final_color; */
 }
 
 void main (void) {

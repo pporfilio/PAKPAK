@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Sat Dec 10 20:13:28 2011
+** Created: Sun Dec 11 14:15:34 2011
 **      by: Qt User Interface Compiler version 4.6.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -64,14 +64,15 @@ public:
     QWidget *tab_2;
     QWidget *verticalLayoutWidget_2;
     QVBoxLayout *verticalLayout_2;
+    QCheckBox *skybox_button;
     QGridLayout *Specular_Grid;
     QSlider *spec_r;
     QSlider *spec_g;
     QSlider *spec_b;
-    QLabel *Specular_Group_Label;
     QLabel *spec_r_label;
     QLabel *spec_g_label;
     QLabel *spec_b_label;
+    QCheckBox *specular_button;
     QGridLayout *gridLayout_2;
     QSlider *reflect_b;
     QSlider *reflect_g;
@@ -79,10 +80,7 @@ public:
     QLabel *reflect_r_label;
     QLabel *reflect_g_label;
     QLabel *reflect_b_label;
-    QGridLayout *gridLayout_5;
-    QLabel *reflection_group_label;
-    QCheckBox *enable_specular_reflection;
-    QCheckBox *enable_normal_reflection;
+    QCheckBox *reflection_button;
     QGridLayout *gridLayout_3;
 
     void setupUi(QMainWindow *MainWindow)
@@ -97,7 +95,7 @@ public:
         MainWindow->setCentralWidget(mainGL);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 800, 25));
+        menuBar->setGeometry(QRect(0, 0, 800, 23));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         MainWindow->setMenuBar(menuBar);
@@ -245,6 +243,12 @@ public:
         verticalLayout_2->setContentsMargins(11, 11, 11, 11);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         verticalLayout_2->setContentsMargins(0, 0, 0, 0);
+        skybox_button = new QCheckBox(verticalLayoutWidget_2);
+        skybox_button->setObjectName(QString::fromUtf8("skybox_button"));
+        skybox_button->setChecked(true);
+
+        verticalLayout_2->addWidget(skybox_button);
+
         Specular_Grid = new QGridLayout();
         Specular_Grid->setSpacing(6);
         Specular_Grid->setObjectName(QString::fromUtf8("Specular_Grid"));
@@ -252,6 +256,7 @@ public:
         spec_r = new QSlider(verticalLayoutWidget_2);
         spec_r->setObjectName(QString::fromUtf8("spec_r"));
         spec_r->setMaximum(100);
+        spec_r->setValue(50);
         spec_r->setOrientation(Qt::Horizontal);
 
         Specular_Grid->addWidget(spec_r, 1, 1, 1, 1);
@@ -259,6 +264,7 @@ public:
         spec_g = new QSlider(verticalLayoutWidget_2);
         spec_g->setObjectName(QString::fromUtf8("spec_g"));
         spec_g->setMaximum(100);
+        spec_g->setValue(50);
         spec_g->setOrientation(Qt::Horizontal);
 
         Specular_Grid->addWidget(spec_g, 2, 1, 1, 1);
@@ -266,14 +272,10 @@ public:
         spec_b = new QSlider(verticalLayoutWidget_2);
         spec_b->setObjectName(QString::fromUtf8("spec_b"));
         spec_b->setMaximum(100);
+        spec_b->setValue(100);
         spec_b->setOrientation(Qt::Horizontal);
 
         Specular_Grid->addWidget(spec_b, 3, 1, 1, 1);
-
-        Specular_Group_Label = new QLabel(verticalLayoutWidget_2);
-        Specular_Group_Label->setObjectName(QString::fromUtf8("Specular_Group_Label"));
-
-        Specular_Grid->addWidget(Specular_Group_Label, 0, 1, 1, 1);
 
         spec_r_label = new QLabel(verticalLayoutWidget_2);
         spec_r_label->setObjectName(QString::fromUtf8("spec_r_label"));
@@ -290,6 +292,12 @@ public:
 
         Specular_Grid->addWidget(spec_b_label, 3, 0, 1, 1);
 
+        specular_button = new QCheckBox(verticalLayoutWidget_2);
+        specular_button->setObjectName(QString::fromUtf8("specular_button"));
+        specular_button->setChecked(true);
+
+        Specular_Grid->addWidget(specular_button, 0, 1, 1, 1);
+
 
         verticalLayout_2->addLayout(Specular_Grid);
 
@@ -300,6 +308,7 @@ public:
         reflect_b = new QSlider(verticalLayoutWidget_2);
         reflect_b->setObjectName(QString::fromUtf8("reflect_b"));
         reflect_b->setMaximum(100);
+        reflect_b->setValue(100);
         reflect_b->setOrientation(Qt::Horizontal);
 
         gridLayout_2->addWidget(reflect_b, 3, 1, 1, 1);
@@ -307,6 +316,7 @@ public:
         reflect_g = new QSlider(verticalLayoutWidget_2);
         reflect_g->setObjectName(QString::fromUtf8("reflect_g"));
         reflect_g->setMaximum(100);
+        reflect_g->setValue(100);
         reflect_g->setOrientation(Qt::Horizontal);
 
         gridLayout_2->addWidget(reflect_g, 2, 1, 1, 1);
@@ -314,6 +324,7 @@ public:
         reflect_r = new QSlider(verticalLayoutWidget_2);
         reflect_r->setObjectName(QString::fromUtf8("reflect_r"));
         reflect_r->setMaximum(100);
+        reflect_r->setValue(100);
         reflect_r->setOrientation(Qt::Horizontal);
 
         gridLayout_2->addWidget(reflect_r, 1, 1, 1, 1);
@@ -333,28 +344,11 @@ public:
 
         gridLayout_2->addWidget(reflect_b_label, 3, 0, 1, 1);
 
-        gridLayout_5 = new QGridLayout();
-        gridLayout_5->setSpacing(6);
-        gridLayout_5->setObjectName(QString::fromUtf8("gridLayout_5"));
-        reflection_group_label = new QLabel(verticalLayoutWidget_2);
-        reflection_group_label->setObjectName(QString::fromUtf8("reflection_group_label"));
+        reflection_button = new QCheckBox(verticalLayoutWidget_2);
+        reflection_button->setObjectName(QString::fromUtf8("reflection_button"));
+        reflection_button->setChecked(true);
 
-        gridLayout_5->addWidget(reflection_group_label, 0, 0, 1, 1);
-
-        enable_specular_reflection = new QCheckBox(verticalLayoutWidget_2);
-        enable_specular_reflection->setObjectName(QString::fromUtf8("enable_specular_reflection"));
-
-        gridLayout_5->addWidget(enable_specular_reflection, 0, 1, 1, 1);
-
-        enable_normal_reflection = new QCheckBox(verticalLayoutWidget_2);
-        enable_normal_reflection->setObjectName(QString::fromUtf8("enable_normal_reflection"));
-        enable_normal_reflection->setChecked(true);
-        enable_normal_reflection->setTristate(false);
-
-        gridLayout_5->addWidget(enable_normal_reflection, 1, 1, 1, 1);
-
-
-        gridLayout_2->addLayout(gridLayout_5, 0, 1, 1, 1);
+        gridLayout_2->addWidget(reflection_button, 0, 1, 1, 1);
 
 
         verticalLayout_2->addLayout(gridLayout_2);
@@ -375,7 +369,7 @@ public:
         retranslateUi(MainWindow);
         QObject::connect(actionQuit, SIGNAL(triggered()), MainWindow, SLOT(close()));
 
-        tabWidget->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -399,16 +393,15 @@ public:
         F_C_z_label->setText(QApplication::translate("MainWindow", "z", 0, QApplication::UnicodeUTF8));
         F_C_w_label->setText(QApplication::translate("MainWindow", "w", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("MainWindow", "Fractal Parameters", 0, QApplication::UnicodeUTF8));
-        Specular_Group_Label->setText(QApplication::translate("MainWindow", "Specular (from lights)", 0, QApplication::UnicodeUTF8));
+        skybox_button->setText(QApplication::translate("MainWindow", "Skybox", 0, QApplication::UnicodeUTF8));
         spec_r_label->setText(QApplication::translate("MainWindow", "R", 0, QApplication::UnicodeUTF8));
         spec_g_label->setText(QApplication::translate("MainWindow", "G", 0, QApplication::UnicodeUTF8));
         spec_b_label->setText(QApplication::translate("MainWindow", "B", 0, QApplication::UnicodeUTF8));
+        specular_button->setText(QApplication::translate("MainWindow", "Specular", 0, QApplication::UnicodeUTF8));
         reflect_r_label->setText(QApplication::translate("MainWindow", "R", 0, QApplication::UnicodeUTF8));
         reflect_g_label->setText(QApplication::translate("MainWindow", "G", 0, QApplication::UnicodeUTF8));
         reflect_b_label->setText(QApplication::translate("MainWindow", "B", 0, QApplication::UnicodeUTF8));
-        reflection_group_label->setText(QApplication::translate("MainWindow", "Reflection", 0, QApplication::UnicodeUTF8));
-        enable_specular_reflection->setText(QApplication::translate("MainWindow", "Spec", 0, QApplication::UnicodeUTF8));
-        enable_normal_reflection->setText(QApplication::translate("MainWindow", "Norm", 0, QApplication::UnicodeUTF8));
+        reflection_button->setText(QApplication::translate("MainWindow", "Reflection", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("MainWindow", "Material Properties", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
