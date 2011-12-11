@@ -32,7 +32,10 @@ public:
     void sliderUpdateF_C_y(int newValue);
     void sliderUpdateF_C_z(int newValue);
     void sliderUpdateF_C_w(int newValue);
-
+//    void spec_reflect_box_changed(int newValue);
+//    void normal_reflect_box_changed(int newValue);
+    void radioToggeled_Julia(bool checked);
+    void radioToggeled_Mandelbox(bool checked);
 
 protected:
     // Overridden QGLWidget methods
@@ -53,6 +56,7 @@ protected:
     void applyPerspectiveCamera(float width, float height);
     void render3DTexturedQuad(int width, int height, bool flip);
     void renderFractal();
+    void renderMandelbox();
     void paintText();
 
 private:
@@ -73,6 +77,12 @@ private:
     //fractal parameter variables
     float F_Z3;
     Vector4 F_C;
+    int spec_reflect;
+    int norm_reflect;
+    Vector3 spec_channels;
+    Vector3 reflect_channels;
+    bool julia_selected;
+    bool mandelbox_selected;
 
 };
 

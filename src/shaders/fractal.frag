@@ -8,6 +8,8 @@ uniform samplerCube CubeMap;
 
 varying vec3 vVertex;
 
+vec3 material_specular = vec3(.5, .5, 1.);
+vec3 material_reflect = vec3(1., 1., 1.);
 const float EPSILON = .001;          //closeness to fractal
 const float ITR = 300.0;             //number of iterations along ray
 const int DEPTH = 10;                //number of fractal iterations
@@ -185,7 +187,7 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
 
     vec3 material_ambient = vec3(0., 0., .2);
     vec3 material_diffuse = vec3(.3, 0., .5);
-    vec3 material_specular = vec3(.5, .5, 1.);
+
 
     vec4 light_pos = vec4(5., 5., -2., 1.0);
     vec3 light_color = vec3(.2,0.,0.0);
@@ -246,7 +248,7 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
 
     vec4 color = vec4(Ir,Ig,Ib,1.);
 
-    vec3 r = reflect(-1,-n);
+    vec3 r = reflect(d,n);
     color += KR*textureCube( CubeMap, r);
 
     float lambertTerm = dot(n,dir);

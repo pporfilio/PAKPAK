@@ -1,8 +1,8 @@
-QT += core gui opengl
-
+QT += core \
+    gui \
+    opengl
 TARGET = final
 TEMPLATE = app
-
 INCLUDEPATH += main \
     lib \
     math \
@@ -11,7 +11,6 @@ DEPENDPATH += main \
     lib \
     math \
     support
-
 HEADERS += main/glwidget.h \
     lib/targa.h \
     lib/glm.h \
@@ -28,9 +27,7 @@ HEADERS += main/glwidget.h \
     lib/CS123Common.h \
     support/testCamera.h \
     support/OrbitingCamera.h
-
-SOURCES += \
-    main/glwidget.cpp \
+SOURCES += main/glwidget.cpp \
     lib/targa.cpp \
     lib/glm.cpp \
     support/resourceloader.cpp \
@@ -42,12 +39,9 @@ SOURCES += \
     math/CS123Vector.inl \
     lib/utils.cpp \
     support/OrbitingCamera.cpp
-
 FORMS += mainwindow.ui \
     support/mainwindow.ui
-
-OTHER_FILES += \
-    shaders/refract.vert \
+OTHER_FILES += shaders/refract.vert \
     shaders/refract.frag \
     shaders/reflect.vert \
     shaders/reflect.frag \
@@ -55,25 +49,7 @@ OTHER_FILES += \
     shaders/blur.frag \
     shaders/fractal.frag \
     shaders/fractal.vert \
-    shaders/test.vert
-
-RESOURCES +=
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    shaders/test.vert \
+    shaders/mandelbox.vert \
+    shaders/mandelbox.frag
+RESOURCES += 

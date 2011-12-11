@@ -36,6 +36,12 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
 
     F_Z3 = 0.0;
     F_C = Vector4(-.1, .1, .5, -.6);
+//    F_spec_reflect = 0;
+//    F_norm_reflect = 1;
+//    F_spec_channels = Vector3(0.5, 0.5, 1.0);
+//    F_reflect_channels = Vector3(1.0, 1.0, 1.0);
+    julia_selected = true;
+    mandelbox_selected = false;
 
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(update()));
 
@@ -217,7 +223,12 @@ void GLWidget::createShaderPrograms()
     tmp2 += shader_base;
     m_shaderPrograms["fractal"] = ResourceLoader::newShaderProgram(ctx, tmp1.append("fractal.vert").c_str(),
                                                                         tmp2.append("fractal.frag").c_str());
-
+    tmp1 = "";
+    tmp2 = "";
+    tmp1 += shader_base;
+    tmp2 += shader_base;
+    m_shaderPrograms["mandelbox"] = ResourceLoader::newShaderProgram(ctx, tmp1.append("mandelbox.vert").c_str(),
+                                                                        tmp2.append("mandelbox.frag").c_str());
 }
 
 
@@ -275,7 +286,11 @@ void GLWidget::paintGL()
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubeMap);
     glCallList(m_skybox);
 
-    renderFractal();
+    if (julia_selected) {
+        renderFractal();
+    } else if (mandelbox_selected) {
+        renderMandelbox();
+    }
 
     glDisable(GL_DEPTH_TEST);
 
@@ -288,6 +303,7 @@ void GLWidget::paintGL()
 
 //Set up fragment shader and render it to a quad that fills the screen
 void GLWidget::renderFractal() {
+
 
     V3 pos = m_camera->getPos();
 
@@ -308,6 +324,31 @@ void GLWidget::renderFractal() {
 
     //clean-up
     m_shaderPrograms["fractal"]->release();
+}
+
+//Set up fragment shader and render it to a quad that fills the screen
+void GLWidget::renderMandelbox() {
+
+
+    V3 pos = m_camera->getPos();
+
+    //pass parameters to the shader
+    m_shaderPrograms["mandelbox"]->bind();
+    m_shaderPrograms["mandelbox"]->setUniformValue("CubeMap", GL_TEXTURE0);
+    m_shaderPrograms["mandelbox"]->setUniformValue("width", this->width());
+    m_shaderPrograms["mandelbox"]->setUniformValue("height", this->height());
+    m_shaderPrograms["mandelbox"]->setUniformValue("world_eye", pos.x, pos.y, pos.z);
+    m_shaderPrograms["mandelbox"]->setUniformValue("F_Z3", F_Z3);
+    m_shaderPrograms["mandelbox"]->setUniformValue("F_C", F_C.x, F_C.y, F_C.z, F_C.w);
+
+    glEnable(GL_BLEND);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    render3DTexturedQuad(this->width(), this->height(), true); //AIMEI
+
+    //clean-up
+    m_shaderPrograms["mandelbox"]->release();
 }
 
 
@@ -466,3 +507,49 @@ void GLWidget::sliderUpdateF_C_z(int newValue) {
 void GLWidget::sliderUpdateF_C_w(int newValue) {
     F_C.w = (float)newValue / 100.0;
 }
+
+//
+//void GLWidget::spec_reflect_box_changed(int newValue) {
+//    //printf("spec_reflect box changed. Value is %d\n", newValue);
+//    //0 means unchecked. 2 means checked.
+//    F_spec_reflect = newValue == 0 ? 0 : 1;
+//}
+//
+//void GLWidget::normal_reflect_box_changed(int newValue) {
+//    printf("normal_reflect box changed. Value is %d\n", newValue);
+//    F_norm_reflect = newValue == 0 ? 0 : 1;
+//}
+
+//void GLWidget::sliderUpdateF_spec_channels_r(int newValue) {
+//    F_spec_channels.x = (float)newValue / 100.0;
+//}
+//
+//void GLWidget::sliderUpdateF_spec_channels_g(int newValue) {
+//    F_spec_chammels.y = (float)newValue / 100.0;
+//}
+//
+//void GLWidget::sliderUpdateF_spec_channels_b(int newValue) {
+//    F_spec_channels.z = (float)newValue / 100.0;
+//}
+//
+//void GLWidget::sliderUpdateF_reflect_channels_r(int newValue) {
+//    F_spec_channels.x = (float)newValue / 100.0;
+//}
+//
+//void GLWidget::sliderUpdateF_reflect_channels_g(int newValue) {
+//    F_spec_chammels.y = (float)newValue / 100.0;
+//}
+//
+//void GLWidget::sliderUpdateF_reflect_channels_b(int newValue) {
+//    F_spec_channels.z = (float)newValue / 100.0;
+//}
+//
+
+void GLWidget::radioToggeled_Julia(bool checked) {
+    julia_selected = checked;
+}
+
+void GLWidget::radioToggeled_Mandelbox(bool checked) {
+    mandelbox_selected = checked;
+}
+
