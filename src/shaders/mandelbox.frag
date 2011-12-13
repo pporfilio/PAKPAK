@@ -2,11 +2,13 @@ uniform vec4 eye;
 uniform int width;
 uniform int height;
 uniform vec3 world_eye;
+uniform float halfPix;
 uniform float F_Z3;
 uniform vec3 F_C;
 uniform samplerCube CubeMap;
 uniform int reflections_enabled;
 uniform int specular_enabled;
+uniform int ss_enabled;
 uniform vec3 material_specular = vec3(.5, .5, 1.);
 uniform vec3 material_reflect = vec3(1., 1., 1.);
 
@@ -17,14 +19,14 @@ varying vec3 vVertex;
 const float EPSILON = .003;          //closeness to fractal
 const float ITR = 4000.0;             //number of iterations along ray
 const int DEPTH = 30;                //number of fractal iterations
-const float BREAK = 40.;             //fractal escape bound
+const float BREAK = 15;             //fractal escape bound
 const float ep = .001;              //for normal
 const float M = 3.0;                 //bounding radius
 
 const float Scale = 2.0;
 //const float radius = 0.5;
 const float foldingLimit = 1.0;
-const float minRadius2 = 0.5;
+const float minRadius2 = 0.75;
 const float fixedRadius2 = 1.;
 
 float magnitude(vec3 v) {
@@ -44,19 +46,19 @@ void sphereFold(inout vec3 z, inout float dz) {
         }
 
         z *= m;
-
-        /*float r2 = dot(z,z);
+/*
+        float r2 = dot(z,z);
 	if (r2<minRadius2) {
 		// linear inner scaling
-		float temp = (fixedRadius2/minRadius2);
+                float temp = (fixedRadius2/minRadius2);
 		z *= temp;
 		dz*= temp;
 	} else if (r2<fixedRadius2) {
 		// this is the actual sphere inversion
-		float temp =(fixedRadius2/r2);
+                float temp =(fixedRadius2/r2);
 		z *= temp;
 		dz*= temp;
-        }*/
+        } */
 }
 
 
@@ -164,6 +166,7 @@ vec3 CalculateNormal(vec3 point, vec3 d, float dist, vec3 start_p) {
 
     vec3 normal;
 
+
     vec3 gx1,gx2,gy1,gy2,gz1,gz2;
     gx1 = point - vec3(ep,0.0,0.0);
     gx2 = point + vec3(ep,0.0,0.0);
@@ -215,6 +218,7 @@ vec3 CalculateNormal(vec3 point, vec3 d, float dist, vec3 start_p) {
 vec4 CalculateLighting(vec3 p, float dist, vec3 d, vec3 start_p) {
 
     vec3 n = normalize(CalculateNormal(p, d, dist, start_p));
+    //return vec4(n, 1.0);
     //return n;
 
     vec3 material_ambient = vec3(0., 0., .2);

@@ -2,11 +2,13 @@ uniform vec4 eye;
 uniform int width;
 uniform int height;
 uniform vec3 world_eye;
+uniform float halfPix;
 uniform float F_Z3;
 uniform vec4 F_C;
 uniform samplerCube CubeMap;
 uniform int reflections_enabled;
 uniform int specular_enabled;
+uniform int ss_enabled;
 uniform vec3 material_specular = vec3(.5, .5, 1.);
 uniform vec3 material_reflect = vec3(1., 1., 1.);
 
@@ -63,6 +65,7 @@ bool isInJulia(vec4 p, inout float dist) {
     for (int i = 0; i < DEPTH; i++) {
 
         Zn = QMultiply(Zn,Zn) + F_C;
+        //Zn = QMultiply(QMultiply(Zn,Zn),Zn) + F_C;
 
         dZn = QMultiply(Zn, dZn) * 2.;
         dZn.x += 1.0;
@@ -168,12 +171,20 @@ vec4 CalculateNormal(vec4 point, vec4 d, float dist, vec4 start_p) {
     gz2 = point + vec4(0.0,0.0,ep,0.0);
 
     for (int i = 0; i < DEPTH; i++) {
+
         gx1 = QMultiply(gx1,gx1) + F_C;
         gx2 = QMultiply(gx2,gx2) + F_C;
         gy1 = QMultiply(gy1,gy1) + F_C;
         gy2 = QMultiply(gy2,gy2) + F_C;
         gz1 = QMultiply(gz1,gz1) + F_C;
         gz2 = QMultiply(gz2,gz2) + F_C;
+        /*
+        gx1 = QMultiply(QMultiply(gx1,gx1),gx1) + F_C;
+        gx2 = QMultiply(QMultiply(gx2,gx2),gx2) + F_C;
+        gy1 = QMultiply(QMultiply(gy1,gy1),gy1) + F_C;
+        gy2 = QMultiply(QMultiply(gy2,gy2),gy2) + F_C;
+        gz1 = QMultiply(QMultiply(gz1,gz1),gz1) + F_C;
+        gz2 = QMultiply(QMultiply(gz2,gz2),gz2) + F_C; */
     }
 
     float gradX, gradY, gradZ;
@@ -229,11 +240,11 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
     light_b = KD * material_diffuse.z * (light_color.z * max(0.0, dot(n, dir)) + light2_color.z * max(0.0, dot(n, dir2)));
 
     //Specular
-    if (specular_enabled == 1) {
+    //if (specular_enabled == 1) {
         light_r += KS * material_specular.x * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
         light_g += KS * material_specular.y * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
         light_b += KS * material_specular.z * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
-    }
+    //}
 
 
 
@@ -295,11 +306,24 @@ void main (void) {
         fragment shader should be the real world-space position on the film plane
     */
 
+    vec4 start_p = vec4(world_eye, 1.0);
+
     vec4 p_film = vec4(vVertex.x, vVertex.y, vVertex.z, 1.0);
 
+    vec4 p_film1 = vec4(vVertex.x - halfPix, vVertex.y + halfPix, vVertex.z, 1.0);
+    vec4 p_film2 = vec4(vVertex.x + halfPix, vVertex.y + halfPix, vVertex.z, 1.0);
+    vec4 p_film3 = vec4(vVertex.x + halfPix, vVertex.y - halfPix, vVertex.z, 1.0);
+    vec4 p_film4 = vec4(vVertex.x - halfPix, vVertex.y - halfPix, vVertex.z, 1.0);
 
-    vec4 start_p = vec4(world_eye, 1.0);
     vec4 ray = normalize(p_film - start_p);
+
+    vec4 ray1 = normalize(p_film1 - start_p);
+    vec4 ray2 = normalize(p_film2 - start_p);
+    vec4 ray3 = normalize(p_film3 - start_p);
+    vec4 ray4 = normalize(p_film4 - start_p);
+
+
+
 
 
     float t = IntersectFSphere(start_p, ray, M);
@@ -318,7 +342,45 @@ void main (void) {
 
         if (CalculateIntersection(intersection, dist, ray, start_p, false)) {
             final_color = CalculateLighting(intersection, dist, ray, start_p);
-            gl_FragColor = final_color;
+            //gl_FragColor = final_color;
+
+            if (ss_enabled == 1) {
+                vec4 intersection1 = vec4(0.0,0.0,0.0,0.0);
+                vec4 intersection2 = vec4(0.0,0.0,0.0,0.0);
+                vec4 intersection3 = vec4(0.0,0.0,0.0,0.0);
+                vec4 intersection4 = vec4(0.0,0.0,0.0,0.0);
+                float dist1 = 0.0;
+                float dist2 = 0.0;
+                float dist3 = 0.0;
+                float dist4 = 0.0;
+                bool inter1 = CalculateIntersection(intersection1, dist1, ray1, start_p, false);
+                bool inter2 = CalculateIntersection(intersection2, dist2, ray2, start_p, false);
+                bool inter3 = CalculateIntersection(intersection3, dist3, ray3, start_p, false);
+                bool inter4 = CalculateIntersection(intersection4, dist4, ray4, start_p, false);
+
+                float A = .4;
+                float B = (1-A)/4.f;
+
+                final_color = A*final_color;
+
+                if (inter1) {
+                    vec4 color1 = CalculateLighting(intersection1, dist1, ray1, start_p);
+                    final_color += B*color1;
+                }
+                if (inter2) {
+                    vec4 color2 = CalculateLighting(intersection2, dist2, ray2, start_p);
+                    final_color += B*color2;
+                }
+                if (inter3) {
+                    vec4 color3 = CalculateLighting(intersection3, dist3, ray3, start_p);
+                    final_color += B*color3;
+                }
+                if (inter4) {
+                    vec4 color4 = CalculateLighting(intersection4, dist4, ray4, start_p);
+                    final_color += B*color4;
+                }
+
+            }
         }
     }
 

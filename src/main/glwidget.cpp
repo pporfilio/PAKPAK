@@ -43,6 +43,7 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
     julia_selected = true;
     mandelbox_selected = false;
     skybox_enabled = true;
+    ss_enabled = true;
 
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(update()));
 
@@ -274,6 +275,39 @@ void GLWidget::paintGL()
     int width = this->width();
     int height = this->height();
 
+
+
+
+
+    Matrix4x4 film_to_world = m_camera->getFilmToWorld(width, height);
+
+    float plane_depth = 2.0;
+
+    float aspect = (float)width/(float)height;
+
+    float half_height = plane_depth * tan(toRadians(m_camera->fovy/2));
+    float half_width = half_height * aspect;
+
+    Vector4 plane_ul = Vector4(-half_width, half_height, plane_depth, 1);
+    Vector4 plane_ll = Vector4(-half_width, -half_height, plane_depth, 1);
+    Vector4 plane_lr = Vector4(half_width, -half_height, plane_depth, 1);
+    Vector4 plane_ur = Vector4(half_width, half_height, plane_depth, 1);
+
+
+
+    t_ul = film_to_world*plane_ul;
+    t_ll = film_to_world*plane_ll;
+    t_lr = film_to_world*plane_lr;
+    t_ur = film_to_world*plane_ur;
+
+    half_pixel_size = .5*(t_ur - t_ul).getMagnitude()/float(width);
+
+
+
+
+
+
+
     // Render the scene to a framebuffer
     applyPerspectiveCamera(width, height);
 
@@ -319,10 +353,12 @@ void GLWidget::renderFractal() {
     m_shaderPrograms["fractal"]->setUniformValue("width", this->width());
     m_shaderPrograms["fractal"]->setUniformValue("height", this->height());
     m_shaderPrograms["fractal"]->setUniformValue("world_eye", pos.x, pos.y, pos.z);
+    m_shaderPrograms["fractal"]->setUniformValue("halfPix", half_pixel_size);
     m_shaderPrograms["fractal"]->setUniformValue("F_Z3", F_Z3);
     m_shaderPrograms["fractal"]->setUniformValue("F_C", F_C.x, F_C.y, F_C.z, F_C.w);
     m_shaderPrograms["fractal"]->setUniformValue("reflections_enabled", F_reflect ? 1 : 0);
     m_shaderPrograms["fractal"]->setUniformValue("specular_enabled", F_specular ? 1 : 0);
+    m_shaderPrograms["fractal"]->setUniformValue("ss_enabled", ss_enabled ? 1 : 0);
     m_shaderPrograms["fractal"]->setUniformValue("material_specular", F_spec_channels.x, F_spec_channels.y, F_spec_channels.z);
     m_shaderPrograms["fractal"]->setUniformValue("material_reflect", F_reflect_channels.x, F_reflect_channels.y, F_reflect_channels.z);
 
@@ -348,10 +384,12 @@ void GLWidget::renderMandelbox() {
     m_shaderPrograms["mandelbox"]->setUniformValue("width", this->width());
     m_shaderPrograms["mandelbox"]->setUniformValue("height", this->height());
     m_shaderPrograms["mandelbox"]->setUniformValue("world_eye", pos.x, pos.y, pos.z);
+    m_shaderPrograms["mandelbox"]->setUniformValue("halfPix", half_pixel_size);
     m_shaderPrograms["mandelbox"]->setUniformValue("F_Z3", F_Z3);
-    m_shaderPrograms["mandelbox"]->setUniformValue("F_C", F_C.x, F_C.y, F_C.z, F_C.w);
+    m_shaderPrograms["mandelbox"]->setUniformValue("F_C", F_C.x, F_C.y, F_C.z);
     m_shaderPrograms["mandelbox"]->setUniformValue("reflections_enabled", F_reflect ? 1 : 0);
     m_shaderPrograms["mandelbox"]->setUniformValue("specular_enabled", F_specular ? 1 : 0);
+    m_shaderPrograms["mandelbox"]->setUniformValue("ss_enabled", ss_enabled ? 1 : 0);
     m_shaderPrograms["mandelbox"]->setUniformValue("material_specular", F_spec_channels.x, F_spec_channels.y, F_spec_channels.z);
     m_shaderPrograms["mandelbox"]->setUniformValue("material_reflect", F_reflect_channels.x, F_reflect_channels.y, F_reflect_channels.z);
 
@@ -372,13 +410,20 @@ void GLWidget::renderMandelbox() {
 **/
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
+
     V2 pos(event->x(), event->y());
     if (event->buttons() & Qt::LeftButton || event->buttons() & Qt::RightButton)
     {
+        ss_enabled = false;
         V2 delta = pos - m_prevMousePos;
         m_camera->mouseMove(delta);
     }
+    else {
+        ss_enabled = true;
+    }
     m_prevMousePos = pos;
+
+
 }
 
 /**
@@ -386,8 +431,13 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
  **/
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
+    ss_enabled = false;
     m_prevMousePos.x = event->x();
     m_prevMousePos.y = event->y();
+}
+
+void GLWidget::mouseReleaseEvent(QMouseEvent *) {
+    ss_enabled = true;
 }
 
 /**
@@ -395,11 +445,13 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 **/
 void GLWidget::wheelEvent(QWheelEvent *event)
 {
+    ss_enabled = false;
     if (event->orientation() == Qt::Vertical)
     {
         m_camera->mouseWheel(event->delta());
     }
 }
+
 
 /**
   Called when the GLWidget is resized.
@@ -408,12 +460,14 @@ void GLWidget::resizeGL(int width, int height)
 {
     // Resize the viewport
     glViewport(0, 0, width, height);
+    ss_enabled = false;
 }
 
 void GLWidget::render3DTexturedQuad(int width, int height, bool flip) {
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+    /*
     Matrix4x4 film_to_world = m_camera->getFilmToWorld(width, height);
 
     float plane_depth = 2.0;
@@ -428,11 +482,13 @@ void GLWidget::render3DTexturedQuad(int width, int height, bool flip) {
     Vector4 plane_lr = Vector4(half_width, -half_height, plane_depth, 1);
     Vector4 plane_ur = Vector4(half_width, half_height, plane_depth, 1);
 
-    Vector4 t_ul = film_to_world*plane_ul;
-    Vector4 t_ll = film_to_world*plane_ll;
-    Vector4 t_lr = film_to_world*plane_lr;
-    Vector4 t_ur = film_to_world*plane_ur;
 
+
+    t_ul = film_to_world*plane_ul;
+    t_ll = film_to_world*plane_ll;
+    t_lr = film_to_world*plane_lr;
+    t_ur = film_to_world*plane_ur;
+    */
 
     // Draw the  quad
     glBegin(GL_QUADS);
@@ -503,50 +559,61 @@ void GLWidget::paintText()
 
 void GLWidget::sliderUpdateF_Z3(int newValue) {
     F_Z3 = (float)newValue / 100.0;
+    ss_enabled = false;
 }
 
 
 void GLWidget::sliderUpdateF_C_x(int newValue) {
     F_C.x = (float)newValue / 100.0;
+    ss_enabled = false;
 }
 
 void GLWidget::sliderUpdateF_C_y(int newValue) {
     F_C.y = (float)newValue / 100.0;
+    ss_enabled = false;
 }
 
 void GLWidget::sliderUpdateF_C_z(int newValue) {
     F_C.z = (float)newValue / 100.0;
+    ss_enabled = false;
 }
 
 void GLWidget::sliderUpdateF_C_w(int newValue) {
     F_C.w = (float)newValue / 100.0;
+    ss_enabled = false;
 }
 
 
 //specular parameters
 void GLWidget::sliderUpdateF_spec_channels_r(int newValue) {
     F_spec_channels.x = (float)newValue / 100.0;
+    ss_enabled = false;
 }
 
 void GLWidget::sliderUpdateF_spec_channels_g(int newValue) {
     F_spec_channels.y = (float)newValue / 100.0;
+    ss_enabled = false;
 }
 
 void GLWidget::sliderUpdateF_spec_channels_b(int newValue) {
     F_spec_channels.z = (float)newValue / 100.0;
+    ss_enabled = false;
 }
 
 //reflection parameters
 void GLWidget::sliderUpdateF_reflect_channels_r(int newValue) {
     F_reflect_channels.x = (float)newValue / 100.0;
+    ss_enabled = false;
 }
 
 void GLWidget::sliderUpdateF_reflect_channels_g(int newValue) {
     F_reflect_channels.y = (float)newValue / 100.0;
+    ss_enabled = false;
 }
 
 void GLWidget::sliderUpdateF_reflect_channels_b(int newValue) {
     F_reflect_channels.z = (float)newValue / 100.0;
+    ss_enabled = false;
 }
 
 
@@ -561,6 +628,7 @@ void GLWidget::radioToggeled_Mandelbox(bool checked) {
 
 void GLWidget::radioToggeled_specular(bool checked) {
     F_specular = checked;
+    //ss_enabled = checked;
 }
 
 void GLWidget::radioToggeled_reflect(bool checked) {

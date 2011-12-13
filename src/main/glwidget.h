@@ -53,6 +53,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent *event);
+    void mouseReleaseEvent(QMouseEvent *);
 
     // Initialization code
     void initializeResources();
@@ -91,6 +92,14 @@ private:
     bool julia_selected;
     bool mandelbox_selected;
     bool skybox_enabled;
+    bool ss_enabled;
+
+    Vector4 t_ul;
+    Vector4 t_ur;
+    Vector4 t_ll;
+    Vector4 t_lr;
+
+    float half_pixel_size;
 
 };
 
