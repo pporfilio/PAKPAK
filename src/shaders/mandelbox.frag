@@ -17,17 +17,18 @@ varying vec3 vVertex;
 //vec3 material_specular = vec3(.5, .5, 1.);
 //vec3 material_reflect = vec3(1., 1., 1.);
 const float EPSILON = .003;          //closeness to fractal
-const float ITR = 4000.0;             //number of iterations along ray
-const int DEPTH = 30;                //number of fractal iterations
-const float BREAK = 15;             //fractal escape bound
-const float ep = .001;              //for normal
+const float ITR = 600.0;             //number of iterations along ray
+const int DEPTH = 20;                //number of fractal iterations       NEEDS TO BE CHANGED BASED ON CLOSENESS
+const float BREAK = 100;             //fractal escape bound
+const float ep = .1;              //for normal
 const float M = 3.0;                 //bounding radius
 
 const float Scale = 2.0;
-//const float radius = 0.5;
 const float foldingLimit = 1.0;
-const float minRadius2 = 0.75;
-const float fixedRadius2 = 1.;
+const float minRadius = 0.5;
+const float fixedRadius = 1.;
+const float minRadius2 = minRadius*minRadius;
+const float fixedRadius2 = fixedRadius*fixedRadius;
 
 float magnitude(vec3 v) {
     return sqrt(dot(v, v));
@@ -36,17 +37,6 @@ float magnitude(vec3 v) {
 //blog.hvidtfeldts.net
 void sphereFold(inout vec3 z, inout float dz) {
 
-        float m = magnitude(z);
-        float r = minRadius2;
-
-        if (m < r) {
-            m = m / (r * r);
-        } else if (m < 1.) {
-            m = 1. / (m * m);
-        }
-
-        z *= m;
-/*
         float r2 = dot(z,z);
 	if (r2<minRadius2) {
 		// linear inner scaling
@@ -58,7 +48,7 @@ void sphereFold(inout vec3 z, inout float dz) {
                 float temp =(fixedRadius2/r2);
 		z *= temp;
 		dz*= temp;
-        } */
+        }
 }
 
 
@@ -66,13 +56,13 @@ void boxFold(inout vec3 z, inout float dz) {
 	z = clamp(z, -foldingLimit, foldingLimit) * 2.0 - z;
 }
 
-/*
+
 //blog.hvidtfeldts.net
 float DE(vec3 z)
 {
         vec3 offset = z;
         float dr = 1.0;
-        for (int n = 0; n < Iterations; n++) {
+        for (int n = 0; n < DEPTH; n++) {
                 boxFold(z,dr);       // Reflect
                 sphereFold(z,dr);    // Sphere Inversion
 
@@ -82,7 +72,7 @@ float DE(vec3 z)
 	float r = length(z);
 	return r/abs(dr);
 }
-*/
+
 
 
 //You don't pass pointers in GLSL. Instead, you can specify
@@ -93,6 +83,8 @@ float DE(vec3 z)
 bool isInMandelbox(vec3 p, inout float dist) {
     vec3 Zn = p;
     float dZn = 1.0;
+    vec3 offset = p;
+
 
     bool foundFractal = true;
     
@@ -101,17 +93,19 @@ bool isInMandelbox(vec3 p, inout float dist) {
 	boxFold(Zn, dZn);
 	sphereFold(Zn, dZn);
 	
-        Zn = Scale*Zn + F_C;
-	dZn = Scale*dZn + 1.0;
+        Zn = Scale*Zn + offset;
+        dZn = Scale*dZn + 1.0;
 
+
+        
         if (dot(Zn,Zn) > float(BREAK)) {
             foundFractal = false;
             break;
         }
     }
 
-    //dist = magnitude(Zn)/abs(dZn); //* log(magnitude(Zn)) / (2.0*magnitude(dZn));
-
+    //dist = magnitude(Zn)/abs(dZn);
+    dist = magnitude(Zn)*log((magnitude(Zn)))/abs(dZn);
     return foundFractal;
 }
 
@@ -136,15 +130,15 @@ bool CalculateIntersection(inout vec3 intersection, inout float dist, vec3 d, ve
             return true;
         }
 
-        t = EPSILON;  // max(curDist, float(EPSILON));
 
+        t = max(curDist, float(EPSILON));
         curPoint.x += float(t)*d.x;
         curPoint.y += float(t)*d.y;
         curPoint.z += float(t)*d.z;
 
-        //if (t < float(EPSILON)) {
-        //    break;
-        //}
+        if (t < float(EPSILON)) {
+            break;
+        }
 
     }
     return false;
@@ -177,6 +171,26 @@ vec3 CalculateNormal(vec3 point, vec3 d, float dist, vec3 start_p) {
 
     float dZn = 1.0;
 
+    float d1,d2,d3,d4,d5,d6;
+
+    /*
+    isInMandelbox(gx1, d1);
+    isInMandelbox(gx2, d2);
+    isInMandelbox(gy1, d3);
+    isInMandelbox(gy2, d4);
+    isInMandelbox(gz1, d5);
+    isInMandelbox(gz2, d6);
+    */
+
+    d1 = DE(gx1);
+    d2 = DE(gx2);
+    d3 = DE(gy1);
+    d4 = DE(gy2);
+    d5 = DE(gz1);
+    d6 = DE(gz2);
+
+
+    /*
     for (int i = 0; i < DEPTH; i++) {
 
         boxFold(gx1, dZn);
@@ -202,13 +216,20 @@ vec3 CalculateNormal(vec3 point, vec3 d, float dist, vec3 start_p) {
         boxFold(gz2, dZn);
         sphereFold(gz2, dZn);
         gz2 = Scale*gz2 + F_C;
+    } */
 
-    }
+
 
     float gradX, gradY, gradZ;
+    /*
     gradX = magnitude(gx2) - magnitude(gx1);
     gradY = magnitude(gy2) - magnitude(gy1);
     gradZ = magnitude(gz2) - magnitude(gz1);
+    */
+
+    gradX = magnitude(d2) - magnitude(d1);
+    gradY = magnitude(d4) - magnitude(d3);
+    gradZ = magnitude(d6) - magnitude(d5);
 
     normal = vec3(gradX, gradY, gradZ);
 
@@ -218,11 +239,10 @@ vec3 CalculateNormal(vec3 point, vec3 d, float dist, vec3 start_p) {
 vec4 CalculateLighting(vec3 p, float dist, vec3 d, vec3 start_p) {
 
     vec3 n = normalize(CalculateNormal(p, d, dist, start_p));
-    //return vec4(n, 1.0);
-    //return n;
+    //return vec4(n,1.0);
 
     vec3 material_ambient = vec3(0., 0., .2);
-    vec3 material_diffuse = vec3(.3, 0., .5);
+    vec3 material_diffuse = vec3(.7, 0., .5);
 
 
     vec3 light_pos = vec3(5., 5., -2.);
@@ -231,8 +251,8 @@ vec4 CalculateLighting(vec3 p, float dist, vec3 d, vec3 start_p) {
     vec3 light2_pos = vec3(-5., -5., -2.);
     vec3 light2_color = vec3(.8, .8, 0.);
 
-    float KA = .2;
-    float KD = .5;
+    float KA = 1.;
+    float KD = 1.;
     float KS = 2.;
     float KR = 1.;
 
@@ -247,7 +267,7 @@ vec4 CalculateLighting(vec3 p, float dist, vec3 d, vec3 start_p) {
     vec3 R2 = normalize((n*dot(n,-dir2)*2.0 + dir2));
 
     vec3 V = normalize(d);
-    float specExp = 50.0;
+    float specExp = 7.0;
 
     float light_r;
     float light_g;
@@ -286,6 +306,7 @@ vec4 CalculateLighting(vec3 p, float dist, vec3 d, vec3 start_p) {
 
     vec4 color = vec4(Ir,Ig,Ib,1.);
 
+    /*
     //Reflection
     if (reflections_enabled == 1) {
         vec3 r = reflect(d,n);
@@ -297,10 +318,10 @@ vec4 CalculateLighting(vec3 p, float dist, vec3 d, vec3 start_p) {
                 // Specular
                 color += textureCube( CubeMap, vec4(r, 1.0));
         }
-    }
+    }*/
 
-    color = vec4(dist, dist, dist, 1.0);
-    color.xyz = color.xyz / (ITR * EPSILON);
+    //color = vec4(dist, dist, dist, 1.0);
+    //color.xyz = color.xyz / (ITR * EPSILON);
 
     return color;
 

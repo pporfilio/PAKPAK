@@ -319,6 +319,10 @@ void GLWidget::paintGL()
     // Enable cube maps and draw the skybox
     glEnable(GL_TEXTURE_CUBE_MAP);
 
+    if (mandelbox_selected) {
+        skybox_enabled = false;
+    }
+
     if (skybox_enabled) {
         glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubeMap);
         glCallList(m_skybox);
