@@ -319,9 +319,9 @@ void GLWidget::paintGL()
     // Enable cube maps and draw the skybox
     glEnable(GL_TEXTURE_CUBE_MAP);
 
-    if (mandelbox_selected) {
-        skybox_enabled = false;
-    }
+//    if (mandelbox_selected) {
+//        skybox_enabled = false;
+//    }
 
     if (skybox_enabled) {
         glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubeMap);
@@ -559,6 +559,9 @@ void GLWidget::paintText()
     renderText(10, 50, "eye location : (" + QString::number((double)(pos.x)) +
                ", " + QString::number((double)(pos.y)) + ", " +
                QString::number((double)(pos.x)) + ")", m_font);
+//    renderText(10, 65, "DEPTH = " + QString::number((double)(10 / max(pos.lengthSquared(), 1.0))), m_font);
+    renderText(10, 65, "DEPTH = " + QString::number((double)(pos.lengthSquared())), m_font);
+
 }
 
 void GLWidget::sliderUpdateF_Z3(int newValue) {

@@ -15,7 +15,7 @@ uniform vec3 material_reflect = vec3(1., 1., 1.);
 varying vec3 vVertex;
 
 const float EPSILON = .001;          //closeness to fractal
-const float ITR = 300.0;             //number of iterations along ray
+const float ITR = 500.0;             //number of iterations along ray
 const int DEPTH = 10;
 const float BREAK = 4.0;             //fractal escape bound
 const float ep = 0.0001;

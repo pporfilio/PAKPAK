@@ -9,18 +9,18 @@ uniform samplerCube CubeMap;
 uniform int reflections_enabled;
 uniform int specular_enabled;
 uniform int ss_enabled;
-uniform vec3 material_specular = vec3(.5, .5, 1.);
-uniform vec3 material_reflect = vec3(1., 1., 1.);
+uniform vec3 material_specular;
+uniform vec3 material_reflect;
 
 varying vec3 vVertex;
 
 //vec3 material_specular = vec3(.5, .5, 1.);
 //vec3 material_reflect = vec3(1., 1., 1.);
 const float EPSILON = .003;          //closeness to fractal
-const float ITR = 600.0;             //number of iterations along ray
-const int DEPTH = 20;                //number of fractal iterations       NEEDS TO BE CHANGED BASED ON CLOSENESS
+const float ITR = 300.0;             //number of iterations along ray
+//const int DEPTH = 20;                //number of fractal iterations       NEEDS TO BE CHANGED BASED ON CLOSENESS
 const float BREAK = 100;             //fractal escape bound
-const float ep = .1;              //for normal
+//const float ep = .1;                 //for normal
 const float M = 3.0;                 //bounding radius
 
 const float Scale = 2.0;
@@ -29,6 +29,10 @@ const float minRadius = 0.5;
 const float fixedRadius = 1.;
 const float minRadius2 = minRadius*minRadius;
 const float fixedRadius2 = fixedRadius*fixedRadius;
+
+int DEPTH = int(100.0 / dot(world_eye, world_eye)) + 10;
+float ep = .01 * DEPTH;
+//int DEPTH = int(4.);
 
 float magnitude(vec3 v) {
     return sqrt(dot(v, v));
@@ -61,6 +65,7 @@ void boxFold(inout vec3 z, inout float dz) {
 float DE(vec3 z)
 {
         vec3 offset = z;
+        z = vec3(0.,0.,0.);
         float dr = 1.0;
         for (int n = 0; n < DEPTH; n++) {
                 boxFold(z,dr);       // Reflect
@@ -81,7 +86,7 @@ float DE(vec3 z)
 //I didn't know this until just now. Glad to have found out.
 
 bool isInMandelbox(vec3 p, inout float dist) {
-    vec3 Zn = p;
+    vec3 Zn = (0.,0.,0.); //p;
     float dZn = 1.0;
     vec3 offset = p;
 
@@ -130,15 +135,10 @@ bool CalculateIntersection(inout vec3 intersection, inout float dist, vec3 d, ve
             return true;
         }
 
-
         t = max(curDist, float(EPSILON));
         curPoint.x += float(t)*d.x;
         curPoint.y += float(t)*d.y;
         curPoint.z += float(t)*d.z;
-
-        if (t < float(EPSILON)) {
-            break;
-        }
 
     }
     return false;
@@ -160,7 +160,6 @@ vec3 CalculateNormal(vec3 point, vec3 d, float dist, vec3 start_p) {
 
     vec3 normal;
 
-
     vec3 gx1,gx2,gy1,gy2,gz1,gz2;
     gx1 = point - vec3(ep,0.0,0.0);
     gx2 = point + vec3(ep,0.0,0.0);
@@ -173,59 +172,24 @@ vec3 CalculateNormal(vec3 point, vec3 d, float dist, vec3 start_p) {
 
     float d1,d2,d3,d4,d5,d6;
 
-    /*
+
     isInMandelbox(gx1, d1);
     isInMandelbox(gx2, d2);
     isInMandelbox(gy1, d3);
     isInMandelbox(gy2, d4);
     isInMandelbox(gz1, d5);
     isInMandelbox(gz2, d6);
-    */
 
+/*
     d1 = DE(gx1);
     d2 = DE(gx2);
     d3 = DE(gy1);
     d4 = DE(gy2);
     d5 = DE(gz1);
     d6 = DE(gz2);
-
-
-    /*
-    for (int i = 0; i < DEPTH; i++) {
-
-        boxFold(gx1, dZn);
-        sphereFold(gx1, dZn);
-        gx1 = Scale*gx1 + F_C;
-
-        boxFold(gx2, dZn);
-        sphereFold(gx2, dZn);
-        gx2 = Scale*gx2 + F_C;
-
-        boxFold(gy1, dZn);
-        sphereFold(gy1, dZn);
-        gy1 = Scale*gy1 + F_C;
-
-        boxFold(gy2, dZn);
-        sphereFold(gy2, dZn);
-        gy2 = Scale*gy2 + F_C;
-
-        boxFold(gz1, dZn);
-        sphereFold(gz1, dZn);
-        gz1 = Scale*gz1 + F_C;
-
-        boxFold(gz2, dZn);
-        sphereFold(gz2, dZn);
-        gz2 = Scale*gz2 + F_C;
-    } */
-
-
+*/
 
     float gradX, gradY, gradZ;
-    /*
-    gradX = magnitude(gx2) - magnitude(gx1);
-    gradY = magnitude(gy2) - magnitude(gy1);
-    gradZ = magnitude(gz2) - magnitude(gz1);
-    */
 
     gradX = magnitude(d2) - magnitude(d1);
     gradY = magnitude(d4) - magnitude(d3);
@@ -237,7 +201,6 @@ vec3 CalculateNormal(vec3 point, vec3 d, float dist, vec3 start_p) {
 }
 
 vec4 CalculateLighting(vec3 p, float dist, vec3 d, vec3 start_p) {
-
     vec3 n = normalize(CalculateNormal(p, d, dist, start_p));
     //return vec4(n,1.0);
 
