@@ -108,3 +108,13 @@ void MainWindow::on_ss_button_toggled(bool checked)
 {
     ui->mainGL->checkToggeled_ss(checked);
 }
+
+void MainWindow::on_select_orbit_cam_toggled(bool checked)
+{
+    ui->mainGL->radioToggeled_Orbit_Cam(checked);
+}
+
+void MainWindow::on_select_game_cam_toggled(bool checked)
+{
+    ui->mainGL->radioToggeled_Game_Cam(checked);
+}

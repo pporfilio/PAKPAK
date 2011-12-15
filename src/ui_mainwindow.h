@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Wed Dec 14 18:54:57 2011
+** Created: Thu Dec 15 13:18:49 2011
 **      by: Qt User Interface Compiler version 4.6.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -65,6 +65,9 @@ public:
     QWidget *verticalLayoutWidget_2;
     QVBoxLayout *verticalLayout_2;
     QCheckBox *skybox_button;
+    QCheckBox *ss_button;
+    QRadioButton *select_orbit_cam;
+    QRadioButton *select_game_cam;
     QGridLayout *Specular_Grid;
     QSlider *spec_r;
     QSlider *spec_g;
@@ -249,6 +252,22 @@ public:
 
         verticalLayout_2->addWidget(skybox_button);
 
+        ss_button = new QCheckBox(verticalLayoutWidget_2);
+        ss_button->setObjectName(QString::fromUtf8("ss_button"));
+
+        verticalLayout_2->addWidget(ss_button);
+
+        select_orbit_cam = new QRadioButton(verticalLayoutWidget_2);
+        select_orbit_cam->setObjectName(QString::fromUtf8("select_orbit_cam"));
+        select_orbit_cam->setChecked(true);
+
+        verticalLayout_2->addWidget(select_orbit_cam);
+
+        select_game_cam = new QRadioButton(verticalLayoutWidget_2);
+        select_game_cam->setObjectName(QString::fromUtf8("select_game_cam"));
+
+        verticalLayout_2->addWidget(select_game_cam);
+
         Specular_Grid = new QGridLayout();
         Specular_Grid->setSpacing(6);
         Specular_Grid->setObjectName(QString::fromUtf8("Specular_Grid"));
@@ -394,6 +413,9 @@ public:
         F_C_w_label->setText(QApplication::translate("MainWindow", "w", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("MainWindow", "Fractal Parameters", 0, QApplication::UnicodeUTF8));
         skybox_button->setText(QApplication::translate("MainWindow", "Skybox", 0, QApplication::UnicodeUTF8));
+        ss_button->setText(QApplication::translate("MainWindow", "Super Sampling", 0, QApplication::UnicodeUTF8));
+        select_orbit_cam->setText(QApplication::translate("MainWindow", "Orbit Camera", 0, QApplication::UnicodeUTF8));
+        select_game_cam->setText(QApplication::translate("MainWindow", "Game Camera", 0, QApplication::UnicodeUTF8));
         spec_r_label->setText(QApplication::translate("MainWindow", "R", 0, QApplication::UnicodeUTF8));
         spec_g_label->setText(QApplication::translate("MainWindow", "G", 0, QApplication::UnicodeUTF8));
         spec_b_label->setText(QApplication::translate("MainWindow", "B", 0, QApplication::UnicodeUTF8));

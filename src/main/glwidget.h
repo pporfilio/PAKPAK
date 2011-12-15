@@ -45,6 +45,9 @@ public:
     void sliderUpdateF_reflect_channels_r(int newValue);
     void sliderUpdateF_reflect_channels_g(int newValue);
     void sliderUpdateF_reflect_channels_b(int newValue);
+    void radioToggeled_Orbit_Cam(bool checked);
+    void radioToggeled_Game_Cam(bool checked);
+
 
 protected:
     // Overridden QGLWidget methods

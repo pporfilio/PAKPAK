@@ -327,7 +327,7 @@ void GLWidget::paintGL()
     glEnable(GL_TEXTURE_CUBE_MAP);
 
     if (mandelbox_selected) {
-        skybox_enabled = false;
+        //skybox_enabled = false;
         F_specular = false;
     }
 
@@ -335,6 +335,9 @@ void GLWidget::paintGL()
         glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubeMap);
         glCallList(m_skybox);
     }
+
+
+
 
     if (julia_selected) {
         renderFractal();
@@ -691,4 +694,17 @@ void GLWidget::checkToggeled_skybox(bool checked) {
 
 void GLWidget::checkToggeled_ss(bool checked) {
     global_ss_enabled = checked;
+}
+
+
+void GLWidget::radioToggeled_Orbit_Cam(bool checked) {
+    if (checked) {
+        m_camera = m_orbitCamera;
+    }
+}
+
+void GLWidget::radioToggeled_Game_Cam(bool checked) {
+    if (checked) {
+        m_camera = m_gameCamera;
+    }
 }

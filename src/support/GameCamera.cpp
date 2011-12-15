@@ -41,7 +41,9 @@ void GameCamera::mouseMove(const V2 &delta)
     Matrix4x4 rotMatY = getRotMat(Vector4(getPos().x, getPos().y, getPos().z, 1.0), m_up.cross(m_look), delta.y*.005);
 
     m_look = rotMatY * rotMatX * m_look;
+    m_up = rotMatY * rotMatX * m_up;
     m_look.normalize();
+    m_up.normalize();
 
 }
 

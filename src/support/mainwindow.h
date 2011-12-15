@@ -19,6 +19,8 @@ private:
     Ui::MainWindow *ui;
 
 private slots:
+    void on_select_game_cam_toggled(bool checked);
+    void on_select_orbit_cam_toggled(bool checked);
     void on_skybox_button_toggled(bool checked);
     void on_reflection_button_toggled(bool checked);
     void on_specular_button_toggled(bool checked);
