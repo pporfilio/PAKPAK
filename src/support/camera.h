@@ -17,11 +17,8 @@ public:
 
     OrbitCamera();
 
-    V3 center, up;
-    float angle_x;
-    float angle_y;
+    //V3 center, up;
     float fovy;
-    float zoom;
 
     float near_clip;
     float far_clip;
@@ -30,6 +27,23 @@ public:
     void mouseWheel(float delta);
     V3 getPos();
     Matrix4x4 getFilmToWorld(int width, int height);
+    V3 getLook3();
+    V3 getUp3();
+    void cameraMoveUp(bool positive);
+    void cameraMoveLook(bool positive);
+    void cameraMoveSide(bool positive);
+
+
+private:
+    float angle_x;
+    float angle_y;
+    float zoom;
+    Vector4 m_look;
+    Vector4 m_up;
+    Vector4 m_u;
+    Vector4 m_v;
+    Vector4 m_w;
+    Vector4 m_pos;
 
 };
 

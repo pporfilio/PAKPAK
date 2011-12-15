@@ -30,7 +30,7 @@ const float fixedRadius = 1.;
 const float minRadius2 = minRadius*minRadius;
 const float fixedRadius2 = fixedRadius*fixedRadius;
 
-int DEPTH = int(100.0 / dot(world_eye, world_eye)) + 10;
+int DEPTH = int(50.0 / dot(world_eye, world_eye)) + 10;
 float ep = .01 * DEPTH;
 //int DEPTH = int(4.);
 
@@ -269,7 +269,7 @@ vec4 CalculateLighting(vec3 p, float dist, vec3 d, vec3 start_p) {
 
     vec4 color = vec4(Ir,Ig,Ib,1.);
 
-    /*
+
     //Reflection
     if (reflections_enabled == 1) {
         vec3 r = reflect(d,n);
@@ -281,7 +281,7 @@ vec4 CalculateLighting(vec3 p, float dist, vec3 d, vec3 start_p) {
                 // Specular
                 color += textureCube( CubeMap, vec4(r, 1.0));
         }
-    }*/
+    }
 
     //color = vec4(dist, dist, dist, 1.0);
     //color.xyz = color.xyz / (ITR * EPSILON);

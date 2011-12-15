@@ -244,13 +244,14 @@ void GLWidget::applyPerspectiveCamera(float width, float height)
 {
       float ratio = ((float) width) / height;
       V3 eye(m_camera->getPos());
+      V3 looking_at = eye + m_camera->getLook3();
 
       glMatrixMode(GL_PROJECTION);
       glLoadIdentity();
       gluPerspective(m_camera->fovy, ratio, m_camera->near_clip, m_camera->far_clip);
 
-      gluLookAt(eye.x, eye.y, eye.z, m_camera->center.x, m_camera->center.y, m_camera->center.z,
-                m_camera->up.x, m_camera->up.y, m_camera->up.z);
+      gluLookAt(eye.x, eye.y, eye.z, looking_at.x, looking_at.y, looking_at.z,
+                m_camera->getUp3().x, m_camera->getUp3().y, m_camera->getUp3().z);
 
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
@@ -520,7 +521,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 {
     switch(event->key())
     {
-    case Qt::Key_S: {
+    case Qt::Key_P: {
         QImage qi = grabFrameBuffer(false);
         QString filter;
         QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), "", tr("PNG Image (*.png)"), &filter);
@@ -533,6 +534,31 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     }
     case Qt::Key_Equal: {
         F_Z3 = min(1, F_Z3 + .05);
+        break;
+    }
+    case Qt::Key_Q: {
+        //m_camera->cameraMove(0, -.1, 0);
+        m_camera->cameraMoveUp(true);
+        break;
+    }
+    case Qt::Key_E: {
+        m_camera->cameraMoveUp(false);
+        break;
+    }
+    case Qt::Key_W: {
+        m_camera->cameraMoveLook(true);
+        break;
+    }
+    case Qt::Key_S: {
+        m_camera->cameraMoveLook(false);
+        break;
+    }
+    case Qt::Key_A: {
+        m_camera->cameraMoveSide(true);
+        break;
+    }
+    case Qt::Key_D: {
+        m_camera->cameraMoveSide(false);
         break;
     }
 }
@@ -554,13 +580,14 @@ void GLWidget::paintText()
 
     // QGLWidget's renderText takes xy coordinates, a string, and a font
     renderText(10, 20, "FPS: " + QString::number((int) (m_prevFps)), m_font);
-    renderText(10, 35, "S: Save screenshot", m_font);
+    renderText(10, 35, "P: Save screenshot", m_font);
     V3 pos = m_camera->getPos();
     renderText(10, 50, "eye location : (" + QString::number((double)(pos.x)) +
                ", " + QString::number((double)(pos.y)) + ", " +
                QString::number((double)(pos.x)) + ")", m_font);
 //    renderText(10, 65, "DEPTH = " + QString::number((double)(10 / max(pos.lengthSquared(), 1.0))), m_font);
     renderText(10, 65, "DEPTH = " + QString::number((double)(pos.lengthSquared())), m_font);
+    renderText(10, 80, "step size = " + QString::number((double)(.05*pos.length())), m_font);
 
 }
 
