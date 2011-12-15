@@ -1,10 +1,10 @@
-#include "camera.h"
+#include "GameCamera.h"
 #include "CS123Matrix.h"
 #include "utils.h"
 #include <qgl.h>
 
 
-OrbitCamera::OrbitCamera() {
+GameCamera::GameCamera() {
     V3 center = V3(0.0, 0.0, 0.0);
     V3 up = V3(0.0, 1.0, 0.0);
     zoom = 3.5;
@@ -34,15 +34,8 @@ OrbitCamera::OrbitCamera() {
 
 }
 
-void OrbitCamera::mouseMove(const V2 &delta)
+void GameCamera::mouseMove(const V2 &delta)
 {
-    // move camera around the origin
-//    angle_x += delta.x*0.005;
-//    angle_y += delta.y*0.005;
-//
-//    // Keep angle_x in [0, 2pi] and angle_y in [-pi/2, pi/2]
-//    angle_x -= floorf(angle_x / M_2PI) * M_2PI;
-//    angle_y = max(0.01f - M_PI / 2, min(M_PI / 2 - 0.01f, angle_y));
 
     Matrix4x4 rotMatX = getRotMat(Vector4(getPos().x, getPos().y, getPos().z, 1.0), m_up, -delta.x*.005);
     Matrix4x4 rotMatY = getRotMat(Vector4(getPos().x, getPos().y, getPos().z, 1.0), m_up.cross(m_look), delta.y*.005);
@@ -52,7 +45,7 @@ void OrbitCamera::mouseMove(const V2 &delta)
 
 }
 
-void OrbitCamera::cameraMoveUp(bool positive) {
+void GameCamera::cameraMoveUp(bool positive) {
     if (positive) {
         m_pos += m_up * .05 * m_pos.getMagnitude();
     } else {
@@ -60,7 +53,7 @@ void OrbitCamera::cameraMoveUp(bool positive) {
     }
 }
 
-void OrbitCamera::cameraMoveLook(bool positive) {
+void GameCamera::cameraMoveLook(bool positive) {
     if (positive) {
         m_pos += m_look * .05 * m_pos.getMagnitude();
     } else {
@@ -68,7 +61,7 @@ void OrbitCamera::cameraMoveLook(bool positive) {
     }
 }
 
-void OrbitCamera::cameraMoveSide(bool positive) {
+void GameCamera::cameraMoveSide(bool positive) {
     if (positive) {
         m_pos -= m_look.cross(m_up) * .05 * m_pos.getMagnitude();
     } else {
@@ -76,7 +69,7 @@ void OrbitCamera::cameraMoveSide(bool positive) {
     }
 }
 
-void OrbitCamera::mouseWheel(float delta)
+void GameCamera::mouseWheel(float delta)
 {
     //zoom *= powf(0.999f, delta);
     if (delta > 0) {
@@ -89,21 +82,37 @@ void OrbitCamera::mouseWheel(float delta)
     //zoom = min(zoom, 8.0);
 }
 
-V3 OrbitCamera::getPos() {
+V3 GameCamera::getPos() {
     //compute position based on angles
     V3 pos2 = V3(m_pos.x, m_pos.y, m_pos.z);
     return pos2;
 }
 
-V3 OrbitCamera::getLook3() {
+V3 GameCamera::getLook3() {
     return V3(m_look.x, m_look.y, m_look.z);
 }
 
-V3 OrbitCamera::getUp3() {
+V3 GameCamera::getUp3() {
     return V3(m_up.x, m_up.y, m_up.z);
 }
 
-Matrix4x4 OrbitCamera::getFilmToWorld(int width, int height) {
+float GameCamera::getFOVY() {
+    return fovy;
+}
+
+float GameCamera::getFarClip() {
+    return far_clip;
+}
+
+float GameCamera::getNearClip() {
+    return near_clip;
+}
+
+int GameCamera::getType() {
+    return GAME_CAMERA;
+}
+
+Matrix4x4 GameCamera::getFilmToWorld(int width, int height) {
 
     //compute the rotation transform
     V3 pos = getPos();

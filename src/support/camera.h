@@ -1,50 +1,46 @@
+/*
+  @file camera.h
+  @author Parker Porfilio
+  @date Fall 2011
+
+  @brief Contains interface fro abstract virtual camera class. Based on Camera.h
+      written by Ben Herila and Evan Wallace and distributed as part of
+      Brown University's CS123 support code.
+
+  */
+
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <QMouseEvent>
 #include "vector.h"
 #include "CS123Matrix.h"
-#include "utils.h"
 
-/**
-    An orbiting perspective camera specified by a center, two angles, and a zoom factor
+enum CameraType {
+    GAME_CAMERA, ORBIT_CAMERA
+};
 
-    @author: Justin Ardini (jardini)
-**/
-class OrbitCamera
+class Camera
 {
 public:
-
-    OrbitCamera();
-
-    //V3 center, up;
-    float fovy;
-
-    float near_clip;
-    float far_clip;
-
-    void mouseMove(const V2 &delta);
-    void mouseWheel(float delta);
-    V3 getPos();
-    Matrix4x4 getFilmToWorld(int width, int height);
-    V3 getLook3();
-    V3 getUp3();
-    void cameraMoveUp(bool positive);
-    void cameraMoveLook(bool positive);
-    void cameraMoveSide(bool positive);
+    virtual void mouseMove(const V2 &delta) = 0;
+    virtual void mouseWheel(float delta) = 0;
+    virtual V3 getPos() = 0;
+    virtual Matrix4x4 getFilmToWorld(int width, int height) = 0;
+    virtual V3 getLook3() = 0;
+    virtual V3 getUp3() = 0;
+    virtual void cameraMoveUp(bool positive) {}
+    virtual void cameraMoveLook(bool positive) {}
+    virtual void cameraMoveSide(bool positive) {}
 
 
-private:
-    float angle_x;
-    float angle_y;
-    float zoom;
-    Vector4 m_look;
-    Vector4 m_up;
-    Vector4 m_u;
-    Vector4 m_v;
-    Vector4 m_w;
-    Vector4 m_pos;
+    //couldn't get these to work as just variables.
+    virtual float getFOVY() = 0;
+    virtual float getNearClip() = 0;
+    virtual float getFarClip() = 0;
+
+    virtual int getType() = 0;
 
 };
+
 
 #endif // CAMERA_H

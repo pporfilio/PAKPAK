@@ -8,6 +8,7 @@
 #include <QTime>
 
 #include "camera.h"
+#include "GameCamera.h"
 #include "OrbitingCamera.h"
 #include "CS123Matrix.h"
 #include "CS123Vector.h"
@@ -37,6 +38,7 @@ public:
     void radioToggeled_Julia(bool checked);
     void radioToggeled_Mandelbox(bool checked);
     void checkToggeled_skybox(bool checked);
+    void checkToggeled_ss(bool checked);
     void sliderUpdateF_spec_channels_r(int newValue);
     void sliderUpdateF_spec_channels_g(int newValue);
     void sliderUpdateF_spec_channels_b(int newValue);
@@ -73,7 +75,10 @@ private:
     int m_prevTime;
     float m_prevFps, m_fps;
     V2 m_prevMousePos;
-    OrbitCamera *m_camera;
+
+    Camera *m_gameCamera;
+    Camera *m_orbitCamera;
+    Camera *m_camera;
 
     // Resources
     QHash<QString, QGLShaderProgram *> m_shaderPrograms; // hash map of all shader programs
@@ -92,6 +97,7 @@ private:
     bool julia_selected;
     bool mandelbox_selected;
     bool skybox_enabled;
+    bool global_ss_enabled;
     bool ss_enabled;
 
     Vector4 t_ul;

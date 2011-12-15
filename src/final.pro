@@ -17,7 +17,6 @@ HEADERS += main/glwidget.h \
     math/vector.h \
     support/resourceloader.h \
     support/mainwindow.h \
-    support/camera.h \
     lib/targa.h \
     main/glwidget.h \
     math/CS123Matrix.h \
@@ -25,20 +24,21 @@ HEADERS += main/glwidget.h \
     math/CS123Vector.h \
     lib/utils.h \
     lib/CS123Common.h \
-    support/testCamera.h \
-    support/OrbitingCamera.h
+    support/OrbitingCamera.h \
+    support/GameCamera.h \
+    support/camera.h
 SOURCES += main/glwidget.cpp \
     lib/targa.cpp \
     lib/glm.cpp \
     support/resourceloader.cpp \
     support/mainwindow.cpp \
     support/main.cpp \
-    support/camera.cpp \
     math/CS123Matrix.cpp \
     math/CS123Matrix.inl \
     math/CS123Vector.inl \
     lib/utils.cpp \
-    support/OrbitingCamera.cpp
+    support/OrbitingCamera.cpp \
+    support/GameCamera.cpp
 FORMS += mainwindow.ui \
     support/mainwindow.ui
 OTHER_FILES += shaders/refract.vert \
@@ -53,3 +53,9 @@ OTHER_FILES += shaders/refract.vert \
     shaders/mandelbox.vert \
     shaders/mandelbox.frag
 RESOURCES += 
+
+
+
+
+
+

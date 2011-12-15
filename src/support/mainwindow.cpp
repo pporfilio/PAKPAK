@@ -103,3 +103,8 @@ void MainWindow::on_skybox_button_toggled(bool checked)
 {
     ui->mainGL->checkToggeled_skybox(checked);
 }
+
+void MainWindow::on_ss_button_toggled(bool checked)
+{
+    ui->mainGL->checkToggeled_ss(checked);
+}

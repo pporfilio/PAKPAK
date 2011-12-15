@@ -35,6 +35,7 @@ private slots:
     void on_F_C_y_valueChanged(int value);
     void on_F_C_x_valueChanged(int value);
     void on_F_Z3_valueChanged(int value);
+    void on_ss_button_toggled(bool checked);
 };
 
 #endif // MAINWINDOW_H

@@ -1,5 +1,5 @@
-#ifndef ORBITINGCAMERA_H
-#define ORBITINGCAMERA_H
+#ifndef GAMECAMERA_H
+#define GAMECAMERA_H
 
 #include <QMouseEvent>
 #include "vector.h"
@@ -12,34 +12,42 @@
 
     @author: Justin Ardini (jardini)
 **/
-class OrbitCamera : public Camera
+class GameCamera : public Camera
 {
 public:
 
-    OrbitCamera();
+    GameCamera();
 
-    V3 center, up;
-    float angle_x;
-    float angle_y;
     float fovy;
-    float zoom;
-
     float near_clip;
     float far_clip;
 
     void mouseMove(const V2 &delta);
     void mouseWheel(float delta);
     V3 getPos();
+    Matrix4x4 getFilmToWorld(int width, int height);
     V3 getLook3();
     V3 getUp3();
-    Matrix4x4 getFilmToWorld(int width, int height);
+    void cameraMoveUp(bool positive);
+    void cameraMoveLook(bool positive);
+    void cameraMoveSide(bool positive);
     float getFOVY();
     float getNearClip();
     float getFarClip();
     int getType();
 
 
+private:
+    float angle_x;
+    float angle_y;
+    float zoom;
+    Vector4 m_look;
+    Vector4 m_up;
+    Vector4 m_u;
+    Vector4 m_v;
+    Vector4 m_w;
+    Vector4 m_pos;
+
 };
 
-
-#endif // ORBITINGCAMERA_H
+#endif // GAMECAMERA_H

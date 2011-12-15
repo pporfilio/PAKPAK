@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Wed Dec 14 19:56:29 2011
+** Created: Wed Dec 14 22:00:36 2011
 **      by: Qt User Interface Compiler version 4.7.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -65,6 +65,7 @@ public:
     QWidget *verticalLayoutWidget_2;
     QVBoxLayout *verticalLayout_2;
     QCheckBox *skybox_button;
+    QCheckBox *ss_button;
     QGridLayout *Specular_Grid;
     QSlider *spec_r;
     QSlider *spec_g;
@@ -95,7 +96,7 @@ public:
         MainWindow->setCentralWidget(mainGL);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 800, 25));
+        menuBar->setGeometry(QRect(0, 0, 800, 23));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         MainWindow->setMenuBar(menuBar);
@@ -249,6 +250,11 @@ public:
 
         verticalLayout_2->addWidget(skybox_button);
 
+        ss_button = new QCheckBox(verticalLayoutWidget_2);
+        ss_button->setObjectName(QString::fromUtf8("ss_button"));
+
+        verticalLayout_2->addWidget(ss_button);
+
         Specular_Grid = new QGridLayout();
         Specular_Grid->setSpacing(6);
         Specular_Grid->setObjectName(QString::fromUtf8("Specular_Grid"));
@@ -394,6 +400,7 @@ public:
         F_C_w_label->setText(QApplication::translate("MainWindow", "w", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("MainWindow", "Fractal Parameters", 0, QApplication::UnicodeUTF8));
         skybox_button->setText(QApplication::translate("MainWindow", "Skybox", 0, QApplication::UnicodeUTF8));
+        ss_button->setText(QApplication::translate("MainWindow", "Super Sampling", 0, QApplication::UnicodeUTF8));
         spec_r_label->setText(QApplication::translate("MainWindow", "R", 0, QApplication::UnicodeUTF8));
         spec_g_label->setText(QApplication::translate("MainWindow", "G", 0, QApplication::UnicodeUTF8));
         spec_b_label->setText(QApplication::translate("MainWindow", "B", 0, QApplication::UnicodeUTF8));

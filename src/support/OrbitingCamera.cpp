@@ -1,121 +1,97 @@
-/*!
-
-   @file   OrbitingCamera.cpp
-   @author Evan Wallace (evan.exe@gmail.com)
-   @date   Fall 2010
-
-   @brief
-     See the header file, really. You don't need to be poking around
-   in this file unless you're interested in how an orbiting camera
-   works.
-
-   The way we have implemented this class is NOT how you should be
-   implementing your Camtrans. This camera is a DIFFERENT TYPE of
-   camera which we're providing so you can easily view your Shapes
-   and to make sure your scene graph is working if your camera isn't.
-
-   In the Camtrans assignment, you'll be implementing your own
-   perspective camera from scratch! This one uses OpenGL.
-
-*/
-
 #include "OrbitingCamera.h"
-
-#include <CS123Algebra.h>
-#include <math.h>
+#include "utils.h"
 #include <qgl.h>
 
-OrbitingCamera::OrbitingCamera()
-{
-    m_aspectRatio = 1;
-    m_angleX = m_angleY = 0;
-    m_zoomZ = -5;
-    m_cameraFOV = 60.0;
-    m_cameraNear = 0.1;
-    m_cameraFar = 1000.0;
-    m_modelviewMatrix = Matrix4x4::identity();
+
+OrbitCamera::OrbitCamera() {
+    center = V3(0.0, 0.0, 0.0);
+    up = V3(0.0, 1.0, 0.0);
+    zoom = 3.5;
+    angle_x = PI * 1.5f;
+    angle_y = 0.2f;
+    fovy = 60.0;
+    far_clip = 1000.0;
+    near_clip = 0.1;
+
 }
 
-void OrbitingCamera::setAspectRatio(float aspectRatio)
+void OrbitCamera::mouseMove(const V2 &delta)
 {
-    m_aspectRatio = aspectRatio;
+    // move camera around the origin
+    angle_x += delta.x*0.005;
+    angle_y += delta.y*0.005;
 
-    updateProjectionMatrix();
+    // Keep angle_x in [0, 2pi] and angle_y in [-pi/2, pi/2]
+    angle_x -= floorf(angle_x / M_2PI) * M_2PI;
+    angle_y = max(0.01f - M_PI / 2, min(M_PI / 2 - 0.01f, angle_y));
 }
 
-Matrix4x4 OrbitingCamera::getProjectionMatrix() const
+void OrbitCamera::mouseWheel(float delta)
 {
-    return m_projectionMatrix;
+    zoom *= powf(0.999f, delta);
+    //maintain zoom within reason
+    //zoom = max(zoom, 1.2);
+    //zoom = min(zoom, 8.0);
 }
 
-Matrix4x4 OrbitingCamera::getModelviewMatrix() const
-{
-    return m_modelviewMatrix;
+V3 OrbitCamera::getPos() {
+    //compute position based on angles
+    V3 pos = V3::fromAngles(angle_x, angle_y);
+    pos *= zoom;
+    return pos;
 }
 
-void OrbitingCamera::mouseDown(int x, int y)
-{
-    m_oldX = x;
-    m_oldY = y;
+V3 OrbitCamera::getLook3() {
+    V3 tmp = center - getPos();
+    tmp.normalize();
+    return tmp;
+    }
+
+V3 OrbitCamera::getUp3() {
+    return up;
 }
 
-void OrbitingCamera::mouseDragged(float dx, float dy)
-{
-    printf("delta = (%.2f, %.2f)\n", dx, dy);
-//    m_angleY += x - m_oldX;
-//    m_angleX += y - m_oldY;
-//    m_oldX = x;
-//    m_oldY = y;
-    m_angleX += dx;
-    m_angleY += dy;
-    if (m_angleX < -90) m_angleX = -90;
-    if (m_angleX > 90) m_angleX = 90;
-
-    updateModelviewMatrix();
+float OrbitCamera::getFOVY() {
+    return fovy;
 }
 
-void OrbitingCamera::mouseScrolled(int delta)
-{
-    // Use an exponential factor so the zoom increments are small when we are
-    // close to the object and large when we are far away from the object
-    m_zoomZ *= powf(0.999f, delta);
-
-    updateModelviewMatrix();
+float OrbitCamera::getFarClip() {
+    return far_clip;
 }
 
-void OrbitingCamera::updateMatrices()
-{
-    updateProjectionMatrix();
-    updateModelviewMatrix();
+float OrbitCamera::getNearClip() {
+    return near_clip;
 }
 
-void OrbitingCamera::updateProjectionMatrix()
-{
-    double matrix[16];
-    glPushMatrix();
-    glLoadIdentity();
-    gluPerspective(m_cameraFOV, m_aspectRatio, m_cameraNear, m_cameraFar);
-    glGetDoublev(GL_MODELVIEW_MATRIX, matrix);
-    glPopMatrix();
-    m_projectionMatrix = Matrix4x4(matrix).getTranspose();
+int OrbitCamera::getType() {
+    return ORBIT_CAMERA;
 }
 
-void OrbitingCamera::updateModelviewMatrix()
-{
-    double matrix[16];
-    glPushMatrix();
-    glLoadIdentity();
+Matrix4x4 OrbitCamera::getFilmToWorld(int width, int height) {
 
-    // Move the object forward by m_zoomZ units before we rotate,
-    //so it will rotate about a point in front of us
-    glTranslatef(0, 0, m_zoomZ);
+    //compute the rotation transform
+    V3 pos = getPos();
+    V3 dir = center - pos;
+    Vector3 look = Vector3(dir.x, dir.y, dir.z);
 
-    // Now rotate the object, pivoting it about the new origin in front of us
-    glRotatef(m_angleX, 1, 0, 0);
-    glRotatef(m_angleY, 0, 1, 0);
+    Vector3 w = (look / look.getMagnitude());
+    Vector3 tmp_up = Vector3(up.x, up.y, up.z);
+    Vector3 u = (tmp_up.cross(w))/((tmp_up.cross(w))).getMagnitude();
+    Vector3 v = w.cross(u);
 
-    glGetDoublev(GL_MODELVIEW_MATRIX, matrix);
-    glPopMatrix();
-    m_modelviewMatrix = Matrix4x4(matrix).getTranspose();
+    Matrix4x4 rotate = Matrix4x4::identity();
+    rotate.a = u.x;
+    rotate.b = u.y;
+    rotate.c = u.z;
+    rotate.e = v.x;
+    rotate.f = v.y;
+    rotate.g = v.z;
+    rotate.i = w.x;
+    rotate.j = w.y;
+    rotate.k = w.z;
+
+    //compute translation transform
+    Matrix4x4 translate = getInvTransMat(Vector4(pos.x, pos.y, pos.z, 1));
+
+    return (rotate * translate).getInverse();
 }
-

@@ -32,7 +32,9 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
 
-    m_camera = new OrbitCamera();
+    m_gameCamera = new GameCamera();
+    m_orbitCamera = new OrbitCamera();
+    m_camera = m_gameCamera;
 
     F_Z3 = 0.0;
     F_C = Vector4(-.1, .1, .5, -.6);
@@ -43,7 +45,10 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
     julia_selected = true;
     mandelbox_selected = false;
     skybox_enabled = true;
-    ss_enabled = true;
+
+    //global as in regardless of whether or not the user is clicking
+    global_ss_enabled = false; //faster for testing other things
+    ss_enabled = false;
 
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(update()));
 
@@ -248,7 +253,8 @@ void GLWidget::applyPerspectiveCamera(float width, float height)
 
       glMatrixMode(GL_PROJECTION);
       glLoadIdentity();
-      gluPerspective(m_camera->fovy, ratio, m_camera->near_clip, m_camera->far_clip);
+      gluPerspective(m_camera->getFOVY(), ratio, m_camera->getNearClip(),
+                     m_camera->getFarClip());
 
       gluLookAt(eye.x, eye.y, eye.z, looking_at.x, looking_at.y, looking_at.z,
                 m_camera->getUp3().x, m_camera->getUp3().y, m_camera->getUp3().z);
@@ -286,7 +292,7 @@ void GLWidget::paintGL()
 
     float aspect = (float)width/(float)height;
 
-    float half_height = plane_depth * tan(toRadians(m_camera->fovy/2));
+    float half_height = plane_depth * tan(toRadians(m_camera->getFOVY()/2));
     float half_width = half_height * aspect;
 
     Vector4 plane_ul = Vector4(-half_width, half_height, plane_depth, 1);
@@ -351,6 +357,9 @@ void GLWidget::renderFractal() {
 
 
     V3 pos = m_camera->getPos();
+
+//    if (ss_enabled) { printf("ss is enabled\n"); }
+//    else { printf("ss_not_enabled\n"); }
 
     //pass parameters to the shader
     m_shaderPrograms["fractal"]->bind();
@@ -424,7 +433,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
         m_camera->mouseMove(delta);
     }
     else {
-        ss_enabled = true;
+        ss_enabled = global_ss_enabled;
     }
     m_prevMousePos = pos;
 
@@ -442,7 +451,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 }
 
 void GLWidget::mouseReleaseEvent(QMouseEvent *) {
-    ss_enabled = true;
+    ss_enabled = global_ss_enabled;
 }
 
 /**
@@ -561,6 +570,13 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         m_camera->cameraMoveSide(false);
         break;
     }
+    case Qt::Key_C: {
+        if (m_camera->getType() == GAME_CAMERA) {
+            m_camera = m_orbitCamera;
+        } else {
+            m_camera = m_gameCamera;
+        }
+    }
 }
 }
 
@@ -662,7 +678,6 @@ void GLWidget::radioToggeled_Mandelbox(bool checked) {
 
 void GLWidget::radioToggeled_specular(bool checked) {
     F_specular = checked;
-    //ss_enabled = checked;
 }
 
 void GLWidget::radioToggeled_reflect(bool checked) {
@@ -671,4 +686,8 @@ void GLWidget::radioToggeled_reflect(bool checked) {
 
 void GLWidget::checkToggeled_skybox(bool checked) {
     skybox_enabled = checked;
+}
+
+void GLWidget::checkToggeled_ss(bool checked) {
+    global_ss_enabled = checked;
 }
