@@ -47,25 +47,26 @@ void GameCamera::mouseMove(const V2 &delta)
 
 void GameCamera::cameraMoveUp(bool positive) {
     if (positive) {
-        m_pos += m_up * .05 * m_pos.getMagnitude();
+        m_pos += m_up * .005 * m_pos.getMagnitude();
     } else {
-        m_pos -= m_up * .05 * m_pos.getMagnitude();
+        m_pos -= m_up * .005 * m_pos.getMagnitude();
     }
 }
 
 void GameCamera::cameraMoveLook(bool positive) {
+    float pos = m_pos.getMagnitude();
     if (positive) {
-        m_pos += m_look * .05 * m_pos.getMagnitude();
+        m_pos += m_look * pos*pos * .0001;
     } else {
-        m_pos -= m_look * .05 * m_pos.getMagnitude();
+        m_pos -= m_look * pos*pos * .0001;
     }
 }
 
 void GameCamera::cameraMoveSide(bool positive) {
     if (positive) {
-        m_pos -= m_look.cross(m_up) * .05 * m_pos.getMagnitude();
+        m_pos -= m_look.cross(m_up) * .005 * m_pos.getMagnitude();
     } else {
-        m_pos += m_look.cross(m_up) * .05 * m_pos.getMagnitude();
+        m_pos += m_look.cross(m_up) * .005 * m_pos.getMagnitude();
     }
 }
 

@@ -30,7 +30,7 @@ const float fixedRadius = 1.;
 const float minRadius2 = minRadius*minRadius;
 const float fixedRadius2 = fixedRadius*fixedRadius;
 
-int DEPTH = int(50.0 / dot(world_eye, world_eye)) + 10;
+int DEPTH = int(60.0 / dot(world_eye, world_eye)) + 10;
 float ep = .01 * float(DEPTH);
 //int DEPTH = int(4.);
 
@@ -317,12 +317,20 @@ void main (void) {
     vec3 ray = normalize(p_film - start_p);
 
     vec4 final_color = vec4(0.,0.,0.,0.);
+    vec4 fog_color = vec4(.3,.3,.5, 1.);
 
     vec3 intersection = vec3(0.0,0.0,0.0);
     float dist = 0.0;
 
     if (CalculateIntersection(intersection, dist, ray, start_p)) {
         final_color = CalculateLighting(intersection, dist, ray, start_p);
+        float blend = dist;
+
+        final_color = (1.- blend)*final_color + blend*fog_color;
+        if ((final_color.x > 1.)||(final_color.y > 1.)||(final_color.z > 1.)) {
+            final_color = fog_color;
+        }
+
         gl_FragColor = final_color;
     }
 

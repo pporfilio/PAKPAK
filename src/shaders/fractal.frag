@@ -162,13 +162,14 @@ vec4 CalculateNormal(vec4 point, vec4 d, float dist, vec4 start_p) {
     vec4 normal;
     point.w = 0.0;
 
-    vec4 gx1,gx2,gy1,gy2,gz1,gz2;
-    gx1 = point - vec4(ep,0.0,0.0,0.0);
-    gx2 = point + vec4(ep,0.0,0.0,0.0);
-    gy1 = point - vec4(0.0,ep,0.0,0.0);
-    gy2 = point + vec4(0.0,ep,0.0,0.0);
-    gz1 = point - vec4(0.0,0.0,ep,0.0);
-    gz2 = point + vec4(0.0,0.0,ep,0.0);
+    vec4 gx1 = point,gx2 = point,gy1 = point,gy2 = point,gz1 = point,gz2 = point;
+
+    gx1.x -= ep;
+    gx2.x += ep;
+    gy1.y -= ep;
+    gy2.y += ep;
+    gz1.z -= ep;
+    gz2.z += ep;
 
     for (int i = 0; i < DEPTH; i++) {
 
