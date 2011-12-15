@@ -61,7 +61,6 @@ void OrbitCamera::cameraMoveUp(bool positive) {
 }
 
 void OrbitCamera::cameraMoveLook(bool positive) {
-    assert(m_look.getMagnitude() == m_look.getNormalized().getMagnitude());
     if (positive) {
         m_pos += m_look * .05 * m_pos.getMagnitude();
     } else {
@@ -76,12 +75,6 @@ void OrbitCamera::cameraMoveSide(bool positive) {
         m_pos += m_look.cross(m_up) * .05 * m_pos.getMagnitude();
     }
 }
-
-/*(float x, float y, float z) {
-    m_pos.x += x;
-    m_pos.y += y;
-    m_pos.z += z;
-}*/
 
 void OrbitCamera::mouseWheel(float delta)
 {

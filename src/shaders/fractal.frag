@@ -9,8 +9,8 @@ uniform samplerCube CubeMap;
 uniform int reflections_enabled;
 uniform int specular_enabled;
 uniform int ss_enabled;
-uniform vec3 material_specular = vec3(.5, .5, 1.);
-uniform vec3 material_reflect = vec3(1., 1., 1.);
+uniform vec3 material_specular;
+uniform vec3 material_reflect;
 
 varying vec3 vVertex;
 
@@ -269,7 +269,7 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
 
     //Reflection
     if (reflections_enabled == 1) {
-        vec3 r = reflect(d,n);
+        vec3 r = reflect(d,n).xyz;
         color += KR*textureCube( CubeMap, r);
 
         float lambertTerm = dot(n,dir);
@@ -359,7 +359,7 @@ void main (void) {
                 bool inter4 = CalculateIntersection(intersection4, dist4, ray4, start_p, false);
 
                 float A = .4;
-                float B = (1-A)/4.f;
+                float B = (1.0-A)/4.;
 
                 final_color = A*final_color;
 

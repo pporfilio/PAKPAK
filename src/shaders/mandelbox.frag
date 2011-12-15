@@ -19,7 +19,7 @@ varying vec3 vVertex;
 const float EPSILON = .003;          //closeness to fractal
 const float ITR = 300.0;             //number of iterations along ray
 //const int DEPTH = 20;                //number of fractal iterations       NEEDS TO BE CHANGED BASED ON CLOSENESS
-const float BREAK = 100;             //fractal escape bound
+const float BREAK = 100.0;             //fractal escape bound
 //const float ep = .1;                 //for normal
 const float M = 3.0;                 //bounding radius
 
@@ -31,7 +31,7 @@ const float minRadius2 = minRadius*minRadius;
 const float fixedRadius2 = fixedRadius*fixedRadius;
 
 int DEPTH = int(50.0 / dot(world_eye, world_eye)) + 10;
-float ep = .01 * DEPTH;
+float ep = .01 * float(DEPTH);
 //int DEPTH = int(4.);
 
 float magnitude(vec3 v) {
@@ -86,7 +86,7 @@ float DE(vec3 z)
 //I didn't know this until just now. Glad to have found out.
 
 bool isInMandelbox(vec3 p, inout float dist) {
-    vec3 Zn = (0.,0.,0.); //p;
+    vec3 Zn = vec3(0.,0.,0.); //p;
     float dZn = 1.0;
     vec3 offset = p;
 
@@ -191,9 +191,16 @@ vec3 CalculateNormal(vec3 point, vec3 d, float dist, vec3 start_p) {
 
     float gradX, gradY, gradZ;
 
+    /*
     gradX = magnitude(d2) - magnitude(d1);
     gradY = magnitude(d4) - magnitude(d3);
     gradZ = magnitude(d6) - magnitude(d5);
+    */
+
+    gradX = d2 - d1;
+    gradY = d4 - d3;
+    gradZ = d6 - d5;
+
 
     normal = vec3(gradX, gradY, gradZ);
 
