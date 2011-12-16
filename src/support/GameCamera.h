@@ -41,9 +41,6 @@ public:
 
 
 private:
-    float angle_x;
-    float angle_y;
-    float zoom;
     Vector4 m_look;
     Vector4 m_up;
     Vector4 m_u;

@@ -278,17 +278,17 @@ vec4 CalculateLighting(vec3 p, float dist, vec3 d, vec3 start_p) {
 
 
     //Reflection
-    if (reflections_enabled == 1) {
-        vec3 r = reflect(d,n);
-        color += KR*textureCube( CubeMap, vec4(r, 1.0));
+//    if (reflections_enabled == 1) {
+//        vec3 r = reflect(d,n);
+//        color += KR*textureCube( CubeMap, vec4(r, 1.0));
 
-        float lambertTerm = dot(n,dir);
-        if(lambertTerm > 0.0)
-        {
-                // Specular
-                color += textureCube( CubeMap, vec4(r, 1.0));
-        }
-    }
+//        float lambertTerm = dot(n,dir);
+//        if(lambertTerm > 0.0)
+//        {
+//                // Specular
+//                color += textureCube( CubeMap, vec4(r, 1.0));
+//        }
+//    }
 
     //color = vec4(dist, dist, dist, 1.0);
     //color.xyz = color.xyz / (ITR * EPSILON);

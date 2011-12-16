@@ -550,7 +550,6 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         break;
     }
     case Qt::Key_Q: {
-        //m_camera->cameraMove(0, -.1, 0);
         m_camera->cameraMoveUp(true);
         break;
     }
@@ -572,6 +571,10 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     }
     case Qt::Key_D: {
         m_camera->cameraMoveSide(false);
+        break;
+    }
+    case Qt::Key_M: {
+        global_ss_enabled = !global_ss_enabled;
         break;
     }
     case Qt::Key_C: {
@@ -617,9 +620,9 @@ void GLWidget::paintText()
     V3 pos = m_camera->getPos();
     renderText(10, 50, "eye location : (" + QString::number((double)(pos.x)) +
                ", " + QString::number((double)(pos.y)) + ", " +
-               QString::number((double)(pos.x)) + ")", m_font);
+               QString::number((double)(pos.z)) + ")", m_font);
 //    renderText(10, 65, "DEPTH = " + QString::number((double)(10 / max(pos.lengthSquared(), 1.0))), m_font);
-    renderText(10, 65, "DEPTH = " + QString::number((double)(pos.lengthSquared())), m_font);
+    renderText(10, 65, "DEPTH = " + QString::number((double)(pos.length())), m_font);
     renderText(10, 80, "step size = " + QString::number((double)(.05*pos.length())), m_font);
 
 }

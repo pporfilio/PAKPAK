@@ -5,14 +5,6 @@
 
 
 GameCamera::GameCamera() {
-    //used only during initialization.
-    //TODO: remove these.
-    zoom = 3.5;
-    angle_x = PI * 1.5f;
-    angle_y = 0.2f;
-
-
-
     fovy = 60.0;
     far_clip = 1000.0;
     near_clip = 0.1;
@@ -20,12 +12,9 @@ GameCamera::GameCamera() {
     m_up.y = 1.0;
     m_up.z = 0.0;
 
+    m_pos = Vector4(.1, 4.0, -20, 1.0);
 
-    V3 pos = V3::fromAngles(angle_x, angle_y);
-    m_pos = Vector4(pos.x, pos.y, pos.z, 1.0);
-    m_pos *= zoom;
-
-
+    //look toward the origin
     V3 look = -1 * getPos();
     m_look.x = look.x;
     m_look.y = look.y;
