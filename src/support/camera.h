@@ -19,6 +19,17 @@ enum CameraType {
     GAME_CAMERA, ORBIT_CAMERA
 };
 
+struct CameraState {
+    float fovy;
+    float nearClip;
+    float farClip;
+    V3 pos;
+    V3 look;
+    V3 up;
+};
+
+
+
 class Camera
 {
 public:
@@ -37,8 +48,9 @@ public:
     virtual float getFOVY() = 0;
     virtual float getNearClip() = 0;
     virtual float getFarClip() = 0;
-
     virtual int getType() = 0;
+    virtual CameraState* getState() = 0;
+    virtual void setState(CameraState *state) = 0;
 
 };
 

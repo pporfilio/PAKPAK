@@ -36,6 +36,9 @@ public:
     float getFarClip();
     int getType();
 
+    CameraState* getState();
+    void setState(CameraState *state);
+
 
 private:
     float angle_x;

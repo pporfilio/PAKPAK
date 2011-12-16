@@ -29,3 +29,15 @@ void printVec3(const Vector3 &v) {
     printf("[ %.2f, %.2f, %.2f ]\n", v.x, v.y, v.z);
 }
 
+CameraState* readCameraState(FILE* f) {
+    CameraState *s = new CameraState();
+    char boundary;
+    fscanf(f, " %c", &boundary);
+    if (boundary != '#') {
+        printf("reading camera state failed. Was looking for a # following whitespace. Instead found %c\n", boundary);
+        return NULL;
+    }
+    else {
+        printf("found pound sign!\n");
+    }
+}

@@ -37,7 +37,8 @@ public:
     float getNearClip();
     float getFarClip();
     int getType();
-
+    CameraState* getState();
+    void setState(CameraState *state);
 
 };
 

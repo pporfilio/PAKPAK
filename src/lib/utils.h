@@ -4,11 +4,13 @@
 #include <vector>
 #include <math.h>
 #include "CS123Algebra.h"
+#include "camera.h"
 
 
 //Compute once the value of pi to double precision and store for use elsewhere.
 const double PI = 4.0 * atan(1.0);
 
+CameraState* readCameraState(FILE* f);
 
 extern double toRadians(double degrees);
 

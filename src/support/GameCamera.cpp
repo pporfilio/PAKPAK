@@ -5,8 +5,8 @@
 
 
 GameCamera::GameCamera() {
-    V3 center = V3(0.0, 0.0, 0.0);
-    V3 up = V3(0.0, 1.0, 0.0);
+    //used only during initialization.
+    //TODO: remove these.
     zoom = 3.5;
     angle_x = PI * 1.5f;
     angle_y = 0.2f;
@@ -26,7 +26,7 @@ GameCamera::GameCamera() {
     m_pos *= zoom;
 
 
-    V3 look = (center - getPos());
+    V3 look = -1 * getPos();
     m_look.x = look.x;
     m_look.y = look.y;
     m_look.z = look.z;
@@ -142,4 +142,30 @@ Matrix4x4 GameCamera::getFilmToWorld(int width, int height) {
     Matrix4x4 translate = getInvTransMat(Vector4(pos.x, pos.y, pos.z, 1));
 
     return (rotate * translate).getInverse();
+}
+
+CameraState* GameCamera::getState() {
+    CameraState* s = new CameraState();
+    s->fovy = getFOVY();
+    s->farClip = getFarClip();
+    s->nearClip = getNearClip();
+    s->pos = getPos();
+    s->look = getLook3();
+    s->up = getUp3();
+    return s;
+}
+
+void GameCamera::setState(CameraState *state) {
+    m_pos.x = state->pos.x;
+    m_pos.y = state->pos.y;
+    m_pos.z = state->pos.z;
+    m_up.x = state->up.x;
+    m_up.y = state->up.y;
+    m_up.z = state->up.z;
+    m_look.x = state->look.x;
+    m_look.y = state->look.y;
+    m_look.z = state->look.z;
+    fovy = state->fovy;
+    far_clip = state->farClip;
+    near_clip = state->nearClip;
 }

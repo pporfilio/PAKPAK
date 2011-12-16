@@ -95,3 +95,19 @@ Matrix4x4 OrbitCamera::getFilmToWorld(int width, int height) {
 
     return (rotate * translate).getInverse();
 }
+
+
+CameraState* OrbitCamera::getState() {
+    CameraState* s = new CameraState();
+    s->fovy = getFOVY();
+    s->farClip = getFarClip();
+    s->nearClip = getNearClip();
+    s->pos = getPos();
+    s->look = getLook3();
+    s->up = getUp3();
+    return s;
+}
+
+void OrbitCamera::setState(CameraState *state) {
+    printf("orbit camera cannot accept arbitrary state. Try loading into a GameCamera\n");
+}

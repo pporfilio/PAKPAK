@@ -580,6 +580,19 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         } else {
             m_camera = m_gameCamera;
         }
+        break;
+    }
+    case Qt::Key_L: {
+        string path = "";
+        path += m_base_path->data();
+        path += "resources/cameraData.txt";
+        FILE *f = fopen(path.c_str(), "r");
+        if (f) {
+            readCameraState(f);
+        } else {
+            printf("could not open file at %s\n", path.c_str());
+        }
+        break;
     }
 }
 }

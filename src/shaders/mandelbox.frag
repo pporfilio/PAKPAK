@@ -326,6 +326,8 @@ void main (void) {
         final_color = CalculateLighting(intersection, dist, ray, start_p);
         float blend = dist;
 
+        blend = min(.6, blend);
+
         final_color = (1.- blend)*final_color + blend*fog_color;
         if ((final_color.x > 1.)||(final_color.y > 1.)||(final_color.z > 1.)) {
             final_color = fog_color;
