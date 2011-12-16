@@ -39,6 +39,7 @@ public:
     virtual Matrix4x4 getFilmToWorld(int width, int height) = 0;
     virtual V3 getLook3() = 0;
     virtual V3 getUp3() = 0;
+    virtual void reset() = 0;
     virtual void cameraMoveUp(bool positive, bool shift_modifier) {}
     virtual void cameraMoveLook(bool positive, bool shift_modifier) {}
     virtual void cameraMoveSide(bool positive, bool shift_modifier) {}

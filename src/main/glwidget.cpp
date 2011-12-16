@@ -34,7 +34,7 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
 
     m_gameCamera = new GameCamera();
     m_orbitCamera = new OrbitCamera();
-    m_camera = m_gameCamera;
+    m_camera = m_orbitCamera;
 
     F_Z3 = 0.0;
     F_C = Vector4(-.1, .1, .5, -.6);
@@ -530,74 +530,99 @@ void GLWidget::render3DTexturedQuad(int width, int height, bool flip) {
 /**
   Handles any key press from the keyboard
  **/
-void GLWidget::keyPressEvent(QKeyEvent *event)
-{
-    switch(event->key())
-    {
-    case Qt::Key_P: {
-        QImage qi = grabFrameBuffer(false);
-        QString filter;
-        QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), "", tr("PNG Image (*.png)"), &filter);
-        qi.save(QFileInfo(fileName).absoluteDir().absolutePath() + "/" + QFileInfo(fileName).baseName() + ".png", "PNG", 100);
-        break;
-    }
-    case Qt::Key_Minus: {
-        F_Z3 = max(-1, F_Z3 - .05);
-        break;
-    }
-    case Qt::Key_Equal: {
-        F_Z3 = min(1, F_Z3 + .05);
-        break;
-    }
-    case Qt::Key_Q: {
-        m_camera->cameraMoveUp(true, (event->modifiers() == Qt::ShiftModifier));
-        break;
-    }
-    case Qt::Key_E: {
-        m_camera->cameraMoveUp(false, (event->modifiers() == Qt::ShiftModifier));
-        break;
-    }
-    case Qt::Key_W: {
-        m_camera->cameraMoveLook(true, (event->modifiers() == Qt::ShiftModifier));
-        break;
-    }
-    case Qt::Key_S: {
-        m_camera->cameraMoveLook(false, (event->modifiers() == Qt::ShiftModifier));
-        break;
-    }
-    case Qt::Key_A: {
-        m_camera->cameraMoveSide(true, (event->modifiers() == Qt::ShiftModifier));
-        break;
-    }
-    case Qt::Key_D: {
-        m_camera->cameraMoveSide(false, (event->modifiers() == Qt::ShiftModifier));
-        break;
-    }
-    case Qt::Key_M: {
-        global_ss_enabled = !global_ss_enabled;
-        break;
-    }
-    case Qt::Key_C: {
-        if (m_camera->getType() == GAME_CAMERA) {
-            m_camera = m_orbitCamera;
-        } else {
-            m_camera = m_gameCamera;
-        }
-        break;
-    }
-    case Qt::Key_L: {
-        string path = "";
-        path += m_base_path->data();
-        path += "resources/cameraData.txt";
-        FILE *f = fopen(path.c_str(), "r");
-        if (f) {
-            readCameraState(f);
-        } else {
-            printf("could not open file at %s\n", path.c_str());
-        }
-        break;
-    }
+//void GLWidget::keyPressEvent(QKeyEvent *event)
+//{
+//    switch(event->key())
+//    {
+//    case Qt::Key_P: {
+//        QImage qi = grabFrameBuffer(false);
+//        QString filter;
+//        QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), "", tr("PNG Image (*.png)"), &filter);
+//        qi.save(QFileInfo(fileName).absoluteDir().absolutePath() + "/" + QFileInfo(fileName).baseName() + ".png", "PNG", 100);
+//        break;
+//    }
+//    case Qt::Key_Minus: {
+//        F_Z3 = max(-1, F_Z3 - .05);
+//        break;
+//    }
+//    case Qt::Key_Equal: {
+//        F_Z3 = min(1, F_Z3 + .05);
+//        break;
+//    }
+//    case Qt::Key_Q: {
+//        m_camera->cameraMoveUp(true, (event->modifiers() == Qt::ShiftModifier));
+//        break;
+//    }
+//    case Qt::Key_E: {
+//        m_camera->cameraMoveUp(false, (event->modifiers() == Qt::ShiftModifier));
+//        break;
+//    }
+//    case Qt::Key_W: {
+//        m_camera->cameraMoveLook(true, (event->modifiers() == Qt::ShiftModifier));
+//        break;
+//    }
+//    case Qt::Key_S: {
+//        m_camera->cameraMoveLook(false, (event->modifiers() == Qt::ShiftModifier));
+//        break;
+//    }
+//    case Qt::Key_A: {
+//        m_camera->cameraMoveSide(true, (event->modifiers() == Qt::ShiftModifier));
+//        break;
+//    }
+//    case Qt::Key_D: {
+//        m_camera->cameraMoveSide(false, (event->modifiers() == Qt::ShiftModifier));
+//        break;
+//    }
+//    case Qt::Key_M: {
+//        global_ss_enabled = !global_ss_enabled;
+//        ss_enabled = global_ss_enabled;
+//        break;
+//    }
+//    case Qt::Key_C: {
+//        if (m_camera->getType() == GAME_CAMERA) {
+//            m_camera = m_orbitCamera;
+////            m_parent->ui->select_orbit_cam;
+//        } else {
+//            m_camera = m_gameCamera;
+//        }
+//        break;
+//    }
+//    case Qt::Key_L: {
+//        string path = "";
+//        path += m_base_path->data();
+//        path += "resources/cameraData.txt";
+//        FILE *f = fopen(path.c_str(), "r");
+//        if (f) {
+//            readCameraState(f);
+//        } else {
+//            printf("could not open file at %s\n", path.c_str());
+//        }
+//        break;
+//    }
+//    case Qt::Key_R: {
+//        m_camera->reset();
+//        break;
+//    }
+//    }
+//}
+
+void GLWidget::savePicture() {
+    QImage qi = grabFrameBuffer(false);
+    QString filter;
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), "", tr("PNG Image (*.png)"), &filter);
+    qi.save(QFileInfo(fileName).absoluteDir().absolutePath() + "/" + QFileInfo(fileName).baseName() + ".png", "PNG", 100);
 }
+
+void GLWidget::loadCamLocation() {
+    string path = "";
+    path += m_base_path->data();
+    path += "resources/cameraData.txt";
+    FILE *f = fopen(path.c_str(), "r");
+    if (f) {
+        readCameraState(f);
+    } else {
+        printf("could not open file at %s\n", path.c_str());
+    }
 }
 
 /**
@@ -723,4 +748,8 @@ void GLWidget::radioToggeled_Game_Cam(bool checked) {
     if (checked) {
         m_camera = m_gameCamera;
     }
+}
+
+void GLWidget::resetCurrentCamera() {
+    m_camera->reset();
 }

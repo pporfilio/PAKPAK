@@ -22,6 +22,7 @@ public:
     float near_clip;
     float far_clip;
 
+    void reset();
     void mouseMove(const V2 &delta);
     void mouseWheel(float delta, bool shift_modifier);
     V3 getPos();

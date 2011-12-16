@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Thu Dec 15 14:29:10 2011
+** Created: Fri Dec 16 17:30:50 2011
 **      by: Qt User Interface Compiler version 4.6.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -16,12 +16,15 @@
 #include <QtGui/QButtonGroup>
 #include <QtGui/QCheckBox>
 #include <QtGui/QDockWidget>
+#include <QtGui/QFrame>
 #include <QtGui/QGridLayout>
+#include <QtGui/QGroupBox>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
+#include <QtGui/QPushButton>
 #include <QtGui/QRadioButton>
 #include <QtGui/QSlider>
 #include <QtGui/QSpacerItem>
@@ -45,8 +48,18 @@ public:
     QWidget *tab;
     QWidget *verticalLayoutWidget;
     QVBoxLayout *verticalLayout;
+    QGroupBox *groupBox_2;
+    QWidget *verticalLayoutWidget_4;
+    QVBoxLayout *verticalLayout_6;
     QRadioButton *select_Julia;
     QRadioButton *select_Mandelbox;
+    QGroupBox *groupBox;
+    QWidget *verticalLayoutWidget_3;
+    QVBoxLayout *verticalLayout_5;
+    QRadioButton *select_orbit_cam;
+    QRadioButton *select_game_cam;
+    QPushButton *reset_camera_button;
+    QFrame *line_2;
     QLabel *F_Z3_label;
     QSlider *F_Z3;
     QSpacerItem *verticalSpacer_2;
@@ -66,8 +79,6 @@ public:
     QVBoxLayout *verticalLayout_2;
     QCheckBox *skybox_button;
     QCheckBox *ss_button;
-    QRadioButton *select_orbit_cam;
-    QRadioButton *select_game_cam;
     QGridLayout *Specular_Grid;
     QSlider *spec_r;
     QSlider *spec_g;
@@ -131,16 +142,67 @@ public:
         verticalLayout->setContentsMargins(11, 11, 11, 11);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         verticalLayout->setContentsMargins(0, 0, 0, 0);
-        select_Julia = new QRadioButton(verticalLayoutWidget);
+        groupBox_2 = new QGroupBox(verticalLayoutWidget);
+        groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
+        groupBox_2->setMinimumSize(QSize(0, 60));
+        verticalLayoutWidget_4 = new QWidget(groupBox_2);
+        verticalLayoutWidget_4->setObjectName(QString::fromUtf8("verticalLayoutWidget_4"));
+        verticalLayoutWidget_4->setGeometry(QRect(10, 0, 161, 52));
+        verticalLayout_6 = new QVBoxLayout(verticalLayoutWidget_4);
+        verticalLayout_6->setSpacing(6);
+        verticalLayout_6->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_6->setObjectName(QString::fromUtf8("verticalLayout_6"));
+        verticalLayout_6->setContentsMargins(0, 0, 0, 0);
+        select_Julia = new QRadioButton(verticalLayoutWidget_4);
         select_Julia->setObjectName(QString::fromUtf8("select_Julia"));
         select_Julia->setChecked(true);
 
-        verticalLayout->addWidget(select_Julia);
+        verticalLayout_6->addWidget(select_Julia);
 
-        select_Mandelbox = new QRadioButton(verticalLayoutWidget);
+        select_Mandelbox = new QRadioButton(verticalLayoutWidget_4);
         select_Mandelbox->setObjectName(QString::fromUtf8("select_Mandelbox"));
 
-        verticalLayout->addWidget(select_Mandelbox);
+        verticalLayout_6->addWidget(select_Mandelbox);
+
+
+        verticalLayout->addWidget(groupBox_2);
+
+        groupBox = new QGroupBox(verticalLayoutWidget);
+        groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        groupBox->setMinimumSize(QSize(0, 60));
+        verticalLayoutWidget_3 = new QWidget(groupBox);
+        verticalLayoutWidget_3->setObjectName(QString::fromUtf8("verticalLayoutWidget_3"));
+        verticalLayoutWidget_3->setGeometry(QRect(10, 0, 160, 52));
+        verticalLayout_5 = new QVBoxLayout(verticalLayoutWidget_3);
+        verticalLayout_5->setSpacing(6);
+        verticalLayout_5->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
+        verticalLayout_5->setContentsMargins(0, 0, 0, 0);
+        select_orbit_cam = new QRadioButton(verticalLayoutWidget_3);
+        select_orbit_cam->setObjectName(QString::fromUtf8("select_orbit_cam"));
+        select_orbit_cam->setChecked(true);
+
+        verticalLayout_5->addWidget(select_orbit_cam);
+
+        select_game_cam = new QRadioButton(verticalLayoutWidget_3);
+        select_game_cam->setObjectName(QString::fromUtf8("select_game_cam"));
+
+        verticalLayout_5->addWidget(select_game_cam);
+
+
+        verticalLayout->addWidget(groupBox);
+
+        reset_camera_button = new QPushButton(verticalLayoutWidget);
+        reset_camera_button->setObjectName(QString::fromUtf8("reset_camera_button"));
+
+        verticalLayout->addWidget(reset_camera_button);
+
+        line_2 = new QFrame(verticalLayoutWidget);
+        line_2->setObjectName(QString::fromUtf8("line_2"));
+        line_2->setFrameShape(QFrame::HLine);
+        line_2->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout->addWidget(line_2);
 
         F_Z3_label = new QLabel(verticalLayoutWidget);
         F_Z3_label->setObjectName(QString::fromUtf8("F_Z3_label"));
@@ -256,17 +318,6 @@ public:
         ss_button->setObjectName(QString::fromUtf8("ss_button"));
 
         verticalLayout_2->addWidget(ss_button);
-
-        select_orbit_cam = new QRadioButton(verticalLayoutWidget_2);
-        select_orbit_cam->setObjectName(QString::fromUtf8("select_orbit_cam"));
-        select_orbit_cam->setChecked(true);
-
-        verticalLayout_2->addWidget(select_orbit_cam);
-
-        select_game_cam = new QRadioButton(verticalLayoutWidget_2);
-        select_game_cam->setObjectName(QString::fromUtf8("select_game_cam"));
-
-        verticalLayout_2->addWidget(select_game_cam);
 
         Specular_Grid = new QGridLayout();
         Specular_Grid->setSpacing(6);
@@ -388,7 +439,7 @@ public:
         retranslateUi(MainWindow);
         QObject::connect(actionQuit, SIGNAL(triggered()), MainWindow, SLOT(close()));
 
-        tabWidget->setCurrentIndex(1);
+        tabWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -400,8 +451,13 @@ public:
         actionQuit->setText(QApplication::translate("MainWindow", "Quit", 0, QApplication::UnicodeUTF8));
         actionQuit->setShortcut(QApplication::translate("MainWindow", "Ctrl+Q", 0, QApplication::UnicodeUTF8));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0, QApplication::UnicodeUTF8));
+        groupBox_2->setTitle(QString());
         select_Julia->setText(QApplication::translate("MainWindow", "Julia", 0, QApplication::UnicodeUTF8));
         select_Mandelbox->setText(QApplication::translate("MainWindow", "Mandelbox", 0, QApplication::UnicodeUTF8));
+        groupBox->setTitle(QString());
+        select_orbit_cam->setText(QApplication::translate("MainWindow", "Orbit Camera", 0, QApplication::UnicodeUTF8));
+        select_game_cam->setText(QApplication::translate("MainWindow", "Game Camera", 0, QApplication::UnicodeUTF8));
+        reset_camera_button->setText(QApplication::translate("MainWindow", "Reset Camera Location", 0, QApplication::UnicodeUTF8));
         F_Z3_label->setText(QApplication::translate("MainWindow", "F_Z3 [-1, 1]", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         F_Z3->setToolTip(QApplication::translate("MainWindow", "Change F_Z3", 0, QApplication::UnicodeUTF8));
@@ -414,8 +470,6 @@ public:
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("MainWindow", "Fractal Parameters", 0, QApplication::UnicodeUTF8));
         skybox_button->setText(QApplication::translate("MainWindow", "Skybox", 0, QApplication::UnicodeUTF8));
         ss_button->setText(QApplication::translate("MainWindow", "Super Sampling", 0, QApplication::UnicodeUTF8));
-        select_orbit_cam->setText(QApplication::translate("MainWindow", "Orbit Camera", 0, QApplication::UnicodeUTF8));
-        select_game_cam->setText(QApplication::translate("MainWindow", "Game Camera", 0, QApplication::UnicodeUTF8));
         spec_r_label->setText(QApplication::translate("MainWindow", "R", 0, QApplication::UnicodeUTF8));
         spec_g_label->setText(QApplication::translate("MainWindow", "G", 0, QApplication::UnicodeUTF8));
         spec_b_label->setText(QApplication::translate("MainWindow", "B", 0, QApplication::UnicodeUTF8));

@@ -79,7 +79,7 @@
       <enum>QTabWidget::West</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="movable">
       <bool>true</bool>
@@ -99,19 +99,100 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QRadioButton" name="select_Julia">
-          <property name="text">
-           <string>Julia</string>
+         <widget class="QGroupBox" name="groupBox_2">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>60</height>
+           </size>
           </property>
-          <property name="checked">
-           <bool>true</bool>
+          <property name="title">
+           <string/>
+          </property>
+          <widget class="QWidget" name="verticalLayoutWidget_4">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>0</y>
+             <width>161</width>
+             <height>52</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <item>
+             <widget class="QRadioButton" name="select_Julia">
+              <property name="text">
+               <string>Julia</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="select_Mandelbox">
+              <property name="text">
+               <string>Mandelbox</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>60</height>
+           </size>
+          </property>
+          <property name="title">
+           <string/>
+          </property>
+          <widget class="QWidget" name="verticalLayoutWidget_3">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>0</y>
+             <width>160</width>
+             <height>52</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <item>
+             <widget class="QRadioButton" name="select_orbit_cam">
+              <property name="text">
+               <string>Orbit Camera</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="select_game_cam">
+              <property name="text">
+               <string>Game Camera</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="reset_camera_button">
+          <property name="text">
+           <string>Reset Camera Location</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="select_Mandelbox">
-          <property name="text">
-           <string>Mandelbox</string>
+         <widget class="Line" name="line_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
@@ -319,23 +400,6 @@
          <widget class="QCheckBox" name="ss_button">
           <property name="text">
            <string>Super Sampling</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="select_orbit_cam">
-          <property name="text">
-           <string>Orbit Camera</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="select_game_cam">
-          <property name="text">
-           <string>Game Camera</string>
           </property>
          </widget>
         </item>

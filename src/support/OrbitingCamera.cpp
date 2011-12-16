@@ -4,6 +4,10 @@
 
 
 OrbitCamera::OrbitCamera() {
+    reset();
+}
+
+void OrbitCamera::reset() {
     center = V3(0.0, 0.0, 0.0);
     up = V3(0.0, 1.0, 0.0);
     zoom = 3.5;
@@ -12,7 +16,6 @@ OrbitCamera::OrbitCamera() {
     fovy = 60.0;
     far_clip = 1000.0;
     near_clip = 0.1;
-
 }
 
 void OrbitCamera::mouseMove(const V2 &delta)

@@ -5,6 +5,10 @@
 
 
 GameCamera::GameCamera() {
+    reset();
+}
+
+void GameCamera::reset() {
     fovy = 60.0;
     far_clip = 1000.0;
     near_clip = 0.1;
@@ -20,7 +24,6 @@ GameCamera::GameCamera() {
     m_look.y = look.y;
     m_look.z = look.z;
     m_look.normalize();
-
 }
 
 void GameCamera::mouseMove(const V2 &delta)

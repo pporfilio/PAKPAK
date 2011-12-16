@@ -14,11 +14,17 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-
-private:
     Ui::MainWindow *ui;
 
+protected:
+    //Overridden QMainWindow methods
+    void keyPressEvent(QKeyEvent *event);
+
+private:
+
+
 private slots:
+    void on_reset_camera_button_released();
     void on_select_game_cam_toggled(bool checked);
     void on_select_orbit_cam_toggled(bool checked);
     void on_skybox_button_toggled(bool checked);
