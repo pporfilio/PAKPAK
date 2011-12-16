@@ -735,6 +735,7 @@ void GLWidget::checkToggeled_skybox(bool checked) {
 
 void GLWidget::checkToggeled_ss(bool checked) {
     global_ss_enabled = checked;
+    ss_enabled = global_ss_enabled;
 }
 
 

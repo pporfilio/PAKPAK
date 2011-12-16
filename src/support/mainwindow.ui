@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>[Lab09] Bloom</string>
+   <string>Fractal</string>
   </property>
   <widget class="GLWidget" name="mainGL"/>
   <widget class="QMenuBar" name="menuBar">

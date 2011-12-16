@@ -23,11 +23,11 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
        break;
     }
     case Qt::Key_Minus: {
-        mgl->F_Z3 = max(-1, mgl->F_Z3 - .05);
+        ui->F_Z3->setValue(max(-100, ui->F_Z3->value() - 1));
         break;
     }
     case Qt::Key_Equal: {
-        mgl->F_Z3 = min(1, mgl->F_Z3 + .05);
+        ui->F_Z3->setValue(min(100, ui->F_Z3->value() + 1));
         break;
     }
     case Qt::Key_Q: {
@@ -55,15 +55,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
         break;
     }
     case Qt::Key_M: {
-        mgl->global_ss_enabled = !mgl->global_ss_enabled;
-        mgl->ss_enabled = mgl->global_ss_enabled;
+        ui->ss_button->setChecked(!mgl->global_ss_enabled);
         break;
     }
     case Qt::Key_C: {
         if (mgl->m_camera->getType() == GAME_CAMERA) {
-            mgl->m_camera = mgl->m_orbitCamera;
+            ui->select_orbit_cam->setChecked(true);
         } else {
-            mgl->m_camera = mgl->m_gameCamera;
+            ui->select_game_cam->setChecked(true);
         }
         break;
     }
