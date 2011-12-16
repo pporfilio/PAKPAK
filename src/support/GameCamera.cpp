@@ -36,38 +36,41 @@ void GameCamera::mouseMove(const V2 &delta)
 
 }
 
-void GameCamera::cameraMoveUp(bool positive) {
+void GameCamera::cameraMoveUp(bool positive, bool shift_modifier) {
+    float mult = shift_modifier ? .05 : .005;
     if (positive) {
-        m_pos += m_up * .005 * m_pos.getMagnitude();
+        m_pos += m_up * mult * m_pos.getMagnitude();
     } else {
-        m_pos -= m_up * .005 * m_pos.getMagnitude();
+        m_pos -= m_up * mult * m_pos.getMagnitude();
     }
 }
 
-void GameCamera::cameraMoveLook(bool positive) {
+void GameCamera::cameraMoveLook(bool positive, bool shift_modifier) {
+    float mult = shift_modifier ? .001 : .0001;
     float pos = m_pos.getMagnitude();
     if (positive) {
-        m_pos += m_look * pos*pos * .0001;
+        m_pos += m_look * pos*pos * mult;
     } else {
-        m_pos -= m_look * pos*pos * .0001;
+        m_pos -= m_look * pos*pos * mult;
     }
 }
 
-void GameCamera::cameraMoveSide(bool positive) {
+void GameCamera::cameraMoveSide(bool positive, bool shift_modifier) {
+    float mult = shift_modifier ? .05 : .005;
     if (positive) {
-        m_pos -= m_look.cross(m_up) * .005 * m_pos.getMagnitude();
+        m_pos -= m_look.cross(m_up) * mult * m_pos.getMagnitude();
     } else {
-        m_pos += m_look.cross(m_up) * .005 * m_pos.getMagnitude();
+        m_pos += m_look.cross(m_up) * mult * m_pos.getMagnitude();
     }
 }
 
-void GameCamera::mouseWheel(float delta)
+void GameCamera::mouseWheel(float delta, bool shift_modifier)
 {
     //zoom *= powf(0.999f, delta);
     if (delta > 0) {
-        cameraMoveLook(true);
+        cameraMoveLook(true, shift_modifier);
     } else {
-        cameraMoveLook(false);
+        cameraMoveLook(false, shift_modifier);
     }
     //maintain zoom within reason
     //zoom = max(zoom, 1.2);

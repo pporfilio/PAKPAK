@@ -466,7 +466,7 @@ void GLWidget::wheelEvent(QWheelEvent *event)
     ss_enabled = false;
     if (event->orientation() == Qt::Vertical)
     {
-        m_camera->mouseWheel(event->delta());
+        m_camera->mouseWheel(event->delta(), (event->modifiers() == Qt::ShiftModifier));
     }
 }
 
@@ -550,27 +550,27 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         break;
     }
     case Qt::Key_Q: {
-        m_camera->cameraMoveUp(true);
+        m_camera->cameraMoveUp(true, (event->modifiers() == Qt::ShiftModifier));
         break;
     }
     case Qt::Key_E: {
-        m_camera->cameraMoveUp(false);
+        m_camera->cameraMoveUp(false, (event->modifiers() == Qt::ShiftModifier));
         break;
     }
     case Qt::Key_W: {
-        m_camera->cameraMoveLook(true);
+        m_camera->cameraMoveLook(true, (event->modifiers() == Qt::ShiftModifier));
         break;
     }
     case Qt::Key_S: {
-        m_camera->cameraMoveLook(false);
+        m_camera->cameraMoveLook(false, (event->modifiers() == Qt::ShiftModifier));
         break;
     }
     case Qt::Key_A: {
-        m_camera->cameraMoveSide(true);
+        m_camera->cameraMoveSide(true, (event->modifiers() == Qt::ShiftModifier));
         break;
     }
     case Qt::Key_D: {
-        m_camera->cameraMoveSide(false);
+        m_camera->cameraMoveSide(false, (event->modifiers() == Qt::ShiftModifier));
         break;
     }
     case Qt::Key_M: {

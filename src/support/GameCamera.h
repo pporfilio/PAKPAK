@@ -23,14 +23,14 @@ public:
     float far_clip;
 
     void mouseMove(const V2 &delta);
-    void mouseWheel(float delta);
+    void mouseWheel(float delta, bool shift_modifier);
     V3 getPos();
     Matrix4x4 getFilmToWorld(int width, int height);
     V3 getLook3();
     V3 getUp3();
-    void cameraMoveUp(bool positive);
-    void cameraMoveLook(bool positive);
-    void cameraMoveSide(bool positive);
+    void cameraMoveUp(bool positive, bool shift_modifier);
+    void cameraMoveLook(bool positive, bool shift_modifier);
+    void cameraMoveSide(bool positive, bool shift_modifier);
     float getFOVY();
     float getNearClip();
     float getFarClip();

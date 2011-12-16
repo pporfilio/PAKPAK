@@ -26,7 +26,7 @@ void OrbitCamera::mouseMove(const V2 &delta)
     angle_y = max(0.01f - M_PI / 2, min(M_PI / 2 - 0.01f, angle_y));
 }
 
-void OrbitCamera::mouseWheel(float delta)
+void OrbitCamera::mouseWheel(float delta, bool shift_modifier)
 {
     zoom *= powf(0.999f, delta);
     //maintain zoom within reason

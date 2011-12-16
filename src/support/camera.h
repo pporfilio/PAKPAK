@@ -34,14 +34,14 @@ class Camera
 {
 public:
     virtual void mouseMove(const V2 &delta) = 0;
-    virtual void mouseWheel(float delta) = 0;
+    virtual void mouseWheel(float delta, bool shift_modifier) = 0;
     virtual V3 getPos() = 0;
     virtual Matrix4x4 getFilmToWorld(int width, int height) = 0;
     virtual V3 getLook3() = 0;
     virtual V3 getUp3() = 0;
-    virtual void cameraMoveUp(bool positive) {}
-    virtual void cameraMoveLook(bool positive) {}
-    virtual void cameraMoveSide(bool positive) {}
+    virtual void cameraMoveUp(bool positive, bool shift_modifier) {}
+    virtual void cameraMoveLook(bool positive, bool shift_modifier) {}
+    virtual void cameraMoveSide(bool positive, bool shift_modifier) {}
 
 
     //couldn't get these to work as just variables.
