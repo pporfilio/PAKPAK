@@ -19,7 +19,7 @@ varying vec3 vVertex;
 const float EPSILON = .003;          //closeness to fractal
 const float ITR = 300.0;             //number of iterations along ray
 //const int DEPTH = 20;                //number of fractal iterations       NEEDS TO BE CHANGED BASED ON CLOSENESS
-const float BREAK = 100.0;             //fractal escape bound
+const float BREAK = 200.0;             //fractal escape bound
 //const float ep = .1;                 //for normal
 const float M = 3.0;                 //bounding radius
 
@@ -30,7 +30,8 @@ const float fixedRadius = 1.;
 const float minRadius2 = minRadius*minRadius;
 const float fixedRadius2 = fixedRadius*fixedRadius;
 
-int DEPTH = int(60.0 / dot(world_eye, world_eye)) + 10;
+//int DEPTH = int(60.0 / dot(world_eye, world_eye)) + 15; //was + 10
+int DEPTH = 10;
 float ep = .01 * float(DEPTH);
 //int DEPTH = int(4.);
 
@@ -61,22 +62,22 @@ void boxFold(inout vec3 z, inout float dz) {
 }
 
 
-//blog.hvidtfeldts.net
-float DE(vec3 z)
-{
-        vec3 offset = z;
-        z = vec3(0.,0.,0.);
-        float dr = 1.0;
-        for (int n = 0; n < DEPTH; n++) {
-                boxFold(z,dr);       // Reflect
-                sphereFold(z,dr);    // Sphere Inversion
+////blog.hvidtfeldts.net
+//float DE(vec3 z)
+//{
+//        vec3 offset = z;
+//        z = vec3(0.,0.,0.);
+//        float dr = 1.0;
+//        for (int n = 0; n < DEPTH; n++) {
+//                boxFold(z,dr);       // Reflect
+//                sphereFold(z,dr);    // Sphere Inversion
 
-                z=Scale*z + offset;  // Scale & Translate
-                dr = dr*Scale+1.0;
-	}
-	float r = length(z);
-	return r/abs(dr);
-}
+//                z=Scale*z + offset;  // Scale & Translate
+//                dr = dr*Scale+1.0;
+//	}
+//	float r = length(z);
+//	return r/abs(dr);
+//}
 
 
 
@@ -85,14 +86,13 @@ float DE(vec3 z)
 //when the function is finished. See section 6.1 of the GLSL spec
 //I didn't know this until just now. Glad to have found out.
 
-bool isInMandelbox(vec3 p, inout float dist) {
+bool isInMandelbox(vec3 p, inout float dist, inout float escape) {
     vec3 Zn = vec3(0.,0.,0.); //p;
     float dZn = 1.0;
     vec3 offset = p;
 
-
     bool foundFractal = true;
-    
+
     for (int i = 0; i < DEPTH; i++) {
 
 	boxFold(Zn, dZn);
@@ -101,8 +101,6 @@ bool isInMandelbox(vec3 p, inout float dist) {
         Zn = Scale*Zn + offset;
         dZn = Scale*dZn + 1.0;
 
-
-        
         if (dot(Zn,Zn) > float(BREAK)) {
             foundFractal = false;
             break;
@@ -111,10 +109,11 @@ bool isInMandelbox(vec3 p, inout float dist) {
 
     //dist = magnitude(Zn)/abs(dZn);
     dist = magnitude(Zn)*log((magnitude(Zn)))/abs(dZn);
+    escape = dot(Zn, Zn);
     return foundFractal;
 }
 
-bool CalculateIntersection(inout vec3 intersection, inout float dist, vec3 d, vec3 start_p) {
+bool CalculateIntersection(inout vec3 intersection, inout float dist, vec3 d, vec3 start_p, inout float escape) {
     float t = 0.0;
 
     vec3 curPoint;
@@ -130,7 +129,7 @@ bool CalculateIntersection(inout vec3 intersection, inout float dist, vec3 d, ve
 
         dist += t;
 
-        if (isInMandelbox(curPoint, curDist)) {
+        if (isInMandelbox(curPoint, curDist, escape)) {
             intersection = curPoint;
             return true;
         }
@@ -147,14 +146,14 @@ bool CalculateIntersection(inout vec3 intersection, inout float dist, vec3 d, ve
 /// ***********
 //removed third parameter because it was a CS123Light struct
 /// ***********
-bool JuliaShadow(vec3 p, vec3 d) {
+//bool JuliaShadow(vec3 p, vec3 d) {
 
-    vec3 intersection;
-    float dist1;
-    bool intersects = CalculateIntersection(intersection, dist1, d, p);
+//    vec3 intersection;
+//    float dist1;
+//    bool intersects = CalculateIntersection(intersection, dist1, d, p);
 
-    return intersects;
-}
+//    return intersects;
+//}
 
 vec3 CalculateNormal(vec3 point, vec3 d, float dist, vec3 start_p) {
 
@@ -173,12 +172,13 @@ vec3 CalculateNormal(vec3 point, vec3 d, float dist, vec3 start_p) {
     float d1,d2,d3,d4,d5,d6;
 
 
-    isInMandelbox(gx1, d1);
-    isInMandelbox(gx2, d2);
-    isInMandelbox(gy1, d3);
-    isInMandelbox(gy2, d4);
-    isInMandelbox(gz1, d5);
-    isInMandelbox(gz2, d6);
+    float escape = 0.0;
+    isInMandelbox(gx1, d1, escape);
+    isInMandelbox(gx2, d2, escape);
+    isInMandelbox(gy1, d3, escape);
+    isInMandelbox(gy2, d4, escape);
+    isInMandelbox(gz1, d5, escape);
+    isInMandelbox(gz2, d6, escape);
 
 /*
     d1 = DE(gx1);
@@ -293,6 +293,43 @@ vec4 CalculateLighting(vec3 p, float dist, vec3 d, vec3 start_p) {
     //color = vec4(dist, dist, dist, 1.0);
     //color.xyz = color.xyz / (ITR * EPSILON);
 
+//    color = vec4(0.0, 0.0, 0.0, 1.0);
+
+//    color.g = dist * .001;
+//    if (dist < 100.0) {
+//        color.b = dist * .01;
+//    }
+//    if (dist < 10.0) {
+//        color.r = dist * .1;
+//    }
+//    if (dist < 1.0) {
+//        color.g = dist;
+//    }
+
+//    if (dist > 10.0) {
+//        color.rgb = vec3(0.0, 0.0, 0.0);
+//    } else {
+//        float tmp = ((10.0 - dist) * (10.0 - dist)) * .01;
+//        color.rgb = vec3(tmp, tmp, tmp);
+//    }
+
+    //I like this one best
+    if (dist > 5.0) {
+        color.rgb = vec3(0.0, 0.0, 0.0);
+    } else {
+        float tmp = ((5.0 - dist) * .2);
+        color.rgb = vec3(tmp, tmp, tmp);
+    }
+
+
+
+//    if (dist > 20.0) {
+//        color.rgb = vec3(0.0, 0.0, 0.0);
+//    } else {
+//        float tmp = ((20.0 - dist) * (20.0 - dist)) * .0025;
+//        color.rgb = vec3(tmp, tmp, tmp);
+//    }
+
     return color;
 
 }
@@ -321,17 +358,21 @@ void main (void) {
 
     vec3 intersection = vec3(0.0,0.0,0.0);
     float dist = 0.0;
+    float escape = 0.0;
 
-    if (CalculateIntersection(intersection, dist, ray, start_p)) {
+    if (CalculateIntersection(intersection, dist, ray, start_p, escape)) {
         final_color = CalculateLighting(intersection, dist, ray, start_p);
         float blend = dist;
 
         blend = min(.6, blend);
+        blend = 0.0;
 
         final_color = (1.- blend)*final_color + blend*fog_color;
-        if ((final_color.x > 1.)||(final_color.y > 1.)||(final_color.z > 1.)) {
-            final_color = fog_color;
-        }
+//        if ((final_color.x > 1.)||(final_color.y > 1.)||(final_color.z > 1.)) {
+//            final_color = fog_color;
+//        }
+
+        final_color = vec4(0.0, 1.0 - (escape / BREAK), 0.0, 1.0);
 
         gl_FragColor = final_color;
     }
