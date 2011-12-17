@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Fri Dec 16 18:10:47 2011
+** Created: Sat Dec 17 15:40:11 2011
 **      by: Qt User Interface Compiler version 4.6.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -62,7 +62,6 @@ public:
     QFrame *line_2;
     QLabel *F_Z3_label;
     QSlider *F_Z3;
-    QSpacerItem *verticalSpacer_2;
     QLabel *F_C_Group_label;
     QGridLayout *gridLayout;
     QSlider *F_C_x;
@@ -74,6 +73,15 @@ public:
     QLabel *F_C_w_label;
     QSlider *F_C_w;
     QSpacerItem *verticalSpacer;
+    QGridLayout *gridLayout_4;
+    QSlider *ITR_slider;
+    QSlider *EPS_slider;
+    QSlider *BRK_slider;
+    QLabel *ITR_label;
+    QLabel *EPS_label;
+    QLabel *BRK_label;
+    QSlider *DEP_slider;
+    QLabel *DEP_label;
     QWidget *tab_2;
     QWidget *verticalLayoutWidget_2;
     QVBoxLayout *verticalLayout_2;
@@ -96,6 +104,11 @@ public:
     QLabel *reflect_b_label;
     QCheckBox *reflection_button;
     QGridLayout *gridLayout_3;
+    QCheckBox *depth_fog_button;
+    QRadioButton *coloring_lights;
+    QRadioButton *coloring_escape;
+    QRadioButton *coloring_distance;
+    QLabel *label;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -206,6 +219,7 @@ public:
 
         F_Z3_label = new QLabel(verticalLayoutWidget);
         F_Z3_label->setObjectName(QString::fromUtf8("F_Z3_label"));
+        F_Z3_label->setEnabled(true);
 
         verticalLayout->addWidget(F_Z3_label);
 
@@ -220,10 +234,6 @@ public:
         F_Z3->setTickPosition(QSlider::NoTicks);
 
         verticalLayout->addWidget(F_Z3);
-
-        verticalSpacer_2 = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-        verticalLayout->addItem(verticalSpacer_2);
 
         F_C_Group_label = new QLabel(verticalLayoutWidget);
         F_C_Group_label->setObjectName(QString::fromUtf8("F_C_Group_label"));
@@ -293,9 +303,76 @@ public:
 
         verticalLayout->addLayout(gridLayout);
 
-        verticalSpacer = new QSpacerItem(20, 250, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        verticalSpacer = new QSpacerItem(20, 100, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout->addItem(verticalSpacer);
+
+        gridLayout_4 = new QGridLayout();
+        gridLayout_4->setSpacing(6);
+        gridLayout_4->setObjectName(QString::fromUtf8("gridLayout_4"));
+        gridLayout_4->setContentsMargins(5, 0, 5, -1);
+        ITR_slider = new QSlider(verticalLayoutWidget);
+        ITR_slider->setObjectName(QString::fromUtf8("ITR_slider"));
+        ITR_slider->setMinimum(100);
+        ITR_slider->setMaximum(1000);
+        ITR_slider->setSingleStep(10);
+        ITR_slider->setPageStep(100);
+        ITR_slider->setValue(300);
+        ITR_slider->setOrientation(Qt::Horizontal);
+
+        gridLayout_4->addWidget(ITR_slider, 0, 1, 1, 1);
+
+        EPS_slider = new QSlider(verticalLayoutWidget);
+        EPS_slider->setObjectName(QString::fromUtf8("EPS_slider"));
+        EPS_slider->setMinimum(1);
+        EPS_slider->setMaximum(10000);
+        EPS_slider->setSingleStep(100);
+        EPS_slider->setPageStep(1000);
+        EPS_slider->setValue(3000);
+        EPS_slider->setOrientation(Qt::Horizontal);
+
+        gridLayout_4->addWidget(EPS_slider, 1, 1, 1, 1);
+
+        BRK_slider = new QSlider(verticalLayoutWidget);
+        BRK_slider->setObjectName(QString::fromUtf8("BRK_slider"));
+        BRK_slider->setMinimum(10);
+        BRK_slider->setMaximum(500);
+        BRK_slider->setValue(200);
+        BRK_slider->setOrientation(Qt::Horizontal);
+
+        gridLayout_4->addWidget(BRK_slider, 2, 1, 1, 1);
+
+        ITR_label = new QLabel(verticalLayoutWidget);
+        ITR_label->setObjectName(QString::fromUtf8("ITR_label"));
+
+        gridLayout_4->addWidget(ITR_label, 0, 0, 1, 1);
+
+        EPS_label = new QLabel(verticalLayoutWidget);
+        EPS_label->setObjectName(QString::fromUtf8("EPS_label"));
+
+        gridLayout_4->addWidget(EPS_label, 1, 0, 1, 1);
+
+        BRK_label = new QLabel(verticalLayoutWidget);
+        BRK_label->setObjectName(QString::fromUtf8("BRK_label"));
+
+        gridLayout_4->addWidget(BRK_label, 2, 0, 1, 1);
+
+        DEP_slider = new QSlider(verticalLayoutWidget);
+        DEP_slider->setObjectName(QString::fromUtf8("DEP_slider"));
+        DEP_slider->setMinimum(1);
+        DEP_slider->setMaximum(100);
+        DEP_slider->setValue(10);
+        DEP_slider->setOrientation(Qt::Horizontal);
+
+        gridLayout_4->addWidget(DEP_slider, 3, 1, 1, 1);
+
+        DEP_label = new QLabel(verticalLayoutWidget);
+        DEP_label->setObjectName(QString::fromUtf8("DEP_label"));
+
+        gridLayout_4->addWidget(DEP_label, 3, 0, 1, 1);
+
+
+        verticalLayout->addLayout(gridLayout_4);
 
         tabWidget->addTab(tab, QString());
         tab_2 = new QWidget();
@@ -426,6 +503,33 @@ public:
         gridLayout_3 = new QGridLayout();
         gridLayout_3->setSpacing(6);
         gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
+        depth_fog_button = new QCheckBox(verticalLayoutWidget_2);
+        depth_fog_button->setObjectName(QString::fromUtf8("depth_fog_button"));
+
+        gridLayout_3->addWidget(depth_fog_button, 0, 0, 1, 1);
+
+        coloring_lights = new QRadioButton(verticalLayoutWidget_2);
+        coloring_lights->setObjectName(QString::fromUtf8("coloring_lights"));
+        coloring_lights->setChecked(true);
+
+        gridLayout_3->addWidget(coloring_lights, 2, 0, 1, 1);
+
+        coloring_escape = new QRadioButton(verticalLayoutWidget_2);
+        coloring_escape->setObjectName(QString::fromUtf8("coloring_escape"));
+
+        gridLayout_3->addWidget(coloring_escape, 3, 0, 1, 1);
+
+        coloring_distance = new QRadioButton(verticalLayoutWidget_2);
+        coloring_distance->setObjectName(QString::fromUtf8("coloring_distance"));
+
+        gridLayout_3->addWidget(coloring_distance, 4, 0, 1, 1);
+
+        label = new QLabel(verticalLayoutWidget_2);
+        label->setObjectName(QString::fromUtf8("label"));
+        label->setAlignment(Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft);
+
+        gridLayout_3->addWidget(label, 1, 0, 1, 1);
+
 
         verticalLayout_2->addLayout(gridLayout_3);
 
@@ -467,6 +571,10 @@ public:
         F_C_y_label->setText(QApplication::translate("MainWindow", "y", 0, QApplication::UnicodeUTF8));
         F_C_z_label->setText(QApplication::translate("MainWindow", "z", 0, QApplication::UnicodeUTF8));
         F_C_w_label->setText(QApplication::translate("MainWindow", "w", 0, QApplication::UnicodeUTF8));
+        ITR_label->setText(QApplication::translate("MainWindow", "ITR", 0, QApplication::UnicodeUTF8));
+        EPS_label->setText(QApplication::translate("MainWindow", "EPS", 0, QApplication::UnicodeUTF8));
+        BRK_label->setText(QApplication::translate("MainWindow", "BRK", 0, QApplication::UnicodeUTF8));
+        DEP_label->setText(QApplication::translate("MainWindow", "DEP", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("MainWindow", "Fractal Parameters", 0, QApplication::UnicodeUTF8));
         skybox_button->setText(QApplication::translate("MainWindow", "Skybox", 0, QApplication::UnicodeUTF8));
         ss_button->setText(QApplication::translate("MainWindow", "Super Sampling", 0, QApplication::UnicodeUTF8));
@@ -478,6 +586,11 @@ public:
         reflect_g_label->setText(QApplication::translate("MainWindow", "G", 0, QApplication::UnicodeUTF8));
         reflect_b_label->setText(QApplication::translate("MainWindow", "B", 0, QApplication::UnicodeUTF8));
         reflection_button->setText(QApplication::translate("MainWindow", "Reflection", 0, QApplication::UnicodeUTF8));
+        depth_fog_button->setText(QApplication::translate("MainWindow", "Depth Fog", 0, QApplication::UnicodeUTF8));
+        coloring_lights->setText(QApplication::translate("MainWindow", "lights", 0, QApplication::UnicodeUTF8));
+        coloring_escape->setText(QApplication::translate("MainWindow", "escape", 0, QApplication::UnicodeUTF8));
+        coloring_distance->setText(QApplication::translate("MainWindow", "distance", 0, QApplication::UnicodeUTF8));
+        label->setText(QApplication::translate("MainWindow", "Coloring Options", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("MainWindow", "Material Properties", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

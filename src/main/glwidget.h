@@ -42,6 +42,14 @@ public:
     bool global_ss_enabled;
     bool ss_enabled;
 
+
+    int mandelbox_coloring;
+    bool mandelbox_fog;
+    float mandelbox_itr;
+    float mandelbox_epsilon;
+    float mandelbox_break;
+    int mandelbox_depth;
+
     Vector4 t_ul;
     Vector4 t_ur;
     Vector4 t_ll;
@@ -78,6 +86,9 @@ public:
     void radioToggeled_Orbit_Cam(bool checked);
     void radioToggeled_Game_Cam(bool checked);
     void resetCurrentCamera();
+    void sliderUpdate_ITR(int newValue);
+    void sliderUpdate_EPS(int newValue);
+    void sliderUpdate_BRK(int newValue);
 
     //keypress methods
     void savePicture();

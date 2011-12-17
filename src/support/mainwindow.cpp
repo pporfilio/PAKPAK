@@ -141,16 +141,12 @@ void MainWindow::on_reflect_b_valueChanged(int value)
 void MainWindow::on_select_Julia_toggled(bool checked)
 {
     ui->mainGL->radioToggeled_Julia(checked);
-//    ui->select_Mandelbox->setChecked(false);
-//    ui->mainGL->radioToggeled_Mandelbox(false);
     ui->select_orbit_cam->setChecked(true);
 }
 
 void MainWindow::on_select_Mandelbox_toggled(bool checked)
 {
     ui->mainGL->radioToggeled_Mandelbox(checked);
-//    ui->select_Julia->setChecked(false);
-//    ui->mainGL->radioToggeled_Julia(false);
     ui->select_game_cam->setChecked(true);
 }
 
@@ -188,4 +184,52 @@ void MainWindow::on_select_game_cam_toggled(bool checked)
 void MainWindow::on_reset_camera_button_released()
 {
     ui->mainGL->resetCurrentCamera();
+}
+
+void MainWindow::on_ITR_slider_valueChanged(int value)
+{
+    ui->mainGL->sliderUpdate_ITR(value);
+}
+
+void MainWindow::on_EPS_slider_valueChanged(int value)
+{
+    ui->mainGL->sliderUpdate_EPS(value);
+}
+
+void MainWindow::on_BRK_slider_valueChanged(int value)
+{
+    ui->mainGL->sliderUpdate_BRK(value);
+}
+
+void MainWindow::on_depth_fog_button_toggled(bool checked)
+{
+    ui->mainGL->mandelbox_fog = checked;
+}
+
+
+
+void MainWindow::on_coloring_lights_toggled(bool checked)
+{
+    if (checked) {
+        ui->mainGL->mandelbox_coloring = 1;
+    }
+}
+
+void MainWindow::on_coloring_escape_toggled(bool checked)
+{
+    if (checked) {
+        ui->mainGL->mandelbox_coloring = 3;
+    }
+}
+
+void MainWindow::on_coloring_distance_toggled(bool checked)
+{
+    if (checked) {
+        ui->mainGL->mandelbox_coloring = 2;
+    }
+}
+
+void MainWindow::on_DEP_slider_valueChanged(int value)
+{
+    ui->mainGL->mandelbox_depth = value;
 }

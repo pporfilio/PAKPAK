@@ -12,14 +12,22 @@ uniform int ss_enabled;
 uniform vec3 material_specular;
 uniform vec3 material_reflect;
 
+uniform int coloring;
+uniform bool fog_enabled;
+
+uniform float ITR;
+uniform float EPSILON;
+uniform float BREAK;
+uniform int DEPTH;
+
 varying vec3 vVertex;
 
 //vec3 material_specular = vec3(.5, .5, 1.);
 //vec3 material_reflect = vec3(1., 1., 1.);
-const float EPSILON = .003;          //closeness to fractal
-const float ITR = 300.0;             //number of iterations along ray
+//const float EPSILON = .003;          //closeness to fractal
+//const float ITR = 300.0;             //number of iterations along ray
 //const int DEPTH = 20;                //number of fractal iterations       NEEDS TO BE CHANGED BASED ON CLOSENESS
-const float BREAK = 200.0;             //fractal escape bound
+//const float BREAK = 200.0;             //fractal escape bound
 //const float ep = .1;                 //for normal
 const float M = 3.0;                 //bounding radius
 
@@ -31,7 +39,7 @@ const float minRadius2 = minRadius*minRadius;
 const float fixedRadius2 = fixedRadius*fixedRadius;
 
 //int DEPTH = int(60.0 / dot(world_eye, world_eye)) + 15; //was + 10
-int DEPTH = 10;
+//int DEPTH = 10;
 float ep = .01 * float(DEPTH);
 //int DEPTH = int(4.);
 
@@ -43,7 +51,29 @@ float magnitude(vec3 v) {
 void sphereFold(inout vec3 z, inout float dz) {
 
         float r2 = dot(z,z);
-	if (r2<minRadius2) {
+        if (r2<minRadius2) {    /*
+        Matrix4x4 film_to_world = m_camera->getFilmToWorld(width, height);
+
+        float plane_depth = 2.0;
+
+        float aspect = (float)width/(float)height;
+
+        float half_height = plane_depth * tan(toRadians(m_camera->fovy/2));
+        float half_width = half_height * aspect;
+
+        Vector4 plane_ul = Vector4(-half_width, half_height, plane_depth, 1);
+        Vector4 plane_ll = Vector4(-half_width, -half_height, plane_depth, 1);
+        Vector4 plane_lr = Vector4(half_width, -half_height, plane_depth, 1);
+        Vector4 plane_ur = Vector4(half_width, half_height, plane_depth, 1);
+
+
+
+        t_ul = film_to_world*plane_ul;
+        t_ll = film_to_world*plane_ll;
+        t_lr = film_to_world*plane_lr;
+        t_ur = film_to_world*plane_ur;
+        */
+
 		// linear inner scaling
                 float temp = (fixedRadius2/minRadius2);
 		z *= temp;
@@ -293,42 +323,6 @@ vec4 CalculateLighting(vec3 p, float dist, vec3 d, vec3 start_p) {
     //color = vec4(dist, dist, dist, 1.0);
     //color.xyz = color.xyz / (ITR * EPSILON);
 
-//    color = vec4(0.0, 0.0, 0.0, 1.0);
-
-//    color.g = dist * .001;
-//    if (dist < 100.0) {
-//        color.b = dist * .01;
-//    }
-//    if (dist < 10.0) {
-//        color.r = dist * .1;
-//    }
-//    if (dist < 1.0) {
-//        color.g = dist;
-//    }
-
-//    if (dist > 10.0) {
-//        color.rgb = vec3(0.0, 0.0, 0.0);
-//    } else {
-//        float tmp = ((10.0 - dist) * (10.0 - dist)) * .01;
-//        color.rgb = vec3(tmp, tmp, tmp);
-//    }
-
-    //I like this one best
-    if (dist > 5.0) {
-        color.rgb = vec3(0.0, 0.0, 0.0);
-    } else {
-        float tmp = ((5.0 - dist) * .2);
-        color.rgb = vec3(tmp, tmp, tmp);
-    }
-
-
-
-//    if (dist > 20.0) {
-//        color.rgb = vec3(0.0, 0.0, 0.0);
-//    } else {
-//        float tmp = ((20.0 - dist) * (20.0 - dist)) * .0025;
-//        color.rgb = vec3(tmp, tmp, tmp);
-//    }
 
     return color;
 
@@ -361,23 +355,36 @@ void main (void) {
     float escape = 0.0;
 
     if (CalculateIntersection(intersection, dist, ray, start_p, escape)) {
-        final_color = CalculateLighting(intersection, dist, ray, start_p);
-        float blend = dist;
 
-        blend = min(.6, blend);
-        blend = 0.0;
+        //color baseed on use lighting
+        if (coloring == 1) {
+            final_color = CalculateLighting(intersection, dist, ray, start_p);
+        //fake camera illumination
+        } else if (coloring == 2) {
+            if (dist > 5.0) {
+                final_color = vec4(0.0, 0.0, 0.0, 1.0);
+            } else {
+                float tmp = ((5.0 - dist) * .2);
+                final_color = vec4(tmp, tmp, tmp, 1.0);
+            }
+        //color based on how close a point is to being out of the set
+        //color is darker if point is closer to escaping
+        } else if (coloring == 3) {
+            final_color = vec4(0.0, 1.0 - (escape / BREAK), 0.0, 1.0);
+        //color based on normal
+        }
 
-        final_color = (1.- blend)*final_color + blend*fog_color;
-//        if ((final_color.x > 1.)||(final_color.y > 1.)||(final_color.z > 1.)) {
-//            final_color = fog_color;
-//        }
-
-        final_color = vec4(0.0, 1.0 - (escape / BREAK), 0.0, 1.0);
-
-        gl_FragColor = final_color;
+        if (fog_enabled) {
+            float blend = dist;
+            blend = min(.6, blend);
+            final_color = (1.- blend)*final_color + blend*fog_color;
+            if ((final_color.x > 1.)||(final_color.y > 1.)||(final_color.z > 1.)) {
+                final_color = fog_color;
+            }
+        }
     }
 
-    //useful for debugging. Please don't remove [Parker]
+    //Please don't remove. Useful for debugging [Parker]
     //final_color = vec4(-vVertex.x, -vVertex.y, -vVertex.z, 1);
 
     gl_FragColor = final_color;

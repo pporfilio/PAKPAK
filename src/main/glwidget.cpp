@@ -46,6 +46,14 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
     mandelbox_selected = false;
     skybox_enabled = true;
 
+    mandelbox_coloring = 1;
+    mandelbox_fog = false;
+    mandelbox_itr = 300.0;
+    mandelbox_epsilon = .003;
+    mandelbox_break = 200.0;
+    mandelbox_depth = 10;
+
+
     //global as in regardless of whether or not the user is clicking
     global_ss_enabled = false; //faster for testing other things
     ss_enabled = false;
@@ -411,6 +419,13 @@ void GLWidget::renderMandelbox() {
     m_shaderPrograms["mandelbox"]->setUniformValue("material_specular", F_spec_channels.x, F_spec_channels.y, F_spec_channels.z);
     m_shaderPrograms["mandelbox"]->setUniformValue("material_reflect", F_reflect_channels.x, F_reflect_channels.y, F_reflect_channels.z);
 
+    m_shaderPrograms["mandelbox"]->setUniformValue("coloring", mandelbox_coloring);
+    m_shaderPrograms["mandelbox"]->setUniformValue("fog_enabled", mandelbox_fog);
+    m_shaderPrograms["mandelbox"]->setUniformValue("ITR", mandelbox_itr);
+    m_shaderPrograms["mandelbox"]->setUniformValue("EPSILON", mandelbox_epsilon);
+    m_shaderPrograms["mandelbox"]->setUniformValue("BREAK", mandelbox_break);
+    m_shaderPrograms["mandelbox"]->setUniformValue("DEPTH", mandelbox_depth);
+
     glEnable(GL_BLEND);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -485,29 +500,6 @@ void GLWidget::render3DTexturedQuad(int width, int height, bool flip) {
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    /*
-    Matrix4x4 film_to_world = m_camera->getFilmToWorld(width, height);
-
-    float plane_depth = 2.0;
-
-    float aspect = (float)width/(float)height;
-
-    float half_height = plane_depth * tan(toRadians(m_camera->fovy/2));
-    float half_width = half_height * aspect;
-
-    Vector4 plane_ul = Vector4(-half_width, half_height, plane_depth, 1);
-    Vector4 plane_ll = Vector4(-half_width, -half_height, plane_depth, 1);
-    Vector4 plane_lr = Vector4(half_width, -half_height, plane_depth, 1);
-    Vector4 plane_ur = Vector4(half_width, half_height, plane_depth, 1);
-
-
-
-    t_ul = film_to_world*plane_ul;
-    t_ll = film_to_world*plane_ll;
-    t_lr = film_to_world*plane_lr;
-    t_ur = film_to_world*plane_ur;
-    */
-
     // Draw the  quad
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, flip ? 1.0f : 0.0f);
@@ -526,85 +518,6 @@ void GLWidget::render3DTexturedQuad(int width, int height, bool flip) {
     glEnd();
 }
 
-
-/**
-  Handles any key press from the keyboard
- **/
-//void GLWidget::keyPressEvent(QKeyEvent *event)
-//{
-//    switch(event->key())
-//    {
-//    case Qt::Key_P: {
-//        QImage qi = grabFrameBuffer(false);
-//        QString filter;
-//        QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), "", tr("PNG Image (*.png)"), &filter);
-//        qi.save(QFileInfo(fileName).absoluteDir().absolutePath() + "/" + QFileInfo(fileName).baseName() + ".png", "PNG", 100);
-//        break;
-//    }
-//    case Qt::Key_Minus: {
-//        F_Z3 = max(-1, F_Z3 - .05);
-//        break;
-//    }
-//    case Qt::Key_Equal: {
-//        F_Z3 = min(1, F_Z3 + .05);
-//        break;
-//    }
-//    case Qt::Key_Q: {
-//        m_camera->cameraMoveUp(true, (event->modifiers() == Qt::ShiftModifier));
-//        break;
-//    }
-//    case Qt::Key_E: {
-//        m_camera->cameraMoveUp(false, (event->modifiers() == Qt::ShiftModifier));
-//        break;
-//    }
-//    case Qt::Key_W: {
-//        m_camera->cameraMoveLook(true, (event->modifiers() == Qt::ShiftModifier));
-//        break;
-//    }
-//    case Qt::Key_S: {
-//        m_camera->cameraMoveLook(false, (event->modifiers() == Qt::ShiftModifier));
-//        break;
-//    }
-//    case Qt::Key_A: {
-//        m_camera->cameraMoveSide(true, (event->modifiers() == Qt::ShiftModifier));
-//        break;
-//    }
-//    case Qt::Key_D: {
-//        m_camera->cameraMoveSide(false, (event->modifiers() == Qt::ShiftModifier));
-//        break;
-//    }
-//    case Qt::Key_M: {
-//        global_ss_enabled = !global_ss_enabled;
-//        ss_enabled = global_ss_enabled;
-//        break;
-//    }
-//    case Qt::Key_C: {
-//        if (m_camera->getType() == GAME_CAMERA) {
-//            m_camera = m_orbitCamera;
-////            m_parent->ui->select_orbit_cam;
-//        } else {
-//            m_camera = m_gameCamera;
-//        }
-//        break;
-//    }
-//    case Qt::Key_L: {
-//        string path = "";
-//        path += m_base_path->data();
-//        path += "resources/cameraData.txt";
-//        FILE *f = fopen(path.c_str(), "r");
-//        if (f) {
-//            readCameraState(f);
-//        } else {
-//            printf("could not open file at %s\n", path.c_str());
-//        }
-//        break;
-//    }
-//    case Qt::Key_R: {
-//        m_camera->reset();
-//        break;
-//    }
-//    }
-//}
 
 void GLWidget::savePicture() {
     QImage qi = grabFrameBuffer(false);
@@ -753,4 +666,16 @@ void GLWidget::radioToggeled_Game_Cam(bool checked) {
 
 void GLWidget::resetCurrentCamera() {
     m_camera->reset();
+}
+
+void GLWidget::sliderUpdate_ITR(int newValue) {
+    mandelbox_itr = newValue;
+}
+
+void GLWidget::sliderUpdate_EPS(int newValue) {
+    mandelbox_epsilon = float(newValue)/100000.0;
+}
+
+void GLWidget::sliderUpdate_BRK(int newValue) {
+    mandelbox_break = newValue;
 }
