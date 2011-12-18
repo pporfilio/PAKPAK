@@ -40,7 +40,7 @@ const float fixedRadius2 = fixedRadius*fixedRadius;
 
 //int DEPTH = int(60.0 / dot(world_eye, world_eye)) + 15; //was + 10
 //int DEPTH = 10;
-float ep = .01 * float(DEPTH);
+float ep = .0001 * float(DEPTH);
 //int DEPTH = int(4.);
 
 float magnitude(vec3 v) {
@@ -279,11 +279,11 @@ vec4 CalculateLighting(vec3 p, float dist, vec3 d, vec3 start_p) {
     light_b = KD * material_diffuse.z * (light_color.z * max(0.0, dot(n, dir)) + light2_color.z * max(0.0, dot(n, dir2)));
 
     //Specular
-    if (specular_enabled == 1) {
+    //if (specular_enabled == 1) {
         light_r += KS * material_specular.x * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
         light_g += KS * material_specular.y * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
         light_b += KS * material_specular.z * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
-    }
+    //}
 
 
 
@@ -348,7 +348,8 @@ void main (void) {
     vec3 ray = normalize(p_film - start_p);
 
     vec4 final_color = vec4(0.,0.,0.,0.);
-    vec4 fog_color = vec4(.3,.3,.5, 1.);
+    //vec4 fog_color = vec4(.3,.3,.5, 1.);
+    vec4 fog_color = vec4(1.,.7,0., 1.);
 
     vec3 intersection = vec3(0.0,0.0,0.0);
     float dist = 0.0;
@@ -376,8 +377,9 @@ void main (void) {
 
         if (fog_enabled) {
             float blend = dist;
+            blend = clamp(blend, 0., 1.);
             //blend = min(.6, blend);
-            final_color = (1.- blend)*final_color + blend*fog_color;
+            final_color = (1.- blend)*final_color + blend*vec4(1.,clamp(.8*dist,.5,1.),0.,1.);
             if ((final_color.x > 1.)||(final_color.y > 1.)||(final_color.z > 1.)) {
                 final_color = fog_color;
             }
