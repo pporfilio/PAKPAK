@@ -1,3 +1,7 @@
+/*
+Authors: Parker Porfilio, Aimei Kutt, Anne Kenyon
+*/
+
 #ifndef GLWIDGET_H
 #define GLWIDGET_H
 
@@ -34,7 +38,6 @@ public:
     Vector4 F_C;
     bool F_specular;
     bool F_reflect;
-    Vector3 F_spec_channels;
     Vector3 F_reflect_channels;
     bool julia_selected;
     bool mandelbox_selected;
@@ -42,8 +45,8 @@ public:
     bool global_ss_enabled;
     bool ss_enabled;
 
-
     int mandelbox_coloring;
+    int mandelbox_colorScheme;
     bool mandelbox_fog;
     float mandelbox_itr;
     float mandelbox_epsilon;
@@ -63,6 +66,8 @@ public:
     Camera *m_orbitCamera;
     Camera *m_camera;
 
+    Vector4 bg_color;
+
 
 
     //ui interaction methods
@@ -77,12 +82,7 @@ public:
     void radioToggeled_Mandelbox(bool checked);
     void checkToggeled_skybox(bool checked);
     void checkToggeled_ss(bool checked);
-    void sliderUpdateF_spec_channels_r(int newValue);
-    void sliderUpdateF_spec_channels_g(int newValue);
-    void sliderUpdateF_spec_channels_b(int newValue);
-    void sliderUpdateF_reflect_channels_r(int newValue);
-    void sliderUpdateF_reflect_channels_g(int newValue);
-    void sliderUpdateF_reflect_channels_b(int newValue);
+
     void radioToggeled_Orbit_Cam(bool checked);
     void radioToggeled_Game_Cam(bool checked);
     void resetCurrentCamera();

@@ -1,3 +1,8 @@
+/*
+Authors: Parker Porfilio, Aimei Kutt, Anne Kenyon
+*/
+
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -95,41 +100,6 @@ void MainWindow::on_F_C_w_valueChanged(int value)
 }
 
 
-
-void MainWindow::on_spec_r_valueChanged(int value)
-{
-    ui->mainGL->sliderUpdateF_spec_channels_r(value);
-}
-
-void MainWindow::on_spec_g_valueChanged(int value)
-{
-    ui->mainGL->sliderUpdateF_spec_channels_g(value);
-}
-
-void MainWindow::on_spec_b_valueChanged(int value)
-{
-    ui->mainGL->sliderUpdateF_spec_channels_b(value);
-}
-
-
-
-void MainWindow::on_reflect_r_valueChanged(int value)
-{
-    ui->mainGL->sliderUpdateF_reflect_channels_r(value);
-}
-
-void MainWindow::on_reflect_g_valueChanged(int value)
-{
-    ui->mainGL->sliderUpdateF_reflect_channels_r(value);
-}
-
-void MainWindow::on_reflect_b_valueChanged(int value)
-{
-    ui->mainGL->sliderUpdateF_reflect_channels_r(value);
-}
-
-
-
 void MainWindow::on_select_Julia_toggled(bool checked)
 {
     ui->mainGL->radioToggeled_Julia(checked);
@@ -198,8 +168,6 @@ void MainWindow::on_depth_fog_button_toggled(bool checked)
     ui->mainGL->mandelbox_fog = checked;
 }
 
-
-
 void MainWindow::on_coloring_lights_toggled(bool checked)
 {
     if (checked) {
@@ -224,4 +192,27 @@ void MainWindow::on_coloring_distance_toggled(bool checked)
 void MainWindow::on_DEP_slider_valueChanged(int value)
 {
     ui->mainGL->mandelbox_depth = value;
+}
+
+void MainWindow::on_select_colorA_toggled(bool checked)
+{
+    ui->mainGL->mandelbox_colorScheme = 1;
+}
+
+void MainWindow::on_select_colorB_toggled(bool checked)
+{
+    ui->mainGL->mandelbox_colorScheme = 2;
+
+}
+
+void MainWindow::on_select_colorC_toggled(bool checked)
+{
+    ui->mainGL->mandelbox_colorScheme = 3;
+}
+
+void MainWindow::on_coloring_normals_toggled(bool checked)
+{
+    if (checked) {
+        ui->mainGL->mandelbox_coloring = 4;
+    }
 }

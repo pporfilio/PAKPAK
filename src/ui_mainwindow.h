@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Sat Dec 17 19:43:55 2011
+** Created: Sun Dec 18 04:48:13 2011
 **      by: Qt User Interface Compiler version 4.6.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -83,29 +83,23 @@ public:
     QWidget *tab_2;
     QWidget *verticalLayoutWidget_2;
     QVBoxLayout *verticalLayout_2;
-    QCheckBox *skybox_button;
     QCheckBox *ss_button;
-    QGridLayout *Specular_Grid;
-    QSlider *spec_r;
-    QSlider *spec_g;
-    QSlider *spec_b;
-    QLabel *spec_r_label;
-    QLabel *spec_g_label;
-    QLabel *spec_b_label;
+    QCheckBox *skybox_button;
+    QCheckBox *depth_fog_button;
     QCheckBox *specular_button;
-    QGridLayout *gridLayout_2;
-    QSlider *reflect_b;
-    QSlider *reflect_g;
-    QSlider *reflect_r;
-    QLabel *reflect_r_label;
-    QLabel *reflect_g_label;
-    QLabel *reflect_b_label;
     QCheckBox *reflection_button;
     QGridLayout *gridLayout_3;
-    QCheckBox *depth_fog_button;
     QRadioButton *coloring_lights;
     QRadioButton *coloring_distance;
     QLabel *label;
+    QVBoxLayout *verticalLayout_4;
+    QSpacerItem *horizontalSpacer;
+    QVBoxLayout *verticalLayout_7;
+    QLabel *label_2;
+    QRadioButton *select_colorA;
+    QRadioButton *select_colorB;
+    QRadioButton *select_colorC;
+    QRadioButton *coloring_normals;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -296,7 +290,7 @@ public:
         ITR_slider->setMaximum(1000);
         ITR_slider->setSingleStep(10);
         ITR_slider->setPageStep(100);
-        ITR_slider->setValue(300);
+        ITR_slider->setValue(1000);
         ITR_slider->setOrientation(Qt::Horizontal);
 
         gridLayout_4->addWidget(ITR_slider, 0, 1, 1, 1);
@@ -307,7 +301,7 @@ public:
         EPS_slider->setMaximum(10000);
         EPS_slider->setSingleStep(100);
         EPS_slider->setPageStep(1000);
-        EPS_slider->setValue(3000);
+        EPS_slider->setValue(1);
         EPS_slider->setOrientation(Qt::Horizontal);
 
         gridLayout_4->addWidget(EPS_slider, 1, 1, 1, 1);
@@ -340,7 +334,7 @@ public:
         DEP_slider->setObjectName(QString::fromUtf8("DEP_slider"));
         DEP_slider->setMinimum(1);
         DEP_slider->setMaximum(100);
-        DEP_slider->setValue(10);
+        DEP_slider->setValue(14);
         DEP_slider->setOrientation(Qt::Horizontal);
 
         gridLayout_4->addWidget(DEP_slider, 3, 1, 1, 1);
@@ -358,137 +352,45 @@ public:
         tab_2->setObjectName(QString::fromUtf8("tab_2"));
         verticalLayoutWidget_2 = new QWidget(tab_2);
         verticalLayoutWidget_2->setObjectName(QString::fromUtf8("verticalLayoutWidget_2"));
-        verticalLayoutWidget_2->setGeometry(QRect(10, 10, 181, 521));
+        verticalLayoutWidget_2->setGeometry(QRect(10, 10, 210, 521));
         verticalLayout_2 = new QVBoxLayout(verticalLayoutWidget_2);
         verticalLayout_2->setSpacing(6);
         verticalLayout_2->setContentsMargins(11, 11, 11, 11);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         verticalLayout_2->setContentsMargins(0, 0, 0, 0);
-        skybox_button = new QCheckBox(verticalLayoutWidget_2);
-        skybox_button->setObjectName(QString::fromUtf8("skybox_button"));
-        skybox_button->setChecked(true);
-
-        verticalLayout_2->addWidget(skybox_button);
-
         ss_button = new QCheckBox(verticalLayoutWidget_2);
         ss_button->setObjectName(QString::fromUtf8("ss_button"));
         ss_button->setChecked(true);
 
         verticalLayout_2->addWidget(ss_button);
 
-        Specular_Grid = new QGridLayout();
-        Specular_Grid->setSpacing(6);
-        Specular_Grid->setObjectName(QString::fromUtf8("Specular_Grid"));
-        Specular_Grid->setContentsMargins(10, -1, 5, -1);
-        spec_r = new QSlider(verticalLayoutWidget_2);
-        spec_r->setObjectName(QString::fromUtf8("spec_r"));
-        spec_r->setMaximum(100);
-        spec_r->setValue(50);
-        spec_r->setOrientation(Qt::Horizontal);
+        skybox_button = new QCheckBox(verticalLayoutWidget_2);
+        skybox_button->setObjectName(QString::fromUtf8("skybox_button"));
+        skybox_button->setChecked(true);
 
-        Specular_Grid->addWidget(spec_r, 1, 1, 1, 1);
+        verticalLayout_2->addWidget(skybox_button);
 
-        spec_g = new QSlider(verticalLayoutWidget_2);
-        spec_g->setObjectName(QString::fromUtf8("spec_g"));
-        spec_g->setMaximum(100);
-        spec_g->setValue(50);
-        spec_g->setOrientation(Qt::Horizontal);
+        depth_fog_button = new QCheckBox(verticalLayoutWidget_2);
+        depth_fog_button->setObjectName(QString::fromUtf8("depth_fog_button"));
+        depth_fog_button->setChecked(true);
 
-        Specular_Grid->addWidget(spec_g, 2, 1, 1, 1);
-
-        spec_b = new QSlider(verticalLayoutWidget_2);
-        spec_b->setObjectName(QString::fromUtf8("spec_b"));
-        spec_b->setMaximum(100);
-        spec_b->setValue(100);
-        spec_b->setOrientation(Qt::Horizontal);
-
-        Specular_Grid->addWidget(spec_b, 3, 1, 1, 1);
-
-        spec_r_label = new QLabel(verticalLayoutWidget_2);
-        spec_r_label->setObjectName(QString::fromUtf8("spec_r_label"));
-
-        Specular_Grid->addWidget(spec_r_label, 1, 0, 1, 1);
-
-        spec_g_label = new QLabel(verticalLayoutWidget_2);
-        spec_g_label->setObjectName(QString::fromUtf8("spec_g_label"));
-
-        Specular_Grid->addWidget(spec_g_label, 2, 0, 1, 1);
-
-        spec_b_label = new QLabel(verticalLayoutWidget_2);
-        spec_b_label->setObjectName(QString::fromUtf8("spec_b_label"));
-
-        Specular_Grid->addWidget(spec_b_label, 3, 0, 1, 1);
+        verticalLayout_2->addWidget(depth_fog_button);
 
         specular_button = new QCheckBox(verticalLayoutWidget_2);
         specular_button->setObjectName(QString::fromUtf8("specular_button"));
         specular_button->setChecked(true);
 
-        Specular_Grid->addWidget(specular_button, 0, 1, 1, 1);
-
-
-        verticalLayout_2->addLayout(Specular_Grid);
-
-        gridLayout_2 = new QGridLayout();
-        gridLayout_2->setSpacing(6);
-        gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
-        gridLayout_2->setContentsMargins(10, -1, 5, -1);
-        reflect_b = new QSlider(verticalLayoutWidget_2);
-        reflect_b->setObjectName(QString::fromUtf8("reflect_b"));
-        reflect_b->setMaximum(100);
-        reflect_b->setValue(100);
-        reflect_b->setOrientation(Qt::Horizontal);
-
-        gridLayout_2->addWidget(reflect_b, 3, 1, 1, 1);
-
-        reflect_g = new QSlider(verticalLayoutWidget_2);
-        reflect_g->setObjectName(QString::fromUtf8("reflect_g"));
-        reflect_g->setMaximum(100);
-        reflect_g->setValue(100);
-        reflect_g->setOrientation(Qt::Horizontal);
-
-        gridLayout_2->addWidget(reflect_g, 2, 1, 1, 1);
-
-        reflect_r = new QSlider(verticalLayoutWidget_2);
-        reflect_r->setObjectName(QString::fromUtf8("reflect_r"));
-        reflect_r->setMaximum(100);
-        reflect_r->setValue(100);
-        reflect_r->setOrientation(Qt::Horizontal);
-
-        gridLayout_2->addWidget(reflect_r, 1, 1, 1, 1);
-
-        reflect_r_label = new QLabel(verticalLayoutWidget_2);
-        reflect_r_label->setObjectName(QString::fromUtf8("reflect_r_label"));
-
-        gridLayout_2->addWidget(reflect_r_label, 1, 0, 1, 1);
-
-        reflect_g_label = new QLabel(verticalLayoutWidget_2);
-        reflect_g_label->setObjectName(QString::fromUtf8("reflect_g_label"));
-
-        gridLayout_2->addWidget(reflect_g_label, 2, 0, 1, 1);
-
-        reflect_b_label = new QLabel(verticalLayoutWidget_2);
-        reflect_b_label->setObjectName(QString::fromUtf8("reflect_b_label"));
-
-        gridLayout_2->addWidget(reflect_b_label, 3, 0, 1, 1);
+        verticalLayout_2->addWidget(specular_button);
 
         reflection_button = new QCheckBox(verticalLayoutWidget_2);
         reflection_button->setObjectName(QString::fromUtf8("reflection_button"));
         reflection_button->setChecked(true);
 
-        gridLayout_2->addWidget(reflection_button, 0, 1, 1, 1);
-
-
-        verticalLayout_2->addLayout(gridLayout_2);
+        verticalLayout_2->addWidget(reflection_button);
 
         gridLayout_3 = new QGridLayout();
         gridLayout_3->setSpacing(6);
         gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
-        depth_fog_button = new QCheckBox(verticalLayoutWidget_2);
-        depth_fog_button->setObjectName(QString::fromUtf8("depth_fog_button"));
-        depth_fog_button->setChecked(true);
-
-        gridLayout_3->addWidget(depth_fog_button, 0, 0, 1, 1);
-
         coloring_lights = new QRadioButton(verticalLayoutWidget_2);
         coloring_lights->setObjectName(QString::fromUtf8("coloring_lights"));
         coloring_lights->setChecked(true);
@@ -505,6 +407,48 @@ public:
         label->setAlignment(Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft);
 
         gridLayout_3->addWidget(label, 1, 0, 1, 1);
+
+        verticalLayout_4 = new QVBoxLayout();
+        verticalLayout_4->setSpacing(6);
+        verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
+        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        verticalLayout_4->addItem(horizontalSpacer);
+
+        verticalLayout_7 = new QVBoxLayout();
+        verticalLayout_7->setSpacing(6);
+        verticalLayout_7->setObjectName(QString::fromUtf8("verticalLayout_7"));
+        label_2 = new QLabel(verticalLayoutWidget_2);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
+
+        verticalLayout_7->addWidget(label_2);
+
+        select_colorA = new QRadioButton(verticalLayoutWidget_2);
+        select_colorA->setObjectName(QString::fromUtf8("select_colorA"));
+        select_colorA->setChecked(true);
+
+        verticalLayout_7->addWidget(select_colorA);
+
+        select_colorB = new QRadioButton(verticalLayoutWidget_2);
+        select_colorB->setObjectName(QString::fromUtf8("select_colorB"));
+
+        verticalLayout_7->addWidget(select_colorB);
+
+        select_colorC = new QRadioButton(verticalLayoutWidget_2);
+        select_colorC->setObjectName(QString::fromUtf8("select_colorC"));
+
+        verticalLayout_7->addWidget(select_colorC);
+
+
+        verticalLayout_4->addLayout(verticalLayout_7);
+
+
+        gridLayout_3->addLayout(verticalLayout_4, 0, 0, 1, 1);
+
+        coloring_normals = new QRadioButton(verticalLayoutWidget_2);
+        coloring_normals->setObjectName(QString::fromUtf8("coloring_normals"));
+
+        gridLayout_3->addWidget(coloring_normals, 4, 0, 1, 1);
 
 
         verticalLayout_2->addLayout(gridLayout_3);
@@ -548,20 +492,19 @@ public:
         BRK_label->setText(QApplication::translate("MainWindow", "BRK", 0, QApplication::UnicodeUTF8));
         DEP_label->setText(QApplication::translate("MainWindow", "DEP", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("MainWindow", "Fractal Parameters", 0, QApplication::UnicodeUTF8));
-        skybox_button->setText(QApplication::translate("MainWindow", "Skybox", 0, QApplication::UnicodeUTF8));
         ss_button->setText(QApplication::translate("MainWindow", "Super Sampling", 0, QApplication::UnicodeUTF8));
-        spec_r_label->setText(QApplication::translate("MainWindow", "R", 0, QApplication::UnicodeUTF8));
-        spec_g_label->setText(QApplication::translate("MainWindow", "G", 0, QApplication::UnicodeUTF8));
-        spec_b_label->setText(QApplication::translate("MainWindow", "B", 0, QApplication::UnicodeUTF8));
-        specular_button->setText(QApplication::translate("MainWindow", "Specular", 0, QApplication::UnicodeUTF8));
-        reflect_r_label->setText(QApplication::translate("MainWindow", "R", 0, QApplication::UnicodeUTF8));
-        reflect_g_label->setText(QApplication::translate("MainWindow", "G", 0, QApplication::UnicodeUTF8));
-        reflect_b_label->setText(QApplication::translate("MainWindow", "B", 0, QApplication::UnicodeUTF8));
-        reflection_button->setText(QApplication::translate("MainWindow", "Reflection", 0, QApplication::UnicodeUTF8));
+        skybox_button->setText(QApplication::translate("MainWindow", "Skybox", 0, QApplication::UnicodeUTF8));
         depth_fog_button->setText(QApplication::translate("MainWindow", "Depth Fog", 0, QApplication::UnicodeUTF8));
+        specular_button->setText(QApplication::translate("MainWindow", "Specular", 0, QApplication::UnicodeUTF8));
+        reflection_button->setText(QApplication::translate("MainWindow", "Reflection", 0, QApplication::UnicodeUTF8));
         coloring_lights->setText(QApplication::translate("MainWindow", "lights", 0, QApplication::UnicodeUTF8));
         coloring_distance->setText(QApplication::translate("MainWindow", "distance", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("MainWindow", "Coloring Options", 0, QApplication::UnicodeUTF8));
+        label_2->setText(QApplication::translate("MainWindow", "Mandelbox Color Schemes", 0, QApplication::UnicodeUTF8));
+        select_colorA->setText(QApplication::translate("MainWindow", "Inferno", 0, QApplication::UnicodeUTF8));
+        select_colorB->setText(QApplication::translate("MainWindow", "Dynasty", 0, QApplication::UnicodeUTF8));
+        select_colorC->setText(QApplication::translate("MainWindow", "Hive", 0, QApplication::UnicodeUTF8));
+        coloring_normals->setText(QApplication::translate("MainWindow", "normals", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("MainWindow", "Material Properties", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

@@ -41,21 +41,8 @@ SOURCES += main/glwidget.cpp \
     support/GameCamera.cpp
 FORMS += mainwindow.ui \
     support/mainwindow.ui
-OTHER_FILES += shaders/refract.vert \
-    shaders/refract.frag \
-    shaders/reflect.vert \
-    shaders/reflect.frag \
-    shaders/brightpass.frag \
-    shaders/blur.frag \
-    shaders/fractal.frag \
+OTHER_FILES += shaders/fractal.frag \
     shaders/fractal.vert \
-    shaders/test.vert \
     shaders/mandelbox.vert \
     shaders/mandelbox.frag
 RESOURCES += 
-
-
-
-
-
-

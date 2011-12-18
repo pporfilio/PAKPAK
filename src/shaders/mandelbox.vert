@@ -1,3 +1,7 @@
+/*
+Authors: Aimei Kutt, Parker Porfilio, Anne Kenyon
+*/
+
 varying vec3 vVertex;
 void main()
 {

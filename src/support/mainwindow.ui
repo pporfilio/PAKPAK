@@ -347,7 +347,7 @@
              <number>100</number>
             </property>
             <property name="value">
-             <number>300</number>
+             <number>1000</number>
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -369,7 +369,7 @@
              <number>1000</number>
             </property>
             <property name="value">
-             <number>3000</number>
+             <number>1</number>
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -422,7 +422,7 @@
              <number>100</number>
             </property>
             <property name="value">
-             <number>10</number>
+             <number>14</number>
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -450,21 +450,11 @@
         <rect>
          <x>10</x>
          <y>10</y>
-         <width>181</width>
+         <width>210</width>
          <height>521</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QCheckBox" name="skybox_button">
-          <property name="text">
-           <string>Skybox</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
         <item>
          <widget class="QCheckBox" name="ss_button">
           <property name="text">
@@ -476,177 +466,47 @@
          </widget>
         </item>
         <item>
-         <layout class="QGridLayout" name="Specular_Grid">
-          <property name="leftMargin">
-           <number>10</number>
+         <widget class="QCheckBox" name="skybox_button">
+          <property name="text">
+           <string>Skybox</string>
           </property>
-          <property name="rightMargin">
-           <number>5</number>
+          <property name="checked">
+           <bool>true</bool>
           </property>
-          <item row="1" column="1">
-           <widget class="QSlider" name="spec_r">
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>50</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QSlider" name="spec_g">
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>50</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QSlider" name="spec_b">
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>100</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="spec_r_label">
-            <property name="text">
-             <string>R</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="spec_g_label">
-            <property name="text">
-             <string>G</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="spec_b_label">
-            <property name="text">
-             <string>B</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QCheckBox" name="specular_button">
-            <property name="text">
-             <string>Specular</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         </widget>
         </item>
         <item>
-         <layout class="QGridLayout" name="gridLayout_2">
-          <property name="leftMargin">
-           <number>10</number>
+         <widget class="QCheckBox" name="depth_fog_button">
+          <property name="text">
+           <string>Depth Fog</string>
           </property>
-          <property name="rightMargin">
-           <number>5</number>
+          <property name="checked">
+           <bool>true</bool>
           </property>
-          <item row="3" column="1">
-           <widget class="QSlider" name="reflect_b">
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>100</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QSlider" name="reflect_g">
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>100</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QSlider" name="reflect_r">
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>100</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="reflect_r_label">
-            <property name="text">
-             <string>R</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="reflect_g_label">
-            <property name="text">
-             <string>G</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="reflect_b_label">
-            <property name="text">
-             <string>B</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QCheckBox" name="reflection_button">
-            <property name="text">
-             <string>Reflection</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="specular_button">
+          <property name="text">
+           <string>Specular</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="reflection_button">
+          <property name="text">
+           <string>Reflection</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
         <item>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="depth_fog_button">
-            <property name="text">
-             <string>Depth Fog</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="0">
            <widget class="QRadioButton" name="coloring_lights">
             <property name="text">
@@ -671,6 +531,65 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_7">
+              <item>
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>Mandelbox Color Schemes</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="select_colorA">
+                <property name="text">
+                 <string>Inferno</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="select_colorB">
+                <property name="text">
+                 <string>Dynasty</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="select_colorC">
+                <property name="text">
+                 <string>Hive</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item row="4" column="0">
+           <widget class="QRadioButton" name="coloring_normals">
+            <property name="text">
+             <string>normals</string>
             </property>
            </widget>
           </item>

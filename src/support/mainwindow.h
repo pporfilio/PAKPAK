@@ -24,6 +24,10 @@ private:
 
 
 private slots:
+    void on_coloring_normals_toggled(bool checked);
+    void on_select_colorC_toggled(bool checked);
+    void on_select_colorB_toggled(bool checked);
+    void on_select_colorA_toggled(bool checked);
     void on_DEP_slider_valueChanged(int value);
     void on_coloring_distance_toggled(bool checked);
     void on_coloring_escape_toggled(bool checked);
@@ -40,12 +44,6 @@ private slots:
     void on_specular_button_toggled(bool checked);
     void on_select_Mandelbox_toggled(bool checked);
     void on_select_Julia_toggled(bool checked);
-    void on_reflect_b_valueChanged(int value);
-    void on_reflect_g_valueChanged(int value);
-    void on_reflect_r_valueChanged(int value);
-    void on_spec_b_valueChanged(int value);
-    void on_spec_g_valueChanged(int value);
-    void on_spec_r_valueChanged(int value);
     void on_F_C_w_valueChanged(int value);
     void on_F_C_z_valueChanged(int value);
     void on_F_C_y_valueChanged(int value);

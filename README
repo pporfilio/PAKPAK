@@ -1,0 +1,130 @@
+Final Project Readme
+Anne Kenyan
+Aimei Kutt
+Parker Porfilio
+
+
+User Interface:
+Our program allows the user to view and move around one of two fractals in real time. There is a Julia fractal and a Mandelbox fractal. Select the fractal on the Fractal Parameter tab.
+
+There are two camera modes: orbit camera and game camera.
+Orbit camera is the default camera for the Julia fractal and Game camera is the default for the Mandelbox. The orbit camera works just as in the course assignments. The camera can be changed via the radio buttons on the Fractal Parameters tab. The Reset Camera Location button will return the current camera to its initial position.
+
+Instead of always looking at the origin, the Game Camera's look vector is controlled by clicking and dragging the mouse. You can move the position of the camera in world space by using the w and s keys to move along the look vector, q and e to move along the up vector, and a and d to move sideways. Hold shift to increase the speed of the camera's movement.
+
+The sliders under the heading F_C control parameters of the Julia fractal.
+
+The Material Properties tab contains options for controlling the appearance of the fractals and environments. Skybox toggles the environment box.
+
+The Julia Fractal has super sampling enabled by default. It is automatically disabled when moving the camera. You can manually disable super sampling in the Material Properties Tab. Reflection and specularity are also limited to the Julia fractal.
+
+The Mandelbox has depth fog (enabled by default), which gives an improved sense of depth. There is also the option to view the mandelbox in grayscale based on distance from the camera instead of the default lighting. This was primarily for debugging but provides an interesting alternative, especially when combined with the depth fog.
+
+Additionally, there are sliders labeled ITR, EPS, BRK, and DEP. These change parameters of the mandelbox and were primarily for debugging, although decreasing EPS can increase detail of the fractal. The sliders can be moved to extremes that cause the fractal to become noisy or disappear. This is not a bug, merely a factor of the method of computing the fractal.
+
+
+
+
+Design:
+Fractals have infinite detail and are defined by equations rather than geometry. Thus, they lend themselves to ray tracing. We leveraged the parallelism of the GPU to ray-trace fractals in real time. We built from the Lab 09 project to take advantage of the support code for the GLWidget. In order to ray trace on the GPU we allow the user to position a camera and then we render a single quad in front of that camera so that it fills the view. This way, the shader has a location for each pixel on this quad in world-coordinates, which we can combine with information about the camera's world position to generate a ray. Since ray-tracing is independent for each pixel, we can quickly calculate intersection and lighting for the fractal for each pixel.
+
+We have one shader for each fractal, which we call with many uniform variables in order to pass parameters into the shader. While some of the uniforms are the same for both the Julia and Mandelbox, there are enough that are specific to each that it made sense to keep them separate.
+
+
+
+
+Fractal Rendering Algorithm:
+General algorithm for rendering fractals with ray tracing:
+
+for each pixel, shoot a ray:
+   along each ray, iterate through points from eye point by
+incrementing by epsilon:
+       at each point, compute whether it is in the fractal -- these
+are not definite
+       shapes with boundaries, but each point is either in or out of
+the set, depending
+       on some initial parameters that we set (see parameter
+descriptions in Part C).
+       if the point is in the fractal, calculate lighting:
+           calculate normals -- since these are not smooth surfaces,
+you get nearby
+           points and do a gradient computation to calculate the normal.
+       if the point is not in the fractal, no color.
+
+We do use a slightly more intelligent algorithm than just incrementing
+by epsilon, we use
+a depth estimation technique and then increment by the max of that and epsilon.
+
+We also supersample for the julia fractal, though we designed it such
+that it only supersamples
+when we are not moving the shape or changing the parameters, because
+it slows down the rendering
+considerably.
+
+Our lighting is essentially like in our ray tracer, with  some ambient
+lighting, reflections
+from the skybox, and specular reflections.  We chose not to put in
+shadows after trying it,
+since the shapes were complicated enough as is and the intersting part
+is the geometry of it.
+
+As for the GUI, the most important button is the switch from Mandelbox
+to Julia.  Note that
+some of the buttons only work for one or the other (the skybox and
+supersampling only work
+on the julia fractal, the depth, itr, epsilon, and break only work in
+Mandelbox).
+
+
+
+
+More detailed description of the fractal parameters:
+
+BREAK and DEPTH: When we are evaluating whether a point is in the set,
+we iterate recursively
+through some function (fractal-dependant function) a DEPTH number of
+times, and if the final
+value is > BREAK, the function is considered to be unbounded at that
+point and therefore that
+point is not in the set.
+
+ITR and EPSILON: ITR is the number of points we evaluate along the
+ray, each separated by at
+least EPSILON, before declaring that that ray does not intersect the fractal.
+
+EP: When calculating the normals at a point, it is the distance to the
+neighboring points used
+to calcualte the gradient from which we get the normal vector.
+
+F_Z3 and F_C: these can be changed in the Julia fractal with the
+sliders.  F_Z3 is essentially
+the 4th dimension of the quaternion (some people evolve it in time).
+F_C is the constant used
+in the Julia formula (if you want more details on the math, it's well
+documented, for example,
+at paulbourke.net/fractals/quatjulia)
+
+Note about parameters:  While our demo has sliders for most of these
+parameters, another solution
+could have been to have them all depend on the camera position instead
+-- when the camera is closer
+to an object, obviously the detail needs to be increased to we need to
+increase DEPTH and decrease
+EPSILON and EP, and when we are seeing things that are far away ITR
+needs to be larger.
+
+
+
+
+Bugs/Corner Cases:
+It is possible to zoom the camera outside the skybox, which can give strange results at extreme distances. Nevertheless, it is beneficial to see the skybox from the outside, especially for debugging.
+
+Parts of the fractals, especially the mandelbox, can have banding or crawlies, but this is not entirely avoidable in realtime rendering because of the infinitely detailed structure of the fractals. Thus we are limited in the detail we can compute while maintaining reasonable speed, especially when zoomed in extremely far.
+
+
+Websites we used:
+paulbourke.net/fractals/quatjulia
+http://blog.hvidtfeldts.net/
+https://sites.google.com/site/mandelbox/what-is-a-mandelbox
+
+Also used the paper "Ray Tracing Deterministic 3-D Fractals" by Hart et al. in Computer Graphics, Volume 23, Number 3, July 1989.

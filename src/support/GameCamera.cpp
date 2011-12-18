@@ -1,3 +1,7 @@
+/*
+Authors: Parker Porfilio, Aimei Kutt, Anne Kenyon
+*/
+
 #include "GameCamera.h"
 #include "CS123Matrix.h"
 #include "utils.h"

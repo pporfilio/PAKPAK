@@ -1,5 +1,8 @@
-#include "glwidget.h"
+/*
+Authors: Aimei Kutt, Parker Porfilio, Anne Kenyon
+*/
 
+#include "glwidget.h"
 #include <iostream>
 #include <QFileDialog>
 #include <QGLFramebufferObject>
@@ -40,18 +43,21 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
     F_C = Vector4(-.1, .1, .5, -.6);
     F_specular = true;
     F_reflect = true;
-    F_spec_channels = Vector3(0.5, 0.5, 1.0);
+
     F_reflect_channels = Vector3(1.0, 1.0, 1.0);
     julia_selected = true;
     mandelbox_selected = false;
     skybox_enabled = true;
 
     mandelbox_coloring = 1;
+    mandelbox_colorScheme = 1;
     mandelbox_fog = true;
-    mandelbox_itr = 300.0;
-    mandelbox_epsilon = .003;
+    mandelbox_itr = 1000.0;
+    mandelbox_epsilon = 1.0/100000.0;
     mandelbox_break = 200.0;
-    mandelbox_depth = 10;
+    mandelbox_depth = 14;
+
+    bg_color = Vector4(1.0,1.0,1.0,1.0);
 
 
     //global as in regardless of whether or not the user is clicking
@@ -150,8 +156,6 @@ void GLWidget::initializeResources()
     createShaderPrograms();
     cout << "Loaded shader programs..." << endl;
 
-    cout << "Loaded framebuffer objects..." << endl;
-
     cout << " --- Finish Loading Resources ---" << endl;
 }
 
@@ -166,23 +170,6 @@ void GLWidget::loadCubeMap()
     string tmp2 = "";
     tmp2 += tmp1;
     QList<QFile *> fileList;
-//    fileList.append(new QFile(tmp2.append("astra/posx.jpg").c_str()));
-//    tmp2 = "";
-//    tmp2 += tmp1;
-//    fileList.append(new QFile(tmp2.append("astra/negx.jpg").c_str()));
-//    tmp2 = "";
-//    tmp2 += tmp1;
-//    fileList.append(new QFile(tmp2.append("astra/posy.jpg").c_str()));
-//    tmp2 = "";
-//    tmp2 += tmp1;
-//    fileList.append(new QFile(tmp2.append("astra/negy.jpg").c_str()));
-//    tmp2 = "";
-//    tmp2 += tmp1;
-//    fileList.append(new QFile(tmp2.append("astra/posz.jpg").c_str()));
-//    tmp2 = "";
-//    tmp2 += tmp1;
-//    fileList.append(new QFile(tmp2.append("astra/negz.jpg").c_str()));
-//    m_cubeMap = ResourceLoader::loadCubeMap(fileList);
 
     fileList.append(new QFile(tmp2.append("stars/Galaxy_RT.jpg").c_str())); //posx
     tmp2 = "";
@@ -216,22 +203,7 @@ void GLWidget::createShaderPrograms()
     string tmp2 = "";
 
     const QGLContext *ctx = context();
-    tmp1 += shader_base;
-    tmp2 += shader_base;
-    m_shaderPrograms["reflect"] = ResourceLoader::newShaderProgram(ctx, tmp1.append("reflect.vert").c_str(),
-                                                                        tmp2.append("reflect.frag").c_str());
-    tmp1 = "";
-    tmp2 = "";
-    tmp1 += shader_base;
-    tmp2 += shader_base;
-    m_shaderPrograms["refract"] = ResourceLoader::newShaderProgram(ctx, tmp1.append("refract.vert").c_str(),
-                                                                        tmp2.append("refract.frag").c_str());
-    tmp1 = "";
-    tmp1 += shader_base;
-    m_shaderPrograms["brightpass"] = ResourceLoader::newFragShaderProgram(ctx, tmp1.append("brightpass.frag").c_str());
-    tmp1 = "";
-    tmp1 += shader_base;
-    m_shaderPrograms["blur"] = ResourceLoader::newFragShaderProgram(ctx, tmp1.append("blur.frag").c_str());
+
     tmp1 = "";
     tmp2 = "";
     tmp1 += shader_base;
@@ -269,8 +241,6 @@ void GLWidget::applyPerspectiveCamera(float width, float height)
 
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
-
-
 }
 
 /**
@@ -280,8 +250,21 @@ void GLWidget::paintGL()
 {
     // Clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glClearColor(.3,.3,.5, 1);
-    glClearColor(1.,1.,1., 1);
+
+
+    if ((julia_selected)&&(!skybox_enabled)) {
+        bg_color = Vector4(.4,.5,.6,1.0);
+    }
+    else {
+        if (mandelbox_colorScheme == 3) {
+            bg_color = Vector4(1.0, 1.0, 0., 1.0);
+        }
+        else {
+            bg_color = Vector4(1.0,1.0,1.0,1.0);
+        }
+
+    }
+    glClearColor(bg_color.x,bg_color.y,bg_color.z, 1);
 
 
     // Update the fps
@@ -290,9 +273,6 @@ void GLWidget::paintGL()
     m_prevTime = time;
     int width = this->width();
     int height = this->height();
-
-
-
 
 
     Matrix4x4 film_to_world = m_camera->getFilmToWorld(width, height);
@@ -316,15 +296,10 @@ void GLWidget::paintGL()
     t_lr = film_to_world*plane_lr;
     t_ur = film_to_world*plane_ur;
 
+    //used for supersampling
     half_pixel_size = .5*(t_ur - t_ul).getMagnitude()/float(width);
 
 
-
-
-
-
-
-    // Render the scene to a framebuffer
     applyPerspectiveCamera(width, height);
 
     //// Render Sky Box
@@ -336,17 +311,13 @@ void GLWidget::paintGL()
     glEnable(GL_TEXTURE_CUBE_MAP);
 
     if (mandelbox_selected) {
-        //skybox_enabled = false;
-        F_specular = false;
+        skybox_enabled = false;
     }
 
     if (skybox_enabled) {
         glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubeMap);
         glCallList(m_skybox);
     }
-
-
-
 
     if (julia_selected) {
         renderFractal();
@@ -368,14 +339,11 @@ void GLWidget::paintGL()
 //Set up fragment shader and render it to a quad that fills the screen
 void GLWidget::renderFractal() {
 
-
     V3 pos = m_camera->getPos();
-
-//    if (ss_enabled) { printf("ss is enabled\n"); }
-//    else { printf("ss_not_enabled\n"); }
 
     //pass parameters to the shader
     m_shaderPrograms["fractal"]->bind();
+    m_shaderPrograms["fractal"]->setUniformValue("skybox_enabled", skybox_enabled ? 1 : 0);
     m_shaderPrograms["fractal"]->setUniformValue("CubeMap", GL_TEXTURE0);
     m_shaderPrograms["fractal"]->setUniformValue("width", this->width());
     m_shaderPrograms["fractal"]->setUniformValue("height", this->height());
@@ -386,8 +354,6 @@ void GLWidget::renderFractal() {
     m_shaderPrograms["fractal"]->setUniformValue("reflections_enabled", F_reflect ? 1 : 0);
     m_shaderPrograms["fractal"]->setUniformValue("specular_enabled", F_specular ? 1 : 0);
     m_shaderPrograms["fractal"]->setUniformValue("ss_enabled", ss_enabled ? 1 : 0);
-    m_shaderPrograms["fractal"]->setUniformValue("material_specular", F_spec_channels.x, F_spec_channels.y, F_spec_channels.z);
-    m_shaderPrograms["fractal"]->setUniformValue("material_reflect", F_reflect_channels.x, F_reflect_channels.y, F_reflect_channels.z);
 
     glEnable(GL_BLEND);
 
@@ -395,32 +361,24 @@ void GLWidget::renderFractal() {
 
     render3DTexturedQuad(this->width(), this->height(), true); //AIMEI
 
-    //clean-up
     m_shaderPrograms["fractal"]->release();
 }
 
 //Set up fragment shader and render it to a quad that fills the screen
 void GLWidget::renderMandelbox() {
 
-
     V3 pos = m_camera->getPos();
 
     //pass parameters to the shader
     m_shaderPrograms["mandelbox"]->bind();
-    m_shaderPrograms["mandelbox"]->setUniformValue("CubeMap", GL_TEXTURE0);
     m_shaderPrograms["mandelbox"]->setUniformValue("width", this->width());
     m_shaderPrograms["mandelbox"]->setUniformValue("height", this->height());
     m_shaderPrograms["mandelbox"]->setUniformValue("world_eye", pos.x, pos.y, pos.z);
     m_shaderPrograms["mandelbox"]->setUniformValue("halfPix", half_pixel_size);
-    m_shaderPrograms["mandelbox"]->setUniformValue("F_Z3", F_Z3);
-    m_shaderPrograms["mandelbox"]->setUniformValue("F_C", F_C.x, F_C.y, F_C.z);
-    m_shaderPrograms["mandelbox"]->setUniformValue("reflections_enabled", F_reflect ? 1 : 0);
     m_shaderPrograms["mandelbox"]->setUniformValue("specular_enabled", F_specular ? 1 : 0);
     m_shaderPrograms["mandelbox"]->setUniformValue("ss_enabled", ss_enabled ? 1 : 0);
-    m_shaderPrograms["mandelbox"]->setUniformValue("material_specular", F_spec_channels.x, F_spec_channels.y, F_spec_channels.z);
-    m_shaderPrograms["mandelbox"]->setUniformValue("material_reflect", F_reflect_channels.x, F_reflect_channels.y, F_reflect_channels.z);
-
     m_shaderPrograms["mandelbox"]->setUniformValue("coloring", mandelbox_coloring);
+    m_shaderPrograms["mandelbox"]->setUniformValue("colorScheme", mandelbox_colorScheme);
     m_shaderPrograms["mandelbox"]->setUniformValue("fog_enabled", mandelbox_fog);
     m_shaderPrograms["mandelbox"]->setUniformValue("ITR", mandelbox_itr);
     m_shaderPrograms["mandelbox"]->setUniformValue("EPSILON", mandelbox_epsilon);
@@ -436,7 +394,6 @@ void GLWidget::renderMandelbox() {
     //clean-up
     m_shaderPrograms["mandelbox"]->release();
 }
-
 
 
 /**
@@ -544,6 +501,7 @@ void GLWidget::loadCamLocation() {
  **/
 void GLWidget::paintText()
 {
+    /*
     glColor3f(1.f, 1.f, 1.f);
 
     // Combine the previous and current framerate
@@ -563,6 +521,7 @@ void GLWidget::paintText()
 //    renderText(10, 65, "DEPTH = " + QString::number((double)(10 / max(pos.lengthSquared(), 1.0))), m_font);
     renderText(10, 65, "DEPTH = " + QString::number((double)(pos.length())), m_font);
     renderText(10, 80, "step size = " + QString::number((double)(.05*pos.length())), m_font);
+    */
 
 }
 
@@ -593,39 +552,6 @@ void GLWidget::sliderUpdateF_C_w(int newValue) {
 }
 
 
-//specular parameters
-void GLWidget::sliderUpdateF_spec_channels_r(int newValue) {
-    F_spec_channels.x = (float)newValue / 100.0;
-    ss_enabled = false;
-}
-
-void GLWidget::sliderUpdateF_spec_channels_g(int newValue) {
-    F_spec_channels.y = (float)newValue / 100.0;
-    ss_enabled = false;
-}
-
-void GLWidget::sliderUpdateF_spec_channels_b(int newValue) {
-    F_spec_channels.z = (float)newValue / 100.0;
-    ss_enabled = false;
-}
-
-//reflection parameters
-void GLWidget::sliderUpdateF_reflect_channels_r(int newValue) {
-    F_reflect_channels.x = (float)newValue / 100.0;
-    ss_enabled = false;
-}
-
-void GLWidget::sliderUpdateF_reflect_channels_g(int newValue) {
-    F_reflect_channels.y = (float)newValue / 100.0;
-    ss_enabled = false;
-}
-
-void GLWidget::sliderUpdateF_reflect_channels_b(int newValue) {
-    F_reflect_channels.z = (float)newValue / 100.0;
-    ss_enabled = false;
-}
-
-
 //fractal selection
 void GLWidget::radioToggeled_Julia(bool checked) {
     julia_selected = checked;
@@ -645,6 +571,7 @@ void GLWidget::radioToggeled_reflect(bool checked) {
 
 void GLWidget::checkToggeled_skybox(bool checked) {
     skybox_enabled = checked;
+
 }
 
 void GLWidget::checkToggeled_ss(bool checked) {

@@ -1,3 +1,7 @@
+/*
+Authors: Aimei Kutt, Parker Porfilio, Anne Kenyon
+*/
+
 uniform vec4 eye;
 uniform int width;
 uniform int height;
@@ -6,11 +10,10 @@ uniform float halfPix;
 uniform float F_Z3;
 uniform vec4 F_C;
 uniform samplerCube CubeMap;
+uniform int skybox_enabled;
 uniform int reflections_enabled;
 uniform int specular_enabled;
 uniform int ss_enabled;
-uniform vec3 material_specular;
-uniform vec3 material_reflect;
 
 varying vec3 vVertex;
 
@@ -18,19 +21,13 @@ const float EPSILON = .001;          //closeness to fractal
 const float ITR = 500.0;             //number of iterations along ray
 const int DEPTH = 10;
 const float BREAK = 4.0;             //fractal escape bound
-const float ep = 0.0001;
+const float EP = 0.0001;
 const float M = 3.0;                 //bounding radius
-//int DEPTH;
-//float EPSILON;
-//float ep;
 
 float magnitude(vec4 v) {
     return sqrt(dot(v, v));
 }
 
-
-// vec4 is a built-in type and isn't a C++ template.
-//vec4 QMultiply(vec4<REAL> A, vec4<REAL> B) {
 vec4 QMultiply(vec4 A, vec4 B) {
     float a,b,c,d;
 
@@ -65,7 +62,6 @@ bool isInJulia(vec4 p, inout float dist) {
     for (int i = 0; i < DEPTH; i++) {
 
         Zn = QMultiply(Zn,Zn) + F_C;
-        //Zn = QMultiply(QMultiply(Zn,Zn),Zn) + F_C;
 
         dZn = QMultiply(Zn, dZn) * 2.;
         dZn.x += 1.0;
@@ -107,17 +103,13 @@ float IntersectFSphere(vec4 p, vec4 d, float r) {
 
 bool CalculateIntersection(inout vec4 intersection, inout float dist, vec4 d, vec4 start_p, bool isShadow) {
 
-
     float t = 0.0;
 
     vec4 curPoint;
-
-
     curPoint.x = start_p.x;
     curPoint.y = start_p.y;
     curPoint.z = start_p.z;
     curPoint.w = F_Z3;
-
 
     dist = 0.0;
     float curDist = 0.0;
@@ -161,12 +153,12 @@ vec4 CalculateNormal(vec4 point, vec4 d, float dist, vec4 start_p) {
 
     vec4 gx1 = point,gx2 = point,gy1 = point,gy2 = point,gz1 = point,gz2 = point;
 
-    gx1.x -= ep;
-    gx2.x += ep;
-    gy1.y -= ep;
-    gy2.y += ep;
-    gz1.z -= ep;
-    gz2.z += ep;
+    gx1.x -= EP;
+    gx2.x += EP;
+    gy1.y -= EP;
+    gy2.y += EP;
+    gz1.z -= EP;
+    gz2.z += EP;
 
     for (int i = 0; i < DEPTH; i++) {
 
@@ -176,13 +168,7 @@ vec4 CalculateNormal(vec4 point, vec4 d, float dist, vec4 start_p) {
         gy2 = QMultiply(gy2,gy2) + F_C;
         gz1 = QMultiply(gz1,gz1) + F_C;
         gz2 = QMultiply(gz2,gz2) + F_C;
-        /*
-        gx1 = QMultiply(QMultiply(gx1,gx1),gx1) + F_C;
-        gx2 = QMultiply(QMultiply(gx2,gx2),gx2) + F_C;
-        gy1 = QMultiply(QMultiply(gy1,gy1),gy1) + F_C;
-        gy2 = QMultiply(QMultiply(gy2,gy2),gy2) + F_C;
-        gz1 = QMultiply(QMultiply(gz1,gz1),gz1) + F_C;
-        gz2 = QMultiply(QMultiply(gz2,gz2),gz2) + F_C; */
+
     }
 
     float gradX, gradY, gradZ;
@@ -199,8 +185,25 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
 
     vec4 n = normalize(CalculateNormal(p, d, dist, start_p));
 
-    vec3 material_ambient = vec3(0., 0., .2);
-    vec3 material_diffuse = vec3(.3, 0., .5);
+    vec3 material_ambient, material_diffuse;
+    float KA, KD, KS, KR;
+
+    //different coloring for when skybox is disabled
+    if ((skybox_enabled == 0)||(reflections_enabled == 0)) {
+        KA = .5;
+        KD = 2.;
+        KS = 2.;
+        KR = 1.;
+        material_ambient = vec3(.1, .3, .3);
+        material_diffuse = vec3(.3, .8, 1.);
+    } else {
+        KA = .2;
+        KD = .5;
+        KS = 2.;
+        KR = 1.;
+        material_ambient = vec3(0., 0., .2);
+        material_diffuse = vec3(.3, 0., .5);
+    }
 
     vec4 light_pos = vec4(5., 5., -2., 1.0);
     vec3 light_color = vec3(.2,0.,0.0);
@@ -208,15 +211,11 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
     vec4 light2_pos = vec4(-5., -5., -2., 1.0);
     vec3 light2_color = vec3(.5,.5,.5);
 
-    float KA = .2;
-    float KD = .5;
-    float KS = 2.;
-    float KR = 1.;
-
-    //Ambient
+    /*** AMBIENT ***/
     float Ir = KA*material_ambient.x;
     float Ig = KA*material_ambient.y;
     float Ib = KA*material_ambient.z;
+    /***************/
 
     vec4 dir  = normalize(light_pos  - p);
     vec4 dir2 = normalize(light2_pos - p);
@@ -227,36 +226,34 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
     vec4 V = normalize(d);
     
     float specExp = 50.0;
+    vec3 material_specular = vec3(0.5, 0.5, 1.0);
 
     float light_r;
     float light_g;
     float light_b;
 
-    //Diffuse
+    /*** DIFFUSE ***/
     light_r = KD * material_diffuse.x * (light_color.x * max(0.0, dot(n, dir)) + light2_color.x * max(0.0, dot(n, dir2)));
     light_g = KD * material_diffuse.y * (light_color.y * max(0.0, dot(n, dir)) + light2_color.y * max(0.0, dot(n, dir2)));
     light_b = KD * material_diffuse.z * (light_color.z * max(0.0, dot(n, dir)) + light2_color.z * max(0.0, dot(n, dir2)));
+    /***************/
 
-    //Specular
+    /*** SPECULAR ***/
     if (specular_enabled == 1) {
         light_r += KS * material_specular.x * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
         light_g += KS * material_specular.y * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
         light_b += KS * material_specular.z * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
     }
+    /****************/
 
-
-
-    /// ***********
-    //removed third parameter because it was a CS123Light struct
-    /// ***********
-
-
+    /*
+    // *** SHADOW ***
     vec4 p_offset = p + n*.08;
     if (JuliaShadow(p_offset, dir)) {
         light_r *= .5;
         light_g *= .5;
         light_b *= .5;
-    }
+    } */
 
     Ir += light_r;
     Ig += light_g;
@@ -265,7 +262,7 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
 
     vec4 color = vec4(Ir,Ig,Ib,1.);
 
-    //Reflection
+    /*** REFLECTION ***/
     if (reflections_enabled == 1) {
         vec3 r = reflect(d,n).xyz;
         color += KR*textureCube( CubeMap, r);
@@ -284,15 +281,6 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
 
 void main (void) {
 
-    // TODO: calibrate the constants for the effect that we want.  Might want a more complex function, too.
-
-   // DEPTH = (int)(log(10) / (log(magnitude(vec4(world_eye, 1.0)))));  // TODO: logarithmic, but tweek function.
-    //EPSILON = 1. / (1000. * log(1. / magnitude(vec4(world_eye, 1.0))));    // TODO: make EPSILON one pixel size: function of width, height, and film plane.
-                                                                // except that pixels don't cover the same size on different parts of the film plane!
-   // ep = EPSILON / 10.;
-
-    vec4 final_color = vec4(0.,0.,0.,0.);
-
     /*
         Slightly easier way to get a world-space position on the film plane:
         - Declare a varying in the shaders (i.e. 'varying vec3 film_plane')
@@ -307,30 +295,24 @@ void main (void) {
     vec4 start_p = vec4(world_eye, 1.0);
 
     vec4 p_film = vec4(vVertex.x, vVertex.y, vVertex.z, 1.0);
-
     vec4 p_film1 = vec4(vVertex.x - halfPix, vVertex.y + halfPix, vVertex.z, 1.0);
     vec4 p_film2 = vec4(vVertex.x + halfPix, vVertex.y + halfPix, vVertex.z, 1.0);
     vec4 p_film3 = vec4(vVertex.x + halfPix, vVertex.y - halfPix, vVertex.z, 1.0);
     vec4 p_film4 = vec4(vVertex.x - halfPix, vVertex.y - halfPix, vVertex.z, 1.0);
 
     vec4 ray = normalize(p_film - start_p);
-
     vec4 ray1 = normalize(p_film1 - start_p);
     vec4 ray2 = normalize(p_film2 - start_p);
     vec4 ray3 = normalize(p_film3 - start_p);
     vec4 ray4 = normalize(p_film4 - start_p);
 
-
-
-
-
     float t = IntersectFSphere(start_p, ray, M);
 
-    if (dot(start_p,start_p) < M + 7.0) {  // weird thing happens where screen is black for a while;
+    if (dot(start_p,start_p) < M + 7.0) {
         t = 0.0;
     }
 
-    final_color = vec4(0.,0.,0.,0.);
+    vec4 final_color = vec4(0.,0.,0.,0.);
 
     if (t != -1.0) {
         start_p = start_p + ray * t;
@@ -340,7 +322,6 @@ void main (void) {
 
         if (CalculateIntersection(intersection, dist, ray, start_p, false)) {
             final_color = CalculateLighting(intersection, dist, ray, start_p);
-            //gl_FragColor = final_color;
 
             if (ss_enabled == 1) {
                 vec4 intersection1 = vec4(0.0,0.0,0.0,0.0);

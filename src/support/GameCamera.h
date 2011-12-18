@@ -1,3 +1,8 @@
+/*
+Authors: Parker Porfilio, Aimei Kutt, Anne Kenyon
+*/
+
+
 #ifndef GAMECAMERA_H
 #define GAMECAMERA_H
 
