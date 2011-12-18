@@ -145,9 +145,6 @@ bool CalculateIntersection(inout vec4 intersection, inout float dist, vec4 d, ve
     return false;
 }
 
-/// ***********
-//removed third parameter because it was a CS123Light struct
-/// ***********
 bool JuliaShadow(vec4 p, vec4 d) {
 
     vec4 intersection;
@@ -241,11 +238,11 @@ vec4 CalculateLighting(vec4 p, float dist, vec4 d, vec4 start_p) {
     light_b = KD * material_diffuse.z * (light_color.z * max(0.0, dot(n, dir)) + light2_color.z * max(0.0, dot(n, dir2)));
 
     //Specular
-    //if (specular_enabled == 1) {
+    if (specular_enabled == 1) {
         light_r += KS * material_specular.x * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
         light_g += KS * material_specular.y * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
         light_b += KS * material_specular.z * (pow(max(0.0, dot(R, V)), specExp) + pow(max(0.0, dot(R2, V)), specExp));
-    //}
+    }
 
 
 

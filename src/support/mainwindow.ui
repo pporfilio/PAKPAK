@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>25</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -79,7 +79,7 @@
       <enum>QTabWidget::West</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <property name="movable">
       <bool>true</bool>
@@ -193,44 +193,6 @@
          <widget class="Line" name="line_2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="F_Z3_label">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>F_Z3 [-1, 1]</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSlider" name="F_Z3">
-          <property name="toolTip">
-           <string>Change F_Z3</string>
-          </property>
-          <property name="minimum">
-           <number>-100</number>
-          </property>
-          <property name="maximum">
-           <number>100</number>
-          </property>
-          <property name="singleStep">
-           <number>1</number>
-          </property>
-          <property name="value">
-           <number>0</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="invertedAppearance">
-           <bool>false</bool>
-          </property>
-          <property name="tickPosition">
-           <enum>QSlider::NoTicks</enum>
           </property>
          </widget>
         </item>
@@ -508,6 +470,9 @@
           <property name="text">
            <string>Super Sampling</string>
           </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item>
@@ -677,6 +642,9 @@
             <property name="text">
              <string>Depth Fog</string>
             </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item row="2" column="0">
@@ -690,13 +658,6 @@
            </widget>
           </item>
           <item row="3" column="0">
-           <widget class="QRadioButton" name="coloring_escape">
-            <property name="text">
-             <string>escape</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
            <widget class="QRadioButton" name="coloring_distance">
             <property name="text">
              <string>distance</string>

@@ -22,14 +22,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
        mgl->savePicture();
        break;
     }
-    case Qt::Key_Minus: {
-        ui->F_Z3->setValue(max(-100, ui->F_Z3->value() - 1));
-        break;
-    }
-    case Qt::Key_Equal: {
-        ui->F_Z3->setValue(min(100, ui->F_Z3->value() + 1));
-        break;
-    }
     case Qt::Key_Q: {
         mgl->m_camera->cameraMoveUp(true, (event->modifiers() == Qt::ShiftModifier));
         break;

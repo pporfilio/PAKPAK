@@ -47,7 +47,7 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
     skybox_enabled = true;
 
     mandelbox_coloring = 1;
-    mandelbox_fog = false;
+    mandelbox_fog = true;
     mandelbox_itr = 300.0;
     mandelbox_epsilon = .003;
     mandelbox_break = 200.0;
@@ -55,8 +55,8 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
 
 
     //global as in regardless of whether or not the user is clicking
-    global_ss_enabled = false; //faster for testing other things
-    ss_enabled = false;
+    global_ss_enabled = true;
+    ss_enabled = true;
 
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(update()));
 
@@ -566,7 +566,7 @@ void GLWidget::paintText()
 }
 
 void GLWidget::sliderUpdateF_Z3(int newValue) {
-    F_Z3 = (float)newValue / 100.0;
+    F_Z3 = (float)newValue / 30.0;
     ss_enabled = false;
 }
 

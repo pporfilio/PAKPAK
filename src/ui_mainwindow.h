@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Sat Dec 17 15:40:11 2011
+** Created: Sat Dec 17 19:43:55 2011
 **      by: Qt User Interface Compiler version 4.6.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -60,8 +60,6 @@ public:
     QRadioButton *select_game_cam;
     QPushButton *reset_camera_button;
     QFrame *line_2;
-    QLabel *F_Z3_label;
-    QSlider *F_Z3;
     QLabel *F_C_Group_label;
     QGridLayout *gridLayout;
     QSlider *F_C_x;
@@ -106,7 +104,6 @@ public:
     QGridLayout *gridLayout_3;
     QCheckBox *depth_fog_button;
     QRadioButton *coloring_lights;
-    QRadioButton *coloring_escape;
     QRadioButton *coloring_distance;
     QLabel *label;
 
@@ -122,7 +119,7 @@ public:
         MainWindow->setCentralWidget(mainGL);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 800, 25));
+        menuBar->setGeometry(QRect(0, 0, 800, 23));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         MainWindow->setMenuBar(menuBar);
@@ -216,24 +213,6 @@ public:
         line_2->setFrameShadow(QFrame::Sunken);
 
         verticalLayout->addWidget(line_2);
-
-        F_Z3_label = new QLabel(verticalLayoutWidget);
-        F_Z3_label->setObjectName(QString::fromUtf8("F_Z3_label"));
-        F_Z3_label->setEnabled(true);
-
-        verticalLayout->addWidget(F_Z3_label);
-
-        F_Z3 = new QSlider(verticalLayoutWidget);
-        F_Z3->setObjectName(QString::fromUtf8("F_Z3"));
-        F_Z3->setMinimum(-100);
-        F_Z3->setMaximum(100);
-        F_Z3->setSingleStep(1);
-        F_Z3->setValue(0);
-        F_Z3->setOrientation(Qt::Horizontal);
-        F_Z3->setInvertedAppearance(false);
-        F_Z3->setTickPosition(QSlider::NoTicks);
-
-        verticalLayout->addWidget(F_Z3);
 
         F_C_Group_label = new QLabel(verticalLayoutWidget);
         F_C_Group_label->setObjectName(QString::fromUtf8("F_C_Group_label"));
@@ -393,6 +372,7 @@ public:
 
         ss_button = new QCheckBox(verticalLayoutWidget_2);
         ss_button->setObjectName(QString::fromUtf8("ss_button"));
+        ss_button->setChecked(true);
 
         verticalLayout_2->addWidget(ss_button);
 
@@ -505,6 +485,7 @@ public:
         gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
         depth_fog_button = new QCheckBox(verticalLayoutWidget_2);
         depth_fog_button->setObjectName(QString::fromUtf8("depth_fog_button"));
+        depth_fog_button->setChecked(true);
 
         gridLayout_3->addWidget(depth_fog_button, 0, 0, 1, 1);
 
@@ -514,15 +495,10 @@ public:
 
         gridLayout_3->addWidget(coloring_lights, 2, 0, 1, 1);
 
-        coloring_escape = new QRadioButton(verticalLayoutWidget_2);
-        coloring_escape->setObjectName(QString::fromUtf8("coloring_escape"));
-
-        gridLayout_3->addWidget(coloring_escape, 3, 0, 1, 1);
-
         coloring_distance = new QRadioButton(verticalLayoutWidget_2);
         coloring_distance->setObjectName(QString::fromUtf8("coloring_distance"));
 
-        gridLayout_3->addWidget(coloring_distance, 4, 0, 1, 1);
+        gridLayout_3->addWidget(coloring_distance, 3, 0, 1, 1);
 
         label = new QLabel(verticalLayoutWidget_2);
         label->setObjectName(QString::fromUtf8("label"));
@@ -543,7 +519,7 @@ public:
         retranslateUi(MainWindow);
         QObject::connect(actionQuit, SIGNAL(triggered()), MainWindow, SLOT(close()));
 
-        tabWidget->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -562,10 +538,6 @@ public:
         select_orbit_cam->setText(QApplication::translate("MainWindow", "Orbit Camera", 0, QApplication::UnicodeUTF8));
         select_game_cam->setText(QApplication::translate("MainWindow", "Game Camera", 0, QApplication::UnicodeUTF8));
         reset_camera_button->setText(QApplication::translate("MainWindow", "Reset Camera Location", 0, QApplication::UnicodeUTF8));
-        F_Z3_label->setText(QApplication::translate("MainWindow", "F_Z3 [-1, 1]", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        F_Z3->setToolTip(QApplication::translate("MainWindow", "Change F_Z3", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
         F_C_Group_label->setText(QApplication::translate("MainWindow", "F_C", 0, QApplication::UnicodeUTF8));
         F_C_x_label->setText(QApplication::translate("MainWindow", "x", 0, QApplication::UnicodeUTF8));
         F_C_y_label->setText(QApplication::translate("MainWindow", "y", 0, QApplication::UnicodeUTF8));
@@ -588,7 +560,6 @@ public:
         reflection_button->setText(QApplication::translate("MainWindow", "Reflection", 0, QApplication::UnicodeUTF8));
         depth_fog_button->setText(QApplication::translate("MainWindow", "Depth Fog", 0, QApplication::UnicodeUTF8));
         coloring_lights->setText(QApplication::translate("MainWindow", "lights", 0, QApplication::UnicodeUTF8));
-        coloring_escape->setText(QApplication::translate("MainWindow", "escape", 0, QApplication::UnicodeUTF8));
         coloring_distance->setText(QApplication::translate("MainWindow", "distance", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("MainWindow", "Coloring Options", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("MainWindow", "Material Properties", 0, QApplication::UnicodeUTF8));
