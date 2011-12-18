@@ -1,7 +1,7 @@
 Final Project Readme
-Anne Kenyan
-Aimei Kutt
-Parker Porfilio
+Anne Kenyan (akenyon)
+Aimei Kutt (kkutt)
+Parker Porfilio (pporfili)
 
 
 User Interface:
@@ -22,6 +22,15 @@ The Mandelbox has depth fog (enabled by default), which gives an improved sense 
 
 Additionally, there are sliders labeled ITR, EPS, BRK, and DEP. These change parameters of the mandelbox and were primarily for debugging, although decreasing EPS can increase detail of the fractal. The sliders can be moved to extremes that cause the fractal to become noisy or disappear. This is not a bug, merely a factor of the method of computing the fractal.
 
+
+
+Controls:
+To move the orbit camera and rotate around the origin, use the mouse and drag around on the screen.
+
+To move the game camera (used mainly for Mandelbox):
+-Drag the mouse around on the screen to adjust the look vector.
+-Use the WASDQE keys to move forward, left, backward, right, up, and down respectively.
+-To move faster, hold down shift while pressing the move keys.
 
 
 
