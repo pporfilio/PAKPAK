@@ -491,16 +491,21 @@ void GLWidget::savePicture() {
     QImage qi = grabFrameBuffer(false);
     QString filter;
 
-    std::string s;
-    std::stringstream out;
-    out << frameNumber;
-    s = out.str();
-    std::string file = "/home/BLAH/fractal_frames/fractal_" + s + ".png";  //CHANGE THIS
-    QString fileName = QString::fromStdString(file);
-    qi.save(fileName, "PNG", 100);
+    if (isRecording) {
+        std::string s;
+        std::stringstream out;
+        out << frameNumber;
+        s = out.str();
+        std::string file = "/home/BLAH/fractal_frames/fractal_" + s + ".png";  //CHANGE THIS
+        QString fileName = QString::fromStdString(file);
+        qi.save(fileName, "PNG", 100);
+    }
+    else {
 
-    //QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), "", tr("PNG Image (*.png)"), &filter);
-    //qi.save(QFileInfo(fileName).absoluteDir().absolutePath() + "/" + QFileInfo(fileName).baseName() + ".png", "PNG", 100);
+        QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), "", tr("PNG Image (*.png)"), &filter);
+        qi.save(QFileInfo(fileName).absoluteDir().absolutePath() + "/" + QFileInfo(fileName).baseName() + ".png", "PNG", 100);
+
+    }
 }
 
 void GLWidget::loadCamLocation() {
