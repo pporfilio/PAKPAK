@@ -14,6 +14,8 @@ Authors: Aimei Kutt, Parker Porfilio, Anne Kenyon
 #include "glm.h"
 #include "utils.h"
 
+#include <sstream>
+
 
 using std::cout;
 using std::endl;
@@ -85,6 +87,9 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
     if (f2) {
         fclose(f2);
     }
+
+    frameNumber = 0;
+    isRecording = false;
 
 }
 
@@ -333,6 +338,11 @@ void GLWidget::paintGL()
     }
 
     paintText();
+
+    if (isRecording) {
+        savePicture();
+        frameNumber++;
+    }
 }
 
 
@@ -480,8 +490,17 @@ void GLWidget::render3DTexturedQuad(int width, int height, bool flip) {
 void GLWidget::savePicture() {
     QImage qi = grabFrameBuffer(false);
     QString filter;
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), "", tr("PNG Image (*.png)"), &filter);
-    qi.save(QFileInfo(fileName).absoluteDir().absolutePath() + "/" + QFileInfo(fileName).baseName() + ".png", "PNG", 100);
+
+    std::string s;
+    std::stringstream out;
+    out << frameNumber;
+    s = out.str();
+    std::string file = "/home/BLAH/fractal_frames/fractal_" + s + ".png";  //CHANGE THIS
+    QString fileName = QString::fromStdString(file);
+    qi.save(fileName, "PNG", 100);
+
+    //QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), "", tr("PNG Image (*.png)"), &filter);
+    //qi.save(QFileInfo(fileName).absoluteDir().absolutePath() + "/" + QFileInfo(fileName).baseName() + ".png", "PNG", 100);
 }
 
 void GLWidget::loadCamLocation() {
@@ -606,4 +625,8 @@ void GLWidget::sliderUpdate_EPS(int newValue) {
 
 void GLWidget::sliderUpdate_BRK(int newValue) {
     mandelbox_break = newValue;
+}
+
+void GLWidget::checkRecord(bool checked) {
+    isRecording = checked;
 }

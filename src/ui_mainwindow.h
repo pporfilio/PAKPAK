@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Sun Dec 18 04:48:13 2011
+** Created: Mon Dec 19 11:23:58 2011
 **      by: Qt User Interface Compiler version 4.6.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -59,10 +59,10 @@ public:
     QRadioButton *select_orbit_cam;
     QRadioButton *select_game_cam;
     QPushButton *reset_camera_button;
+    QCheckBox *Record_Button;
     QFrame *line_2;
     QLabel *F_C_Group_label;
     QGridLayout *gridLayout;
-    QSlider *F_C_x;
     QSlider *F_C_y;
     QLabel *F_C_x_label;
     QLabel *F_C_y_label;
@@ -70,7 +70,7 @@ public:
     QSlider *F_C_z;
     QLabel *F_C_w_label;
     QSlider *F_C_w;
-    QSpacerItem *verticalSpacer;
+    QSlider *F_C_x;
     QGridLayout *gridLayout_4;
     QSlider *ITR_slider;
     QSlider *EPS_slider;
@@ -89,9 +89,7 @@ public:
     QCheckBox *specular_button;
     QCheckBox *reflection_button;
     QGridLayout *gridLayout_3;
-    QRadioButton *coloring_lights;
     QRadioButton *coloring_distance;
-    QLabel *label;
     QVBoxLayout *verticalLayout_4;
     QSpacerItem *horizontalSpacer;
     QVBoxLayout *verticalLayout_7;
@@ -100,12 +98,14 @@ public:
     QRadioButton *select_colorB;
     QRadioButton *select_colorC;
     QRadioButton *coloring_normals;
+    QRadioButton *coloring_lights;
+    QLabel *label;
 
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(800, 600);
+        MainWindow->resize(890, 505);
         actionQuit = new QAction(MainWindow);
         actionQuit->setObjectName(QString::fromUtf8("actionQuit"));
         mainGL = new GLWidget(MainWindow);
@@ -113,7 +113,7 @@ public:
         MainWindow->setCentralWidget(mainGL);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 800, 23));
+        menuBar->setGeometry(QRect(0, 0, 890, 25));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         MainWindow->setMenuBar(menuBar);
@@ -133,14 +133,14 @@ public:
         dockWidgetContents->setMinimumSize(QSize(220, 0));
         tabWidget = new QTabWidget(dockWidgetContents);
         tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
-        tabWidget->setGeometry(QRect(8, 5, 231, 541));
+        tabWidget->setGeometry(QRect(10, 0, 231, 501));
         tabWidget->setTabPosition(QTabWidget::West);
         tabWidget->setMovable(true);
         tab = new QWidget();
         tab->setObjectName(QString::fromUtf8("tab"));
         verticalLayoutWidget = new QWidget(tab);
         verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
-        verticalLayoutWidget->setGeometry(QRect(10, 10, 181, 521));
+        verticalLayoutWidget->setGeometry(QRect(10, 0, 181, 431));
         verticalLayout = new QVBoxLayout(verticalLayoutWidget);
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
@@ -201,6 +201,11 @@ public:
 
         verticalLayout->addWidget(reset_camera_button);
 
+        Record_Button = new QCheckBox(verticalLayoutWidget);
+        Record_Button->setObjectName(QString::fromUtf8("Record_Button"));
+
+        verticalLayout->addWidget(Record_Button);
+
         line_2 = new QFrame(verticalLayoutWidget);
         line_2->setObjectName(QString::fromUtf8("line_2"));
         line_2->setFrameShape(QFrame::HLine);
@@ -217,15 +222,6 @@ public:
         gridLayout->setSpacing(6);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         gridLayout->setContentsMargins(10, 0, 5, -1);
-        F_C_x = new QSlider(verticalLayoutWidget);
-        F_C_x->setObjectName(QString::fromUtf8("F_C_x"));
-        F_C_x->setMinimum(-100);
-        F_C_x->setMaximum(100);
-        F_C_x->setValue(-10);
-        F_C_x->setOrientation(Qt::Horizontal);
-
-        gridLayout->addWidget(F_C_x, 0, 1, 1, 1);
-
         F_C_y = new QSlider(verticalLayoutWidget);
         F_C_y->setObjectName(QString::fromUtf8("F_C_y"));
         F_C_y->setMinimum(-100);
@@ -273,12 +269,17 @@ public:
 
         gridLayout->addWidget(F_C_w, 3, 1, 1, 1);
 
+        F_C_x = new QSlider(verticalLayoutWidget);
+        F_C_x->setObjectName(QString::fromUtf8("F_C_x"));
+        F_C_x->setMinimum(-100);
+        F_C_x->setMaximum(100);
+        F_C_x->setValue(-10);
+        F_C_x->setOrientation(Qt::Horizontal);
+
+        gridLayout->addWidget(F_C_x, 0, 1, 1, 1);
+
 
         verticalLayout->addLayout(gridLayout);
-
-        verticalSpacer = new QSpacerItem(20, 100, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-        verticalLayout->addItem(verticalSpacer);
 
         gridLayout_4 = new QGridLayout();
         gridLayout_4->setSpacing(6);
@@ -348,11 +349,13 @@ public:
         verticalLayout->addLayout(gridLayout_4);
 
         tabWidget->addTab(tab, QString());
+        verticalLayoutWidget->raise();
+        Record_Button->raise();
         tab_2 = new QWidget();
         tab_2->setObjectName(QString::fromUtf8("tab_2"));
         verticalLayoutWidget_2 = new QWidget(tab_2);
         verticalLayoutWidget_2->setObjectName(QString::fromUtf8("verticalLayoutWidget_2"));
-        verticalLayoutWidget_2->setGeometry(QRect(10, 10, 210, 521));
+        verticalLayoutWidget_2->setGeometry(QRect(0, 0, 210, 401));
         verticalLayout_2 = new QVBoxLayout(verticalLayoutWidget_2);
         verticalLayout_2->setSpacing(6);
         verticalLayout_2->setContentsMargins(11, 11, 11, 11);
@@ -391,22 +394,10 @@ public:
         gridLayout_3 = new QGridLayout();
         gridLayout_3->setSpacing(6);
         gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
-        coloring_lights = new QRadioButton(verticalLayoutWidget_2);
-        coloring_lights->setObjectName(QString::fromUtf8("coloring_lights"));
-        coloring_lights->setChecked(true);
-
-        gridLayout_3->addWidget(coloring_lights, 2, 0, 1, 1);
-
         coloring_distance = new QRadioButton(verticalLayoutWidget_2);
         coloring_distance->setObjectName(QString::fromUtf8("coloring_distance"));
 
         gridLayout_3->addWidget(coloring_distance, 3, 0, 1, 1);
-
-        label = new QLabel(verticalLayoutWidget_2);
-        label->setObjectName(QString::fromUtf8("label"));
-        label->setAlignment(Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft);
-
-        gridLayout_3->addWidget(label, 1, 0, 1, 1);
 
         verticalLayout_4 = new QVBoxLayout();
         verticalLayout_4->setSpacing(6);
@@ -450,6 +441,18 @@ public:
 
         gridLayout_3->addWidget(coloring_normals, 4, 0, 1, 1);
 
+        coloring_lights = new QRadioButton(verticalLayoutWidget_2);
+        coloring_lights->setObjectName(QString::fromUtf8("coloring_lights"));
+        coloring_lights->setChecked(true);
+
+        gridLayout_3->addWidget(coloring_lights, 2, 0, 1, 1);
+
+        label = new QLabel(verticalLayoutWidget_2);
+        label->setObjectName(QString::fromUtf8("label"));
+        label->setAlignment(Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft);
+
+        gridLayout_3->addWidget(label, 1, 0, 1, 1);
+
 
         verticalLayout_2->addLayout(gridLayout_3);
 
@@ -482,6 +485,7 @@ public:
         select_orbit_cam->setText(QApplication::translate("MainWindow", "Orbit Camera", 0, QApplication::UnicodeUTF8));
         select_game_cam->setText(QApplication::translate("MainWindow", "Game Camera", 0, QApplication::UnicodeUTF8));
         reset_camera_button->setText(QApplication::translate("MainWindow", "Reset Camera Location", 0, QApplication::UnicodeUTF8));
+        Record_Button->setText(QApplication::translate("MainWindow", "Record", 0, QApplication::UnicodeUTF8));
         F_C_Group_label->setText(QApplication::translate("MainWindow", "F_C", 0, QApplication::UnicodeUTF8));
         F_C_x_label->setText(QApplication::translate("MainWindow", "x", 0, QApplication::UnicodeUTF8));
         F_C_y_label->setText(QApplication::translate("MainWindow", "y", 0, QApplication::UnicodeUTF8));
@@ -497,14 +501,14 @@ public:
         depth_fog_button->setText(QApplication::translate("MainWindow", "Depth Fog", 0, QApplication::UnicodeUTF8));
         specular_button->setText(QApplication::translate("MainWindow", "Specular", 0, QApplication::UnicodeUTF8));
         reflection_button->setText(QApplication::translate("MainWindow", "Reflection", 0, QApplication::UnicodeUTF8));
-        coloring_lights->setText(QApplication::translate("MainWindow", "lights", 0, QApplication::UnicodeUTF8));
         coloring_distance->setText(QApplication::translate("MainWindow", "distance", 0, QApplication::UnicodeUTF8));
-        label->setText(QApplication::translate("MainWindow", "Coloring Options", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("MainWindow", "Mandelbox Color Schemes", 0, QApplication::UnicodeUTF8));
         select_colorA->setText(QApplication::translate("MainWindow", "Inferno", 0, QApplication::UnicodeUTF8));
         select_colorB->setText(QApplication::translate("MainWindow", "Dynasty", 0, QApplication::UnicodeUTF8));
         select_colorC->setText(QApplication::translate("MainWindow", "Hive", 0, QApplication::UnicodeUTF8));
         coloring_normals->setText(QApplication::translate("MainWindow", "normals", 0, QApplication::UnicodeUTF8));
+        coloring_lights->setText(QApplication::translate("MainWindow", "lights", 0, QApplication::UnicodeUTF8));
+        label->setText(QApplication::translate("MainWindow", "Coloring Options", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("MainWindow", "Material Properties", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

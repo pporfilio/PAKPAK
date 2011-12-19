@@ -90,6 +90,8 @@ public:
     void sliderUpdate_EPS(int newValue);
     void sliderUpdate_BRK(int newValue);
 
+    void checkRecord(bool checked);
+
     //keypress methods
     void savePicture();
     void loadCamLocation();
@@ -130,6 +132,9 @@ private:
     GLuint m_cubeMap; // cubeMap texture ID
     QFont m_font; // font for rendering text
     string *m_base_path;
+
+    int frameNumber;
+    bool isRecording;
 };
 
 #endif // GLWIDGET_H

@@ -24,6 +24,7 @@ private:
 
 
 private slots:
+    void on_Record_Button_toggled(bool checked);
     void on_coloring_normals_toggled(bool checked);
     void on_select_colorC_toggled(bool checked);
     void on_select_colorB_toggled(bool checked);

@@ -216,3 +216,8 @@ void MainWindow::on_coloring_normals_toggled(bool checked)
         ui->mainGL->mandelbox_coloring = 4;
     }
 }
+
+void MainWindow::on_Record_Button_toggled(bool checked)
+{
+    ui->mainGL->checkRecord(checked);
+}
