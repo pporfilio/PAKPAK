@@ -12,6 +12,8 @@ const double PI = 4.0 * atan(1.0);
 
 CameraState* readCameraState(FILE* f);
 
+void writeCameraState(FILE *f, Camera* c);
+
 extern double toRadians(double degrees);
 
 extern void printMat4x4(const Matrix4x4 &m);

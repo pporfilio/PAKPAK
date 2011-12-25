@@ -45,7 +45,7 @@ void sphereFold(inout vec3 z, inout float dz) {
 		dz*= temp;
 	} else if (r2<fixedRadius2) {
 		// this is the actual sphere inversion
-                float temp =(fixedRadius2/r2);
+                float temp = (fixedRadius2/r2);
 		z *= temp;
 		dz*= temp;
         }

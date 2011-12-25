@@ -66,6 +66,9 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
     global_ss_enabled = true;
     ss_enabled = true;
 
+    m_paused = false;
+    m_show_text = true;
+
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(update()));
 
     /* hack because I don't know the right way to do this in C/C++ */
@@ -90,7 +93,6 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
 
     frameNumber = 0;
     isRecording = false;
-
 }
 
 /**
@@ -253,6 +255,8 @@ void GLWidget::applyPerspectiveCamera(float width, float height)
  **/
 void GLWidget::paintGL()
 {
+
+
     // Clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -276,6 +280,17 @@ void GLWidget::paintGL()
     int time = m_clock.elapsed();
     m_fps = 1000.f / (time - m_prevTime);
     m_prevTime = time;
+
+    if (m_paused) {
+        printf("paused!\n");
+        paintText();
+        usleep(1000);
+        return;
+    }
+
+    printf("unpaused!\n");
+
+
     int width = this->width();
     int height = this->height();
 
@@ -339,7 +354,9 @@ void GLWidget::paintGL()
 
     paintText();
 
+//    printf("rendered frame...\n");
     if (isRecording) {
+        printf("calling savePicture...\n");
         savePicture();
         frameNumber++;
     }
@@ -492,13 +509,18 @@ void GLWidget::savePicture() {
     QString filter;
 
     if (isRecording) {
-        std::string s;
-        std::stringstream out;
-        out << frameNumber;
-        s = out.str();
-        std::string file = "/home/BLAH/fractal_frames/fractal_" + s + ".png";  //CHANGE THIS
-        QString fileName = QString::fromStdString(file);
-        qi.save(fileName, "PNG", 100);
+//        std::string s;
+//        std::stringstream out;
+//        out << frameNumber;
+//        s = out.str();
+
+        qi.save(QFileInfo(recordName).absoluteDir().absolutePath() + "/"
+                + QFileInfo(recordName).baseName() + "_"
+                + QString::number((double)frameNumber) + ".png", "PNG", 100);
+
+//        std::string file = "/home/BLAH/fractal_frames/fractal_" + s + ".png";  //CHANGE THIS
+//        QString fileName = QString::fromStdString(file);
+//        qi.save(fileName, "PNG", 100);
     }
     else {
 
@@ -514,19 +536,45 @@ void GLWidget::loadCamLocation() {
     path += "resources/cameraData.txt";
     FILE *f = fopen(path.c_str(), "r");
     if (f) {
-        readCameraState(f);
+        CameraState *s = readCameraState(f);
+        if (s) {
+            m_camera->setState(s);
+        } else {
+            printf("reading camera state failed. Not updating camera\n");
+        }
+        fclose(f);
     } else {
-        printf("could not open file at %s\n", path.c_str());
+        printf("could not open file for reading at %s\n", path.c_str());
     }
 }
+
+
+void GLWidget::saveCamLocation() {
+    string path = "";
+    path += m_base_path->data();
+    path += "resources/cameraData.txt";
+    FILE *f = fopen(path.c_str(), "w");
+    //    FILE *f = fopen(path.c_str(), "a");
+    if (f) {
+        writeCameraState(f, m_camera);
+        fclose(f);
+    } else {
+        printf("could not open file for writing at %s\n", path.c_str());
+    }
+}
+
 
 /**
   Draws text for the FPS and screenshot prompt
  **/
 void GLWidget::paintText()
 {
-    /*
-    glColor3f(1.f, 1.f, 1.f);
+
+    if (! m_show_text) {
+        return;
+    }
+    //glColor3f(1.f, 1.f, 1.f);
+    glColor3f(0.f, 0.f, 0.f);
 
     // Combine the previous and current framerate
     if (m_fps >= 0 && m_fps < 1000)
@@ -545,7 +593,10 @@ void GLWidget::paintText()
 //    renderText(10, 65, "DEPTH = " + QString::number((double)(10 / max(pos.lengthSquared(), 1.0))), m_font);
     renderText(10, 65, "DEPTH = " + QString::number((double)(pos.length())), m_font);
     renderText(10, 80, "step size = " + QString::number((double)(.05*pos.length())), m_font);
-    */
+
+    //reset color to white
+    glColor3f(1.f, 1.f, 1.f);
+
 
 }
 
@@ -633,5 +684,32 @@ void GLWidget::sliderUpdate_BRK(int newValue) {
 }
 
 void GLWidget::checkRecord(bool checked) {
-    isRecording = checked;
+    /*  [Parker] 12-22-11
+    I added this, then decided I don't actually want that behavior yet
+    //reset frame number each time we start recording
+    if (!isRecording && checked) {
+        frameNumber = 0;
+    }
+    */
+    if (! checked) {
+        isRecording = checked;
+    }
+
+    if (!isRecording && checked) {
+        //stop using GPU while selecting a file.
+        setPaused(true);
+        QString filter;
+        recordName = QFileDialog::getSaveFileName(this, tr("Save Image"), "", tr("PNG Image (*.png)"), &filter);
+        printf("got name\n");
+        setPaused(false);
+        isRecording = checked;
+    }
+}
+
+void GLWidget::setPaused(bool checked) {
+    m_paused = checked;
+}
+
+void GLWidget::setShowText(bool checked) {
+    m_show_text = checked;
 }

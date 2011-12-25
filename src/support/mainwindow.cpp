@@ -24,7 +24,12 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
     switch(event->key())
     {
     case Qt::Key_P: {
-       mgl->savePicture();
+        if (mgl->m_paused) {
+            mgl->setPaused(false);
+        } else {
+            mgl->setPaused(true);
+        }
+       //mgl->savePicture();
        break;
     }
     case Qt::Key_Q: {
@@ -69,6 +74,18 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
     }
     case Qt::Key_R: {
         mgl->m_camera->reset();
+        break;
+    }
+    case Qt::Key_1: {
+        mgl->saveCamLocation();
+        break;
+    }
+    case Qt::Key_T: {
+        if (mgl->m_show_text) {
+            mgl->setShowText(false);
+        } else {
+            mgl->setShowText(true);
+        }
         break;
     }
     }

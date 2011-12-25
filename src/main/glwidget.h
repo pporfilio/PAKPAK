@@ -67,7 +67,10 @@ public:
     Camera *m_camera;
 
     Vector4 bg_color;
+    QString recordName;
 
+    bool m_paused;
+    bool m_show_text;
 
 
     //ui interaction methods
@@ -92,9 +95,14 @@ public:
 
     void checkRecord(bool checked);
 
+    void setPaused(bool checked);
+    void setShowText(bool checked);
+
+
     //keypress methods
     void savePicture();
     void loadCamLocation();
+    void saveCamLocation();
 
 protected:
     // Overridden QGLWidget methods
