@@ -282,14 +282,10 @@ void GLWidget::paintGL()
     m_prevTime = time;
 
     if (m_paused) {
-        printf("paused!\n");
         paintText();
         usleep(1000);
         return;
     }
-
-    printf("unpaused!\n");
-
 
     int width = this->width();
     int height = this->height();
@@ -509,21 +505,11 @@ void GLWidget::savePicture() {
     QString filter;
 
     if (isRecording) {
-//        std::string s;
-//        std::stringstream out;
-//        out << frameNumber;
-//        s = out.str();
-
         qi.save(QFileInfo(recordName).absoluteDir().absolutePath() + "/"
                 + QFileInfo(recordName).baseName() + "_"
                 + QString::number((double)frameNumber) + ".png", "PNG", 100);
-
-//        std::string file = "/home/BLAH/fractal_frames/fractal_" + s + ".png";  //CHANGE THIS
-//        QString fileName = QString::fromStdString(file);
-//        qi.save(fileName, "PNG", 100);
-    }
-    else {
-
+    } else {
+        //TODO: put saving a single screenshot somewhere else
         QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), "", tr("PNG Image (*.png)"), &filter);
         qi.save(QFileInfo(fileName).absoluteDir().absolutePath() + "/" + QFileInfo(fileName).baseName() + ".png", "PNG", 100);
 
@@ -531,10 +517,14 @@ void GLWidget::savePicture() {
 }
 
 void GLWidget::loadCamLocation() {
-    string path = "";
-    path += m_base_path->data();
-    path += "resources/cameraData.txt";
-    FILE *f = fopen(path.c_str(), "r");
+    QString path = myGetSaveFileName(this, tr("Camera File Location"),
+                                     "", tr("*"), false);
+    char path_str[path.size()]; //here size includes the null terminating character
+    QStringToChar(&path, path_str);
+//    string path = "";
+//    path += m_base_path->data();
+//    path += "resources/cameraData.txt";
+    FILE *f = fopen(path_str, "r");
     if (f) {
         CameraState *s = readCameraState(f);
         if (s) {
@@ -544,7 +534,7 @@ void GLWidget::loadCamLocation() {
         }
         fclose(f);
     } else {
-        printf("could not open file for reading at %s\n", path.c_str());
+        printf("could not open file for reading at %s\n", path_str);
     }
 }
 
@@ -697,13 +687,46 @@ void GLWidget::checkRecord(bool checked) {
 
     if (!isRecording && checked) {
         //stop using GPU while selecting a file.
-        setPaused(true);
-        QString filter;
-        recordName = QFileDialog::getSaveFileName(this, tr("Save Image"), "", tr("PNG Image (*.png)"), &filter);
+        recordName = myGetSaveFileName(this, tr("Save Image"), "",
+                                       tr("PNG Image (*.png)"), true);
         printf("got name\n");
-        setPaused(false);
-        isRecording = checked;
+
+        //if the dialog returned the empty string
+        if (recordName.compare("") == 0) {
+            printf("user cancelled!\n");
+            //TODO: Make record in the UI become unchecked if the user cancels.
+            //      I don't know how to do this without putting the file dialog in
+            //      mainwindow, which doesn't really make sense because of the pausing behavior.
+            isRecording = false;
+        } else {
+            isRecording = checked;
+        }
     }
+}
+
+//Prompts user to select a file or directory using QFileDialog, but also
+//handles pausing the GL drawing during the interaction so it is faster.
+//Will present a save dialog if save is true, else presents an open dialog.
+QString GLWidget::myGetSaveFileName(QWidget *parent, const QString &caption,
+                                    const QString &dir, const QString &filter,
+                                    bool save) {
+
+    bool prior_pause_state = m_paused;
+    setPaused(true);
+
+    QString selectedFilter;
+    QString selected_path;
+
+    if (save) {
+        selected_path = QFileDialog::getSaveFileName(parent, caption,
+                                                     dir, filter, &selectedFilter);
+    } else {
+        selected_path = QFileDialog::getOpenFileName(parent, caption,
+                                                     dir, filter, &selectedFilter);
+    }
+
+    setPaused(prior_pause_state);
+    return selected_path;
 }
 
 void GLWidget::setPaused(bool checked) {

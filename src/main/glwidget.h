@@ -127,6 +127,9 @@ protected:
     void renderMandelbox();
     void paintText();
 
+    QString myGetSaveFileName(QWidget *parent, const QString &caption, const QString &dir,
+                              const QString &filter, bool save);
+
 private:
     QTimer m_timer;
     QTime m_clock;

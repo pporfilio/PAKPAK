@@ -22,5 +22,7 @@ extern void printVec3(const Vector3 &v);
 
 extern void printVec4(const Vector4 &v);
 
+extern void QStringToChar(QString *qstr, char *dst_arr);
+
 
 #endif // UTILS_H

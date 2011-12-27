@@ -84,3 +84,15 @@ void writeCameraState(FILE* f, Camera* c) {
     fprintf(f, "%f,%f,%f;", s->look.x, s->look.y, s->look.z);
     fprintf(f, "%f,%f,%f;", s->farClip, s->nearClip, s->fovy);
 }
+
+/* dst_arr must be large enough to accept all the characters in qstr
+    Fills dst_arr with qstr's character data.
+*/
+void QStringToChar(QString *qstr, char *dst_arr) {
+    QByteArray ba = qstr->toLocal8Bit();
+    const char *c_str = ba.data();
+    int len = ba.size() + 1; //+1 for null terminating character
+    for (int i = 0; i < len; i++) {
+        dst_arr[i] = c_str[i];
+    }
+}
