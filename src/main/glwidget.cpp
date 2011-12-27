@@ -80,9 +80,11 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
 
     if (f1) {
         m_base_path = new string("../");
+        m_resources_path = new string("../resources/");
         fclose(f1);
     } else if (f2) {
         m_base_path = new string("../../../../");
+        m_resources_path = new string("../../../../resources/");
     } else {
         printf("cannot find fractal fragment shader!\n");
     }
@@ -518,16 +520,20 @@ void GLWidget::savePicture() {
 
 void GLWidget::loadCamLocation() {
     QString path = myGetSaveFileName(this, tr("Camera File Location"),
-                                     "", tr("*"), false);
+                                     QString(m_resources_path->c_str()), tr("*"), false);
     char path_str[path.size()]; //here size includes the null terminating character
     QStringToChar(&path, path_str);
-//    string path = "";
-//    path += m_base_path->data();
-//    path += "resources/cameraData.txt";
+
     FILE *f = fopen(path_str, "r");
     if (f) {
         CameraState *s = readCameraState(f);
         if (s) {
+            //If the current camera is the orbit camera, switch to the game camera
+            // TODO: Figure out how to update UI to correctly reflect the selected camera.
+            if (m_camera->getType() == ORBIT_CAMERA) {
+                m_camera = m_gameCamera;
+            }
+            //then load the state into the game camera.
             m_camera->setState(s);
         } else {
             printf("reading camera state failed. Not updating camera\n");
@@ -540,16 +546,17 @@ void GLWidget::loadCamLocation() {
 
 
 void GLWidget::saveCamLocation() {
-    string path = "";
-    path += m_base_path->data();
-    path += "resources/cameraData.txt";
-    FILE *f = fopen(path.c_str(), "w");
-    //    FILE *f = fopen(path.c_str(), "a");
+    QString path = myGetSaveFileName(this, tr("Camera File Location"),
+                                     QString(m_resources_path->c_str()), tr("*"), true);
+    char path_str[path.size()];
+    QStringToChar(&path, path_str);
+
+    FILE *f = fopen(path_str, "w");
     if (f) {
         writeCameraState(f, m_camera);
         fclose(f);
     } else {
-        printf("could not open file for writing at %s\n", path.c_str());
+        printf("could not open file for writing at %s\n", path_str);
     }
 }
 
@@ -687,7 +694,8 @@ void GLWidget::checkRecord(bool checked) {
 
     if (!isRecording && checked) {
         //stop using GPU while selecting a file.
-        recordName = myGetSaveFileName(this, tr("Save Image"), "",
+        recordName = myGetSaveFileName(this, tr("Save Image"),
+                                       QString(m_resources_path->c_str()),
                                        tr("PNG Image (*.png)"), true);
         printf("got name\n");
 

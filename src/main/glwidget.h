@@ -143,6 +143,7 @@ private:
     GLuint m_cubeMap; // cubeMap texture ID
     QFont m_font; // font for rendering text
     string *m_base_path;
+    string *m_resources_path;
 
     int frameNumber;
     bool isRecording;
