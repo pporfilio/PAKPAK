@@ -17,6 +17,21 @@ uniform float BREAK;
 uniform int DEPTH;
 float EP = .0001 * float(DEPTH);
 
+
+//for region mapping
+uniform float fullMinX;
+uniform float fullMinY;
+uniform float fullMinZ;
+uniform float fullWidth;
+uniform float fullHeight;
+uniform float fullDepth;
+uniform float regionMinX;
+uniform float regionMinY;
+uniform float regionMinZ;
+uniform float regionWidth;
+uniform float regionHeight;
+uniform float regionDepth;
+
 varying vec3 vVertex;
 
 const float M = 3.0;                 //bounding radius
@@ -37,21 +52,21 @@ void sphereFold(inout vec3 z, inout float dz) {
 
         float r2 = dot(z,z);
         if (r2<minRadius2) {
-		// linear inner scaling
+        // linear inner scaling
                 float temp = (fixedRadius2/minRadius2);
-		z *= temp;
-		dz*= temp;
-	} else if (r2<fixedRadius2) {
-		// this is the actual sphere inversion
+        z *= temp;
+        dz*= temp;
+    } else if (r2<fixedRadius2) {
+        // this is the actual sphere inversion
                 float temp = (fixedRadius2/r2);
-		z *= temp;
-		dz*= temp;
+        z *= temp;
+        dz*= temp;
         }
 }
 
 
 void boxFold(inout vec3 z, inout float dz) {
-	z = clamp(z, -foldingLimit, foldingLimit) * 2.0 - z;
+    z = clamp(z, -foldingLimit, foldingLimit) * 2.0 - z;
 }
 
 //bool isInMandelbox(vec3 p, inout float dist, inout float escape) {
@@ -283,12 +298,26 @@ vec4 CalculateLighting(vec3 p, float dist, vec3 d, vec3 start_p) {
 
 void main (void) {
 
+    //I *think* the film location is the quad that we're "viewing" the fractal through
+    //However, I want to actually render only a part of that film plane but stretch it
+    //to fill the whole screen/frame buffer, effectively stretching a region of
+    //the film over the whole screen, or sampling it more densely. I want to map
+    //points across the whole plane to points within the region
     vec3 p_film = vVertex.xyz;
-    //gl_FragColor = vec4(vVertex.x, vVertex.y, 0, 1);
 
-    //p_film.xy = p_film.xy * float(step);
-    //p_film.x = p_film.x + float(offsetX);
-    //p_film.y = p_film.y + float(offsetY);
+    float xFrac = (vVertex.x - fullMinX) / fullWidth;
+    float regionX = regionMinX + (xFrac * regionWidth);
+
+    float yFrac = (vVertex.y - fullMinY) / fullHeight;
+    float regionY = regionMinY + (yFrac * regionHeight);
+
+    float zFrac = (vVertex.z - fullMinZ) / fullDepth;
+    float regionZ = regionMinZ + (zFrac * regionDepth);
+
+
+    p_film = vec3(regionX, regionY, regionZ);
+
+    //The start location is not modified by rendering only a region of the film plane.
     vec3 start_p = world_eye;
     vec3 ray = normalize(p_film - start_p);
 

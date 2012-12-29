@@ -9,6 +9,12 @@
 Thumbs.db
 
 
+# Parker's Files #
+##################
+*blend*
+*xcodeproj/*
+*recorded_images/*
+
 # System specific files #
 #########################
 *.pro.user

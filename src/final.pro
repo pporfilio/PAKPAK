@@ -26,7 +26,9 @@ HEADERS += main/glwidget.h \
     lib/CS123Common.h \
     support/OrbitingCamera.h \
     support/GameCamera.h \
-    support/camera.h
+    support/camera.h \
+    lib/plane3d.h \
+    lib/aabb.h
 SOURCES += main/glwidget.cpp \
     lib/targa.cpp \
     lib/glm.cpp \
@@ -38,11 +40,15 @@ SOURCES += main/glwidget.cpp \
     math/CS123Vector.inl \
     lib/utils.cpp \
     support/OrbitingCamera.cpp \
-    support/GameCamera.cpp
+    support/GameCamera.cpp \
+    lib/plane3d.cpp \
+    lib/aabb.cpp
 FORMS += mainwindow.ui \
     support/mainwindow.ui
 OTHER_FILES += shaders/fractal.frag \
     shaders/fractal.vert \
     shaders/mandelbox.vert \
-    shaders/mandelbox.frag
+    shaders/mandelbox.frag \
+    shaders/mandelboxregion.frag \
+    shaders/mandelboxregion.vert
 RESOURCES += 

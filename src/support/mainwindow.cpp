@@ -34,26 +34,32 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
     }
     case Qt::Key_Q: {
         mgl->m_camera->cameraMoveUp(true, (event->modifiers() == Qt::ShiftModifier));
+        mgl->m_newView = true;
         break;
     }
     case Qt::Key_E: {
         mgl->m_camera->cameraMoveUp(false, (event->modifiers() == Qt::ShiftModifier));
+        mgl->m_newView = true;
         break;
     }
     case Qt::Key_W: {
         mgl->m_camera->cameraMoveLook(true, (event->modifiers() == Qt::ShiftModifier));
+        mgl->m_newView = true;
         break;
     }
     case Qt::Key_S: {
         mgl->m_camera->cameraMoveLook(false, (event->modifiers() == Qt::ShiftModifier));
+        mgl->m_newView = true;
         break;
     }
     case Qt::Key_A: {
         mgl->m_camera->cameraMoveSide(true, (event->modifiers() == Qt::ShiftModifier));
+        mgl->m_newView = true;
         break;
     }
     case Qt::Key_D: {
         mgl->m_camera->cameraMoveSide(false, (event->modifiers() == Qt::ShiftModifier));
+        mgl->m_newView = true;
         break;
     }
     case Qt::Key_M: {
@@ -66,14 +72,17 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
         } else {
             ui->select_game_cam->setChecked(true);
         }
+        mgl->m_newView = true;
         break;
     }
     case Qt::Key_L: {
         mgl->loadCamLocation();
+        mgl->m_newView = true;
         break;
     }
     case Qt::Key_R: {
         mgl->m_camera->reset();
+        mgl->m_newView = true;
         break;
     }
     case Qt::Key_1: {
@@ -86,6 +95,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
         } else {
             mgl->setShowText(true);
         }
+        break;
+    }
+    case Qt::Key_2: {
+        mgl->savePointCloud();
         break;
     }
     }
@@ -180,6 +193,11 @@ void MainWindow::on_BRK_slider_valueChanged(int value)
     ui->mainGL->sliderUpdate_BRK(value);
 }
 
+void MainWindow::on_DEP_slider_valueChanged(int value)
+{
+    ui->mainGL->sliderUpdate_DEP(value);
+}
+
 void MainWindow::on_depth_fog_button_toggled(bool checked)
 {
     ui->mainGL->mandelbox_fog = checked;
@@ -206,12 +224,7 @@ void MainWindow::on_coloring_distance_toggled(bool checked)
     }
 }
 
-void MainWindow::on_DEP_slider_valueChanged(int value)
-{
-    ui->mainGL->mandelbox_depth = value;
-}
-
-void MainWindow::on_select_colorA_toggled(bool checked)
+void MainWindow::on_select_colorA_toggled(bool __attribute__((unused)) checked)
 {
     ui->mainGL->mandelbox_colorScheme = 1;
 }

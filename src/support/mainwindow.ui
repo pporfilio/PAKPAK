@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>890</width>
-    <height>505</height>
+    <width>1024</width>
+    <height>768</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,8 +19,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>890</width>
-     <height>25</height>
+     <width>1024</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -70,16 +70,16 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>0</y>
+       <y>10</y>
        <width>231</width>
-       <height>501</height>
+       <height>521</height>
       </rect>
      </property>
      <property name="tabPosition">
       <enum>QTabWidget::West</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="movable">
       <bool>true</bool>
@@ -93,8 +93,8 @@
         <rect>
          <x>10</x>
          <y>0</y>
-         <width>181</width>
-         <height>431</height>
+         <width>189</width>
+         <height>508</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -332,7 +332,7 @@
              <number>100</number>
             </property>
             <property name="maximum">
-             <number>1000</number>
+             <number>10000</number>
             </property>
             <property name="singleStep">
              <number>10</number>
@@ -354,13 +354,13 @@
              <number>1</number>
             </property>
             <property name="maximum">
-             <number>10000</number>
-            </property>
-            <property name="singleStep">
              <number>100</number>
             </property>
+            <property name="singleStep">
+             <number>1</number>
+            </property>
             <property name="pageStep">
-             <number>1000</number>
+             <number>10</number>
             </property>
             <property name="value">
              <number>1</number>
@@ -434,8 +434,6 @@
         </item>
        </layout>
       </widget>
-      <zorder>verticalLayoutWidget</zorder>
-      <zorder>Record_Button</zorder>
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">

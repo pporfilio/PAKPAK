@@ -1,0 +1,24 @@
+# compiled source #
+###################
+*.o
+*.app
+
+# OS generated files #
+######################
+.DS_Store*
+Thumbs.db
+
+
+# Parker's Files #
+##################
+*blend*
+*xcodeproj/*
+
+
+# System specific files #
+#########################
+*.pro.user
+Makefile
+moc*
+final-build-desktop-Desktop_Qt_4_7_4_for_GCC__Qt_SDK__Debug
+final-build-desktop-Desktop_Qt_4_7_4_for_GCC__Qt_SDK__Debug/*

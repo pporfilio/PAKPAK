@@ -1,8 +1,8 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Mon Dec 19 11:23:58 2011
-**      by: Qt User Interface Compiler version 4.6.3
+** Created: Fri Dec 28 22:13:59 2012
+**      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -105,7 +105,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(890, 505);
+        MainWindow->resize(1024, 768);
         actionQuit = new QAction(MainWindow);
         actionQuit->setObjectName(QString::fromUtf8("actionQuit"));
         mainGL = new GLWidget(MainWindow);
@@ -113,7 +113,7 @@ public:
         MainWindow->setCentralWidget(mainGL);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 890, 25));
+        menuBar->setGeometry(QRect(0, 0, 1024, 22));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         MainWindow->setMenuBar(menuBar);
@@ -133,14 +133,14 @@ public:
         dockWidgetContents->setMinimumSize(QSize(220, 0));
         tabWidget = new QTabWidget(dockWidgetContents);
         tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
-        tabWidget->setGeometry(QRect(10, 0, 231, 501));
+        tabWidget->setGeometry(QRect(10, 10, 231, 521));
         tabWidget->setTabPosition(QTabWidget::West);
         tabWidget->setMovable(true);
         tab = new QWidget();
         tab->setObjectName(QString::fromUtf8("tab"));
         verticalLayoutWidget = new QWidget(tab);
         verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
-        verticalLayoutWidget->setGeometry(QRect(10, 0, 181, 431));
+        verticalLayoutWidget->setGeometry(QRect(10, 0, 189, 508));
         verticalLayout = new QVBoxLayout(verticalLayoutWidget);
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
@@ -288,7 +288,7 @@ public:
         ITR_slider = new QSlider(verticalLayoutWidget);
         ITR_slider->setObjectName(QString::fromUtf8("ITR_slider"));
         ITR_slider->setMinimum(100);
-        ITR_slider->setMaximum(1000);
+        ITR_slider->setMaximum(10000);
         ITR_slider->setSingleStep(10);
         ITR_slider->setPageStep(100);
         ITR_slider->setValue(1000);
@@ -299,9 +299,9 @@ public:
         EPS_slider = new QSlider(verticalLayoutWidget);
         EPS_slider->setObjectName(QString::fromUtf8("EPS_slider"));
         EPS_slider->setMinimum(1);
-        EPS_slider->setMaximum(10000);
-        EPS_slider->setSingleStep(100);
-        EPS_slider->setPageStep(1000);
+        EPS_slider->setMaximum(100);
+        EPS_slider->setSingleStep(1);
+        EPS_slider->setPageStep(10);
         EPS_slider->setValue(1);
         EPS_slider->setOrientation(Qt::Horizontal);
 
@@ -349,8 +349,6 @@ public:
         verticalLayout->addLayout(gridLayout_4);
 
         tabWidget->addTab(tab, QString());
-        verticalLayoutWidget->raise();
-        Record_Button->raise();
         tab_2 = new QWidget();
         tab_2->setObjectName(QString::fromUtf8("tab_2"));
         verticalLayoutWidget_2 = new QWidget(tab_2);
@@ -466,7 +464,7 @@ public:
         retranslateUi(MainWindow);
         QObject::connect(actionQuit, SIGNAL(triggered()), MainWindow, SLOT(close()));
 
-        tabWidget->setCurrentIndex(1);
+        tabWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(MainWindow);

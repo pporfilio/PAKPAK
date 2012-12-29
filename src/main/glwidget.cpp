@@ -11,8 +11,11 @@ Authors: Aimei Kutt, Parker Porfilio, Anne Kenyon
 #include <QTime>
 #include <QTimer>
 #include <QWheelEvent>
+#include <GLU.h>
 #include "glm.h"
 #include "utils.h"
+#include <QElapsedTimer>
+#include "plane3d.h"
 
 #include <sstream>
 
@@ -26,13 +29,15 @@ extern "C"
 }
 
 static const int MAX_FPS = 120;
+static const int N_FRAME_TIMES = 20;
+static const int SUBDIVS = 4;
 
 /**
   Constructor.  Initialize all member variables here.
  **/
 GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
     m_timer(this), m_prevTime(0), m_prevFps(0.f), m_fps(0.f),
-    m_font("Deja Vu Sans Mono", 8, 4)
+    m_font("Deja Vu Sans Mono", 16, 4)
 {
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
@@ -47,9 +52,9 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
     F_reflect = true;
 
     F_reflect_channels = Vector3(1.0, 1.0, 1.0);
-    julia_selected = true;
-    mandelbox_selected = false;
-    skybox_enabled = true;
+    julia_selected = false;
+    mandelbox_selected = true;
+    skybox_enabled = false;
 
     mandelbox_coloring = 1;
     mandelbox_colorScheme = 1;
@@ -67,6 +72,7 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
     ss_enabled = true;
 
     m_paused = false;
+    //m_paused = true;
     m_show_text = true;
 
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -95,6 +101,16 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
 
     frameNumber = 0;
     isRecording = false;
+
+    m_frame_times = new int[N_FRAME_TIMES];
+    for (int i = 0; i < N_FRAME_TIMES; i++) {
+        m_frame_times[i] = 0;
+    }
+    m_curr_time_pos = 0;
+    m_prevTime = m_clock.elapsed();
+
+    m_newView = true;
+    m_counter = 0;
 }
 
 /**
@@ -108,6 +124,7 @@ GLWidget::~GLWidget()
     glDeleteLists(m_skybox, 1);
     const_cast<QGLContext *>(context())->deleteTexture(m_cubeMap);
     delete m_camera;
+    delete m_frame_times;
 }
 
 /**
@@ -164,6 +181,9 @@ void GLWidget::initializeResources()
 
     createShaderPrograms();
     cout << "Loaded shader programs..." << endl;
+
+    createFramebufferObjects(this->width(), this->height());
+    cout << "Created Framebuffer Objects..." << endl;
 
     cout << " --- Finish Loading Resources ---" << endl;
 }
@@ -225,8 +245,39 @@ void GLWidget::createShaderPrograms()
     tmp2 += shader_base;
     m_shaderPrograms["mandelbox"] = ResourceLoader::newShaderProgram(ctx, tmp1.append("mandelbox.vert").c_str(),
                                                                         tmp2.append("mandelbox.frag").c_str());
+
+    tmp1 = "";
+    tmp2 = "";
+    tmp1 += shader_base;
+    tmp2 += shader_base;
+    m_shaderPrograms["mandelboxregion"] = ResourceLoader::newShaderProgram(ctx, tmp1.append("mandelboxregion.vert").c_str(),
+                                                                        tmp2.append("mandelboxregion.frag").c_str());
+
 }
 
+
+void GLWidget::createFramebufferObjects(int width, int height)
+{
+
+    // Allocate the main framebuffer object for rendering the scene to
+    // This needs a depth attachment
+    m_framebufferObjects["fbo_0"] = new QGLFramebufferObject(width, height, QGLFramebufferObject::NoAttachment,//QGLFramebufferObject::Depth,
+                                                             GL_TEXTURE_2D, GL_RGB16F_ARB);
+    //m_framebufferObjects["fbo_0"]->format().setSamples(16);
+    // Allocate the secondary framebuffer obejcts for rendering textures to (post process effects)
+    // These do not require depth attachments
+    m_framebufferObjects["fbo_1"] = new QGLFramebufferObject(width, height, QGLFramebufferObject::NoAttachment,
+                                                             GL_TEXTURE_2D, GL_RGB16F_ARB);
+    // TODO: Create another framebuffer here.  Look up two lines to see how to do this... =.=
+    m_mb_width = width/SUBDIVS;
+    m_mb_height = height/SUBDIVS;
+    m_framebufferObjects["minibuffer"] = new QGLFramebufferObject(m_mb_width, m_mb_height, QGLFramebufferObject::NoAttachment,
+                                                             GL_TEXTURE_2D, GL_RGB16F_ARB);
+
+    m_framebufferObjects["test"] = new QGLFramebufferObject(width * 2, height * 2, QGLFramebufferObject::NoAttachment,//QGLFramebufferObject::Depth,
+                                                            GL_TEXTURE_2D, GL_RGB16F_ARB);
+
+}
 
 /**
   Called to switch to a perspective OpenGL camera.
@@ -252,12 +303,36 @@ void GLWidget::applyPerspectiveCamera(float width, float height)
       glLoadIdentity();
 }
 
+void GLWidget::paintMandelboxHelper(char *srcBuffer, sub_region_t *sub_region, Plane3D *full_plane,
+                                    int target_width, int target_height) {
+
+    glViewport(0, 0, m_mb_width, m_mb_height);
+    //bind the fbo to render to, and pass the subregion in world
+    //space to the rendering shader
+    m_framebufferObjects[srcBuffer]->bind();
+    renderMandelboxRegion(sub_region->plane, full_plane);
+    m_framebufferObjects[srcBuffer]->release();
+    //restore viewport to copy between fbos and render to the screen.
+    glViewport(0, 0, this->width(), this->height());
+
+    //copy the minibuffer to the region it corresponds to in the full buffer
+    m_framebufferObjects[srcBuffer]->blitFramebuffer(m_framebufferObjects["fbo_1"],
+                                               QRect(sub_region->col * m_mb_width,
+                                                     sub_region->row * m_mb_height,
+                                                     target_width, target_height),
+                                               m_framebufferObjects[srcBuffer],
+                                               QRect(0, 0, m_mb_width, m_mb_height),
+                                               GL_COLOR_BUFFER_BIT,
+                                               GL_NEAREST);
+}
+
 /**
   Draws the scene to a buffer which is rendered to the screen when this function exits.
  **/
 void GLWidget::paintGL()
 {
 
+    fflush(stdout); //just to make sure things print at least once per frame
 
     // Clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -275,12 +350,33 @@ void GLWidget::paintGL()
         }
 
     }
+
     glClearColor(bg_color.x,bg_color.y,bg_color.z, 1);
 
 
     // Update the fps
     int time = m_clock.elapsed();
     m_fps = 1000.f / (time - m_prevTime);
+
+    //every other frame has 17 ms run...add only those frames where shader actually runs.
+    //also solves issue with paused, etc.
+    if (time - m_prevTime > 100) {
+        m_frame_times[m_curr_time_pos] = (time - m_prevTime);
+        m_curr_time_pos ++;
+        m_curr_time_pos %= N_FRAME_TIMES;
+
+        int sum = 0;
+        int count = 0;
+        for (int i = 0; i < N_FRAME_TIMES; i++) {
+            if (m_frame_times[i] > 0) {
+                sum += m_frame_times[i];
+                count ++;
+            }
+        }
+//        printf("single frame time = %d\n", time - m_prevTime);
+//        printf("avg frame time = %.4f\n", (float)sum / count);
+    }
+
     m_prevTime = time;
 
     if (m_paused) {
@@ -289,36 +385,50 @@ void GLWidget::paintGL()
         return;
     }
 
-    int width = this->width();
-    int height = this->height();
 
-
-    Matrix4x4 film_to_world = m_camera->getFilmToWorld(width, height);
+    Matrix4x4 film_to_world = m_camera->getFilmToWorld(this->width(), this->height());
 
     float plane_depth = 2.0;
 
-    float aspect = (float)width/(float)height;
+    float aspect = (float)this->width()/(float)this->height();
 
     float half_height = plane_depth * tan(toRadians(m_camera->getFOVY()/2));
     float half_width = half_height * aspect;
 
-    Vector4 plane_ul = Vector4(-half_width, half_height, plane_depth, 1);
-    Vector4 plane_ll = Vector4(-half_width, -half_height, plane_depth, 1);
-    Vector4 plane_lr = Vector4(half_width, -half_height, plane_depth, 1);
-    Vector4 plane_ur = Vector4(half_width, half_height, plane_depth, 1);
+    //For each frame we compute a plane that is the "film" of the camera. That is,
+    //it is perpendicular to the look vector and sits a fixed distance (plane_depth)
+    //in front of the camera position. We then raycast from the camera through
+    //different points on this plane.
+    Plane3D *plane = new Plane3D(-half_width, half_width, half_height, -half_height, plane_depth);
+
+    //to do multi-stage rendering, we subdivide the plane into SUBDIVS x SUBDIVS
+    //equally-sized regions and render them one at a time.
+    sub_region_t *subdivPlanes = plane->subdivide(SUBDIVS);
 
 
+    //Since the openGL camera is always at the origin and we treat camera moves
+    //as transformations of the objects, these planes are always created in the
+    //same location, with only the aspect dependent on the camera. Then, we
+    //transform the main plane and each sub-region according to the camera's
+    //transformation matrix. Doing this transformation after the subdivision
+    //makes it easier to do the subdivision.
+    plane->transform(film_to_world);
 
-    t_ul = film_to_world*plane_ul;
-    t_ll = film_to_world*plane_ll;
-    t_lr = film_to_world*plane_lr;
-    t_ur = film_to_world*plane_ur;
+    for (int i = 0; i < SUBDIVS * SUBDIVS; i++) {
+        subdivPlanes[i].plane->transform(film_to_world);
+    }
+
+    //set the screen size parameters which will be used in non-region-based rendering
+    t_ur = plane->m_ur;
+    t_ul = plane->m_ul;
+    t_lr = plane->m_lr;
+    t_ll = plane->m_ll;
 
     //used for supersampling
-    half_pixel_size = .5*(t_ur - t_ul).getMagnitude()/float(width);
+    half_pixel_size = .5*(t_ur - t_ul).getMagnitude()/float(this->width());
 
-
-    applyPerspectiveCamera(width, height);
+    //set up the camera
+    applyPerspectiveCamera(this->width(), this->height());
 
     //// Render Sky Box
     // Enable depth testing
@@ -326,21 +436,66 @@ void GLWidget::paintGL()
     glClear(GL_DEPTH_BUFFER_BIT);
 
     // Enable cube maps and draw the skybox
-    glEnable(GL_TEXTURE_CUBE_MAP);
+
 
     if (mandelbox_selected) {
         skybox_enabled = false;
     }
 
     if (skybox_enabled) {
+        glEnable(GL_TEXTURE_CUBE_MAP);
         glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubeMap);
         glCallList(m_skybox);
+    } else {
+        glDisable(GL_TEXTURE_CUBE_MAP);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     }
 
     if (julia_selected) {
         renderFractal();
     } else if (mandelbox_selected) {
-        renderMandelbox();
+
+        //having this enabled makes each frame layer on top of the previous
+        glDisable(GL_BLEND);
+
+        char *src = "minibuffer";
+
+//        for (int i = 0; i < SUBDIVS * SUBDIVS; i++) {
+
+//        }
+
+        if (m_newView) {
+            //for our initial render, set up the region as the whole plane.
+            //this way, we'll render at the lower resolution of the minibuffer
+            //but spread accross the whole view, thus giving a very fast and
+            //very low-res initial image.
+            sub_region_t full_plane_region;
+            full_plane_region.plane = plane;
+            full_plane_region.row = 0;
+            full_plane_region.col = 0;
+            m_newView = false;
+            m_counter = 0;
+
+            paintMandelboxHelper(src, &full_plane_region, plane, this->width(), this->height());
+        } else {
+            //if counter is greater than this, then we've filled all the subregions
+            if (m_counter < SUBDIVS * SUBDIVS) {
+                paintMandelboxHelper(src, &subdivPlanes[m_counter], plane, m_mb_width, m_mb_height);
+                m_counter ++;
+            }
+        }
+
+        //Now that we have the image rendered into a framebuffer, switch to
+        //an orthogonal camera so we can just paste the image onto the screen.
+        applyOrthogonalCamera(this->width(), this->height());
+
+        //use what we have in framebuffer 1 as a texture for this ortho quad
+        glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
+
+        //render the quad.
+        renderTexturedQuad(this->width(), this->height(), false);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
     }
 
     glDisable(GL_DEPTH_TEST);
@@ -358,6 +513,40 @@ void GLWidget::paintGL()
         savePicture();
         frameNumber++;
     }
+
+    delete plane;
+    for (int i = 0; i < SUBDIVS * SUBDIVS; i++) {
+        delete subdivPlanes[i].plane;
+    }
+    free(subdivPlanes);
+}
+
+
+void GLWidget::applyOrthogonalCamera(float width, float height)
+{
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, width, height, 0.f, -1.f, 1.f);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+}
+
+void GLWidget::renderTexturedQuad(int width, int height, bool flip) {
+    // Clamp value to edge of texture when texture index is out of bounds
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    // Draw the  quad
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, flip ? 1.0f : 0.0f);
+    glVertex2f(0.0f, 0.0f);
+    glTexCoord2f(1.0f, flip ? 1.0f : 0.0f);
+    glVertex2f(width, 0.0f);
+    glTexCoord2f(1.0f, flip ? 0.0f : 1.0f);
+    glVertex2f(width, height);
+    glTexCoord2f(0.0f, flip ? 0.0f : 1.0f);
+    glVertex2f(0.0f, height);
+    glEnd();
 }
 
 
@@ -384,20 +573,76 @@ void GLWidget::renderFractal() {
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+//    glClearColor(bg_color.x,bg_color.y,bg_color.z, 1);
+
     render3DTexturedQuad(this->width(), this->height(), true); //AIMEI
 
     m_shaderPrograms["fractal"]->release();
+
 }
+
+void GLWidget::renderMandelboxRegion(Plane3D *region, Plane3D *fullFilm) {
+
+        glDisable(GL_DEPTH_TEST);
+
+        V3 pos = m_camera->getPos();
+
+        //pass parameters to the shader
+        QGLShaderProgram *prog = m_shaderPrograms["mandelboxregion"];
+        prog->bind();
+        prog->setUniformValue("world_eye", pos.x, pos.y, pos.z);
+        prog->setUniformValue("halfPix", half_pixel_size);
+        prog->setUniformValue("specular_enabled", F_specular ? 1 : 0);
+        prog->setUniformValue("ss_enabled", ss_enabled ? 1 : 0);
+        prog->setUniformValue("coloring", mandelbox_coloring);
+        prog->setUniformValue("colorScheme", mandelbox_colorScheme);
+        prog->setUniformValue("fog_enabled", mandelbox_fog);
+        prog->setUniformValue("ITR", mandelbox_itr);
+        prog->setUniformValue("EPSILON", mandelbox_epsilon);
+        prog->setUniformValue("BREAK", mandelbox_break);
+        prog->setUniformValue("DEPTH", mandelbox_depth);
+
+        AABB *ffaabb = fullFilm->getAABB();
+        AABB *raabb = region->getAABB();
+//        printf("-----------------------------\n");
+//        raabb->print();
+//        ffaabb->print();
+        prog->setUniformValue("fullMinX", ffaabb->getMinX());
+        prog->setUniformValue("fullMinY", ffaabb->getMinY());
+        prog->setUniformValue("fullMinZ", ffaabb->getMinZ());
+        prog->setUniformValue("fullWidth", ffaabb->getWidth());
+        prog->setUniformValue("fullHeight", ffaabb->getHeight());
+        prog->setUniformValue("fullDepth", ffaabb->getDepth());
+        prog->setUniformValue("regionMinX", raabb->getMinX());
+        prog->setUniformValue("regionMinY", raabb->getMinY());
+        prog->setUniformValue("regionMinZ", raabb->getMinZ());
+        prog->setUniformValue("regionWidth", raabb->getWidth());
+        prog->setUniformValue("regionHeight", raabb->getHeight());
+        prog->setUniformValue("regionDepth", raabb->getDepth());
+
+
+        render3DTexturedQuad(this->width(), this->height(), true); //AIMEI
+
+        //clean-up
+        m_shaderPrograms["mandelbox"]->release();
+
+
+}
+
 
 //Set up fragment shader and render it to a quad that fills the screen
 void GLWidget::renderMandelbox() {
+
+//    m_framebufferObjects["fbo_0"]->bind();
+
+//    //allows mandelbox to be drawn on top of whatever was previously in the buffer...
+//    //or something...didn't work without this.
+    glDisable(GL_DEPTH_TEST);
 
     V3 pos = m_camera->getPos();
 
     //pass parameters to the shader
     m_shaderPrograms["mandelbox"]->bind();
-    m_shaderPrograms["mandelbox"]->setUniformValue("width", this->width());
-    m_shaderPrograms["mandelbox"]->setUniformValue("height", this->height());
     m_shaderPrograms["mandelbox"]->setUniformValue("world_eye", pos.x, pos.y, pos.z);
     m_shaderPrograms["mandelbox"]->setUniformValue("halfPix", half_pixel_size);
     m_shaderPrograms["mandelbox"]->setUniformValue("specular_enabled", F_specular ? 1 : 0);
@@ -410,14 +655,14 @@ void GLWidget::renderMandelbox() {
     m_shaderPrograms["mandelbox"]->setUniformValue("BREAK", mandelbox_break);
     m_shaderPrograms["mandelbox"]->setUniformValue("DEPTH", mandelbox_depth);
 
-    glEnable(GL_BLEND);
 
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     render3DTexturedQuad(this->width(), this->height(), true); //AIMEI
 
     //clean-up
     m_shaderPrograms["mandelbox"]->release();
+//    m_framebufferObjects["fbo_0"]->release();
+
 }
 
 
@@ -431,6 +676,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     if (event->buttons() & Qt::LeftButton || event->buttons() & Qt::RightButton)
     {
         ss_enabled = false;
+        m_newView = true;
         V2 delta = pos - m_prevMousePos;
         m_camera->mouseMove(delta);
     }
@@ -448,6 +694,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
     ss_enabled = false;
+    m_newView = true;
     m_prevMousePos.x = event->x();
     m_prevMousePos.y = event->y();
 }
@@ -462,6 +709,7 @@ void GLWidget::mouseReleaseEvent(QMouseEvent *) {
 void GLWidget::wheelEvent(QWheelEvent *event)
 {
     ss_enabled = false;
+    m_newView = true;
     if (event->orientation() == Qt::Vertical)
     {
         m_camera->mouseWheel(event->delta(), (event->modifiers() == Qt::ShiftModifier));
@@ -477,6 +725,7 @@ void GLWidget::resizeGL(int width, int height)
     // Resize the viewport
     glViewport(0, 0, width, height);
     ss_enabled = false;
+    m_newView = true;
 }
 
 void GLWidget::render3DTexturedQuad(int width, int height, bool flip) {
@@ -591,11 +840,38 @@ void GLWidget::paintText()
     renderText(10, 65, "DEPTH = " + QString::number((double)(pos.length())), m_font);
     renderText(10, 80, "step size = " + QString::number((double)(.05*pos.length())), m_font);
 
+    renderText(10, 95, "resolution = " + QString::number(this->width()) + " x " + QString::number(this->height()));
+
+
     //reset color to white
     glColor3f(1.f, 1.f, 1.f);
 
 
 }
+
+
+void GLWidget::savePointCloud() {
+    QString path = myGetSaveFileName(this, tr("Camera File Location"),
+                                     QString(m_resources_path->c_str()), tr("*"), true);
+    char path_str[path.size()];
+    QStringToChar(&path, path_str);
+
+    float step = .1;
+
+    FILE *f = fopen(path_str, "w");
+    if (f) {
+        printf("computing points...\n");
+        std::vector<V3> pc = computePointCloud(step);
+        printf("writing points...\n");
+        writePointCloud(f, pc, step);
+        fclose(f);
+        printf("point cloud saved\n");
+    } else {
+        printf("could not open file for writing at %s\n", path_str);
+    }
+
+}
+
 
 void GLWidget::sliderUpdateF_Z3(int newValue) {
     F_Z3 = (float)newValue / 30.0;
@@ -655,29 +931,40 @@ void GLWidget::checkToggeled_ss(bool checked) {
 void GLWidget::radioToggeled_Orbit_Cam(bool checked) {
     if (checked) {
         m_camera = m_orbitCamera;
+        m_newView = true;
     }
 }
 
 void GLWidget::radioToggeled_Game_Cam(bool checked) {
     if (checked) {
         m_camera = m_gameCamera;
+        m_newView = true;
     }
 }
 
 void GLWidget::resetCurrentCamera() {
     m_camera->reset();
+    m_newView = true;
 }
 
 void GLWidget::sliderUpdate_ITR(int newValue) {
     mandelbox_itr = newValue;
+    m_newView = true;
 }
 
 void GLWidget::sliderUpdate_EPS(int newValue) {
-    mandelbox_epsilon = float(newValue)/100000.0;
+    mandelbox_epsilon = float(newValue)/10000000.0;
+    m_newView = true;
 }
 
 void GLWidget::sliderUpdate_BRK(int newValue) {
     mandelbox_break = newValue;
+    m_newView = true;
+}
+
+void GLWidget::sliderUpdate_DEP(int newValue) {
+    mandelbox_depth = newValue;
+    m_newView = true;
 }
 
 void GLWidget::checkRecord(bool checked) {

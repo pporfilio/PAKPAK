@@ -3,13 +3,14 @@
 #include <QGLShaderProgram>
 #include <QList>
 #include <QString>
+#include <GLU.h>
 #include "glm.h"
 
 
 /**
   Loads the cube map into video memory.
 
-  @param files: a list of files containing the cube map images (should be length
+  @param files: a list of files cntaining the cube map images (should be length
   six) in order
   @return the assigned OpenGL id to the cube map
 **/

@@ -20,6 +20,7 @@ Authors: Parker Porfilio, Aimei Kutt, Anne Kenyon
 #include "CS123Vector.h"
 #include "vector.h"
 #include "resourceloader.h"
+#include "plane3d.h"
 
 class QGLShaderProgram;
 class QGLFramebufferObject;
@@ -53,6 +54,9 @@ public:
     float mandelbox_break;
     int mandelbox_depth;
 
+    int m_mb_width;
+    int m_mb_height;
+
     Vector4 t_ul;
     Vector4 t_ur;
     Vector4 t_ll;
@@ -72,6 +76,10 @@ public:
     bool m_paused;
     bool m_show_text;
 
+    bool m_newView;
+    int m_counter;
+    Plane3D *m_curr_plane;
+    sub_region_t *m_curr_subdivPlanes;
 
     //ui interaction methods
     void sliderUpdateF_Z3(int newValue);
@@ -92,6 +100,7 @@ public:
     void sliderUpdate_ITR(int newValue);
     void sliderUpdate_EPS(int newValue);
     void sliderUpdate_BRK(int newValue);
+    void sliderUpdate_DEP(int newValue);
 
     void checkRecord(bool checked);
 
@@ -104,10 +113,14 @@ public:
     void loadCamLocation();
     void saveCamLocation();
 
+    void savePointCloud();
+
 protected:
     // Overridden QGLWidget methods
     void initializeGL();
     void paintGL();
+    void paintMandelboxHelper(char *srcBuffer, sub_region_t *sub_region, Plane3D *full_plane,
+                              int target_width, int target_height);
     void resizeGL(int width, int height);
     void wheelEvent(QWheelEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
@@ -119,13 +132,19 @@ protected:
     void initializeResources();
     void loadCubeMap();
     void createShaderPrograms();
+    void createFramebufferObjects(int width, int height);
 
     // Drawing code
     void applyPerspectiveCamera(float width, float height);
+    void applyOrthogonalCamera(float width, float height);
+    void renderTexturedQuad(int width, int height, bool flip);
     void render3DTexturedQuad(int width, int height, bool flip);
     void renderFractal();
     void renderMandelbox();
+    void renderMandelboxRegion(Plane3D *region, Plane3D *fullFilm);
     void paintText();
+
+
 
     QString myGetSaveFileName(QWidget *parent, const QString &caption, const QString &dir,
                               const QString &filter, bool save);
@@ -139,6 +158,7 @@ private:
 
     // Resources
     QHash<QString, QGLShaderProgram *> m_shaderPrograms; // hash map of all shader programs
+    QHash<QString, QGLFramebufferObject *> m_framebufferObjects; // hash map of all framebuffer objects
     GLuint m_skybox; // skybox call list ID
     GLuint m_cubeMap; // cubeMap texture ID
     QFont m_font; // font for rendering text
@@ -147,6 +167,14 @@ private:
 
     int frameNumber;
     bool isRecording;
+
+    int *m_frame_times;
+    int m_curr_time_pos;
+
+    //Frame buffer attempt
+//    GLuint m_fbo;
+//    GLuint m_fbo_colorTex;
+
 };
 
 #endif // GLWIDGET_H

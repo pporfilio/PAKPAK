@@ -29,7 +29,6 @@ private slots:
     void on_select_colorC_toggled(bool checked);
     void on_select_colorB_toggled(bool checked);
     void on_select_colorA_toggled(bool checked);
-    void on_DEP_slider_valueChanged(int value);
     void on_coloring_distance_toggled(bool checked);
     void on_coloring_escape_toggled(bool checked);
     void on_coloring_lights_toggled(bool checked);
@@ -37,6 +36,7 @@ private slots:
     void on_BRK_slider_valueChanged(int value);
     void on_EPS_slider_valueChanged(int value);
     void on_ITR_slider_valueChanged(int value);
+    void on_DEP_slider_valueChanged(int value);
     void on_reset_camera_button_released();
     void on_select_game_cam_toggled(bool checked);
     void on_select_orbit_cam_toggled(bool checked);

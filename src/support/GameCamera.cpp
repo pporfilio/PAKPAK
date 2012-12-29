@@ -33,11 +33,26 @@ void GameCamera::reset() {
 void GameCamera::mouseMove(const V2 &delta)
 {
 
-    Matrix4x4 rotMatX = getRotMat(Vector4(getPos().x, getPos().y, getPos().z, 1.0), m_up, -delta.x*.005);
-    Matrix4x4 rotMatY = getRotMat(Vector4(getPos().x, getPos().y, getPos().z, 1.0), m_up.cross(m_look), delta.y*.005);
+//    Matrix4x4 rotMatX = getRotMat(Vector4(getPos().x, getPos().y, getPos().z, 1.0), m_up, -delta.x*.005);
+    Matrix4x4 rotMatX = getRotMat(Vector4(getPos().x, getPos().y, getPos().z, 1.0), Vector4(0, 1.0, 0, 1.0), -delta.x*.005);
 
-    m_look = rotMatY * rotMatX * m_look;
-    m_up = rotMatY * rotMatX * m_up;
+//    m_look = rotMatX * m_look;
+//    m_up = rotMatX * m_up;
+
+//    Matrix4x4 rotMatY = getRotMat(Vector4(getPos().x, getPos().y, getPos().z, 1.0), m_up.cross(m_look), -delta.y*.005);
+    Matrix4x4 rotMatY = getRotMat(Vector4(getPos().x, getPos().y, getPos().z, 1.0), Vector4(1.0, 0, 0, 1.0), -delta.y*.005);
+
+    m_look = m_look * rotMatX * rotMatY;
+    m_up = m_up * rotMatX * rotMatY;
+
+//    m_look = rotMatX * rotMatY * m_look;
+//    m_up = rotMatX * rotMatY * m_up;
+
+
+//    m_look = rotMatY * m_look;
+//    m_up = rotMatY * m_up;
+
+
     m_look.normalize();
     m_up.normalize();
 
