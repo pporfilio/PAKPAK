@@ -37,6 +37,7 @@ public:
     void cameraMoveUp(bool positive, bool shift_modifier);
     void cameraMoveLook(bool positive, bool shift_modifier);
     void cameraMoveSide(bool positive, bool shift_modifier);
+    void cameraRotLook(bool pos, bool shift_modifier);
     float getFOVY();
     float getNearClip();
     float getFarClip();

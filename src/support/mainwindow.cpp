@@ -101,6 +101,16 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
         mgl->savePointCloud();
         break;
     }
+    case Qt::Key_Z: {
+        mgl->m_camera->cameraRotLook(false, (event->modifiers() == Qt::ShiftModifier));
+        mgl->m_newView = true;
+        break;
+    }
+    case Qt::Key_X: {
+        mgl->m_camera->cameraRotLook(true, (event->modifiers() == Qt::ShiftModifier));
+        mgl->m_newView = true;
+        break;
+    }
     }
 }
 

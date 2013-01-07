@@ -33,14 +33,14 @@ void GameCamera::reset() {
 void GameCamera::mouseMove(const V2 &delta)
 {
 
-//    Matrix4x4 rotMatX = getRotMat(Vector4(getPos().x, getPos().y, getPos().z, 1.0), m_up, -delta.x*.005);
-    Matrix4x4 rotMatX = getRotMat(Vector4(getPos().x, getPos().y, getPos().z, 1.0), Vector4(0, 1.0, 0, 1.0), -delta.x*.005);
+    Matrix4x4 rotMatX = getRotMat(Vector4(getPos().x, getPos().y, getPos().z, 1.0), m_up, -delta.x*.005);
+//    Matrix4x4 rotMatX = getRotMat(Vector4(getPos().x, getPos().y, getPos().z, 1.0), Vector4(0, 1.0, 0, 1.0), -delta.x*.005);
 
 //    m_look = rotMatX * m_look;
 //    m_up = rotMatX * m_up;
 
-//    Matrix4x4 rotMatY = getRotMat(Vector4(getPos().x, getPos().y, getPos().z, 1.0), m_up.cross(m_look), -delta.y*.005);
-    Matrix4x4 rotMatY = getRotMat(Vector4(getPos().x, getPos().y, getPos().z, 1.0), Vector4(1.0, 0, 0, 1.0), -delta.y*.005);
+  Matrix4x4 rotMatY = getRotMat(Vector4(getPos().x, getPos().y, getPos().z, 1.0), m_up.cross(m_look), -delta.y*.005);
+//    Matrix4x4 rotMatY = getRotMat(Vector4(getPos().x, getPos().y, getPos().z, 1.0), Vector4(1.0, 0, 0, 1.0), -delta.y*.005);
 
     m_look = m_look * rotMatX * rotMatY;
     m_up = m_up * rotMatX * rotMatY;
@@ -84,6 +84,13 @@ void GameCamera::cameraMoveSide(bool positive, bool shift_modifier) {
     } else {
         m_pos += m_look.cross(m_up) * mult * m_pos.getMagnitude();
     }
+}
+
+void GameCamera::cameraRotLook(bool pos, bool shift_modifier) {
+    float radians = shift_modifier ? .1 : .015;
+    radians = pos ? radians : radians * -1;
+    Matrix4x4 rotMat = getRotMat(Vector4(getPos().x, getPos().y, getPos().z, 1.0), m_look, radians);
+    m_up = m_up * rotMat;
 }
 
 void GameCamera::mouseWheel(float delta, bool shift_modifier)

@@ -44,7 +44,8 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent),
 
     m_gameCamera = new GameCamera();
     m_orbitCamera = new OrbitCamera();
-    m_camera = m_orbitCamera;
+    //m_camera = m_orbitCamera;
+    m_camera = m_gameCamera;
 
     F_Z3 = 0.0;
     F_C = Vector4(-.1, .1, .5, -.6);

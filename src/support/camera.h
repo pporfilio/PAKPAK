@@ -43,6 +43,7 @@ public:
     virtual void cameraMoveUp(bool positive, bool shift_modifier) {}
     virtual void cameraMoveLook(bool positive, bool shift_modifier) {}
     virtual void cameraMoveSide(bool positive, bool shift_modifier) {}
+    virtual void cameraRotLook(bool pos, bool shift_modifier) {}
 
 
     //couldn't get these to work as just variables.
