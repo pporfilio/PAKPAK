@@ -116,11 +116,21 @@ public:
     void savePointCloud();
 
 protected:
+    typedef void (GLWidget::*renderRegionFP)(Plane3D*, Plane3D*);
+
     // Overridden QGLWidget methods
     void initializeGL();
     void paintGL();
-    void paintMandelboxHelper(char *srcBuffer, sub_region_t *sub_region, Plane3D *full_plane,
-                              int target_width, int target_height);
+
+    void paintMandelboxHelper(char *srcBuffer, sub_region_t *sub_region,
+                              Plane3D *full_plane, int target_width,
+                              int target_height);
+
+    void paintRegionHelper(char *srcBuffer, sub_region_t *sub_region,
+                           Plane3D *full_plane, int target_width,
+                           int target_height, renderRegionFP);
+
+
     void resizeGL(int width, int height);
     void wheelEvent(QWheelEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
@@ -142,6 +152,7 @@ protected:
     void renderFractal();
     void renderMandelbox();
     void renderMandelboxRegion(Plane3D *region, Plane3D *fullFilm);
+    void renderJuliaRegion(Plane3D *region, Plane3D *fullFilm);
     void paintText();
 
 

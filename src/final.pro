@@ -50,5 +50,7 @@ OTHER_FILES += shaders/fractal.frag \
     shaders/mandelbox.vert \
     shaders/mandelbox.frag \
     shaders/mandelboxregion.frag \
-    shaders/mandelboxregion.vert
+    shaders/mandelboxregion.vert \
+    shaders/juliaRegion.vert \
+    shaders/juliaRegion.frag
 RESOURCES += 

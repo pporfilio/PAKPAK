@@ -211,12 +211,14 @@ void MainWindow::on_DEP_slider_valueChanged(int value)
 void MainWindow::on_depth_fog_button_toggled(bool checked)
 {
     ui->mainGL->mandelbox_fog = checked;
+    ui->mainGL->m_newView = true;
 }
 
 void MainWindow::on_coloring_lights_toggled(bool checked)
 {
     if (checked) {
         ui->mainGL->mandelbox_coloring = 1;
+        ui->mainGL->m_newView = true;
     }
 }
 
@@ -224,6 +226,7 @@ void MainWindow::on_coloring_escape_toggled(bool checked)
 {
     if (checked) {
         ui->mainGL->mandelbox_coloring = 3;
+        ui->mainGL->m_newView = true;
     }
 }
 
@@ -231,29 +234,33 @@ void MainWindow::on_coloring_distance_toggled(bool checked)
 {
     if (checked) {
         ui->mainGL->mandelbox_coloring = 2;
+        ui->mainGL->m_newView = true;
     }
 }
 
 void MainWindow::on_select_colorA_toggled(bool __attribute__((unused)) checked)
 {
     ui->mainGL->mandelbox_colorScheme = 1;
+    ui->mainGL->m_newView = true;
 }
 
 void MainWindow::on_select_colorB_toggled(bool checked)
 {
     ui->mainGL->mandelbox_colorScheme = 2;
-
+    ui->mainGL->m_newView = true;
 }
 
 void MainWindow::on_select_colorC_toggled(bool checked)
 {
     ui->mainGL->mandelbox_colorScheme = 3;
+    ui->mainGL->m_newView = true;
 }
 
 void MainWindow::on_coloring_normals_toggled(bool checked)
 {
     if (checked) {
         ui->mainGL->mandelbox_coloring = 4;
+        ui->mainGL->m_newView = true;
     }
 }
 
